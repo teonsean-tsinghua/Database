@@ -3,6 +3,8 @@
 
 #include"../bufmanager/BufPageManager.h"
 
+#include<cstring>
+
 class DBFileManager
 {
 private:
@@ -19,9 +21,18 @@ public:
 
     void setDatabase(const char* name);
 
-    bool createFile(const char* name);
+    int createTable(const char* name);
+
+    int openTable(const char* name);
+
+    int closeTable();
 
     ~DBFileManager();
+
+    const static int SUCCEED = 0;
+    const static int CREATE_ERROR = SUCCEED + 1;
+    const static int OPEN_ERROR = CREATE_ERROR + 1;
+    const static int CLOSE_ERROR = OPEN_ERROR + 1;
 };
 
 #endif // FILEMANAGER_H_INCLUDED
