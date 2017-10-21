@@ -1,5 +1,6 @@
 #include"DBFileManager.h"
 #include<cstring>
+#include<cstdio>
 
 DBFileManager::DBFileManager(const char* root):
     databaseName("test"), tableName(NULL), root(root), isOpened(false)
@@ -33,8 +34,10 @@ int DBFileManager::createTable(const char* name)
     char* fullname = new char[256];
     fullname = "";
     strcat(fullname, root);
+    strcat(fullname, "/");
     strcat(fullname, databaseName);
-    strcat(fullname, tableName);
+    strcat(fullname, "/");
+    strcat(fullname, name);
     if(!fileManager->createFile(fullname))
     {
         return CREATE_ERROR;
@@ -46,6 +49,7 @@ int DBFileManager::openTable(const char* name)
 {
     char* fullname = new char[256];
     fullname = "";
+    tableName = name;
     strcat(fullname, root);
     strcat(fullname, "/");
     strcat(fullname, databaseName);
@@ -56,6 +60,26 @@ int DBFileManager::openTable(const char* name)
         return OPEN_ERROR;
     }
     isOpened = true;
+    return SUCCEED;
+}
+
+int DBFileManager::dropTable(const char* name)
+{
+    if(string(name) == string(tableName))
+    {
+        closeTable();
+    }
+    char* fullname = new char[256];
+    fullname = "";
+    strcat(fullname, root);
+    strcat(fullname, "/");
+    strcat(fullname, databaseName);
+    strcat(fullname, "/");
+    strcat(fullname, name);
+    if(remove(fullname) != 0)
+    {
+        return DROP_ERROR;
+    }
     return SUCCEED;
 }
 
