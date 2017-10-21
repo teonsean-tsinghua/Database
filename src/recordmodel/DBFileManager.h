@@ -3,7 +3,8 @@
 
 #include"../bufmanager/BufPageManager.h"
 #include"DBFileInfo.h"
-
+extern int tt;
+extern unsigned char h[61];
 class DBFileManager
 {
 private:
