@@ -5,7 +5,7 @@ using namespace std;
 
 int main()
 {
-    //DBFileManager fm("/home/teon/Document/Database");
+    DBFileManager fm("/home/teon/Document/Database");
     while(true)
     {
         string command;

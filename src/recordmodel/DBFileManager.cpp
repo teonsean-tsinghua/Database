@@ -7,7 +7,7 @@ DBFileManager::DBFileManager(const char* root):
     databaseName("test"), tableName(NULL), root(root), isOpened(false)
 {
     databasePath = new char[256];
-    databasePath = "";
+    strcpy(databasePath, "");
     strcat(databasePath, root);
     strcat(databasePath, "/");
     strcat(databasePath, databaseName);
@@ -18,8 +18,6 @@ DBFileManager::DBFileManager(const char* root):
 
 DBFileManager::~DBFileManager()
 {
-    delete bufPageManager;
-    delete fileManager;
 }
 
 void DBFileManager::useDatabase(const char* name)
@@ -30,6 +28,10 @@ void DBFileManager::useDatabase(const char* name)
     }
     log("switch to database " + string(name));
     databaseName = name;
+    strcpy(databasePath, "");
+    strcat(databasePath, root);
+    strcat(databasePath, "/");
+    strcat(databasePath, databaseName);
 }
 
 int DBFileManager::createTable(const char* name)
@@ -99,7 +101,7 @@ int DBFileManager::closeTable()
     {
         return CLOSE_ERROR;
     }
-    log("Closed file " + string(fullname));
+    log("Closed file " + string(databasePath) + "/" + string(tableName));
     isOpened = false;
     return SUCCEED;
 }
