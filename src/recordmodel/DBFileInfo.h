@@ -5,8 +5,8 @@
 
 class DBFileInfo
 {
-private
-    const int page_size = 8 * 1024;
+private:
+    const int page_size;
 
     const int record_length;
     const int record_length_offset;
@@ -25,9 +25,9 @@ private
 public:
     DBFileInfo(int record_length);
 
-    incrementPage();
+    //incrementPage();
 
-    incrementRecordOnPage(int pageID);
+    //incrementRecordOnPage(int pageID);
 };
 
 #endif // DBFILEINFO_H_INCLUDED

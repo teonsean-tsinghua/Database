@@ -1,4 +1,5 @@
 #include"DBFileManager.h"
+#include<cstring>
 
 DBFileManager::DBFileManager(const char* root):
     databaseName("test"), tableName(NULL), root(root), isOpened(false)

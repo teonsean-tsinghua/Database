@@ -2,8 +2,7 @@
 #define DBFILEMANAGER_H_INCLUDED
 
 #include"../bufmanager/BufPageManager.h"
-
-#include<cstring>
+#include"DBFileInfo.h"
 
 class DBFileManager
 {
