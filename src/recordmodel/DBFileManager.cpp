@@ -1,8 +1,13 @@
 #include"DBFileManager.h"
 
 DBFileManager::DBFileManager(const char* root):
-    root(root), isOpened(false), databaseName("test"), tableName(NULL)
+    databaseName("test"), tableName(NULL), root(root), isOpened(false)
 {
+    databasePath = new char[256];
+    databasePath = "";
+    strcat(databasePath, root);
+    strcat(databasePath, "/");
+    strcat(databasePath, databaseName);
     fileManager = new FileManager();
     bufPageManager = new BufPageManager(fileManager);
 }
@@ -13,23 +18,23 @@ DBFileManager::~DBFileManager()
     delete fileManager;
 }
 
-void DBFileManager::setDatabase(const char* name)
+void DBFileManager::useDatabase(const char* name)
 {
     if(isOpened)
     {
-        fileManager.closeFile(fileID);
+        fileManager->closeFile(fileID);
     }
     databaseName = name;
 }
 
 int DBFileManager::createTable(const char* name)
 {
-    char* fullName = new char[256];
+    char* fullname = new char[256];
     fullname = "";
     strcat(fullname, root);
     strcat(fullname, databaseName);
     strcat(fullname, tableName);
-    if(!fileManager.createFile(fullName))
+    if(!fileManager->createFile(fullname))
     {
         return CREATE_ERROR;
     }
@@ -38,12 +43,14 @@ int DBFileManager::createTable(const char* name)
 
 int DBFileManager::openTable(const char* name)
 {
-    char* fullName = new char[256];
+    char* fullname = new char[256];
     fullname = "";
     strcat(fullname, root);
+    strcat(fullname, "/");
     strcat(fullname, databaseName);
+    strcat(fullname, "/");
     strcat(fullname, tableName);
-    if(!fileManager.openFile(fullname, fileID))
+    if(!fileManager->openFile(fullname, fileID))
     {
         return OPEN_ERROR;
     }
@@ -57,7 +64,7 @@ int DBFileManager::closeTable()
     {
         return SUCCEED;
     }
-    if(!fileManager.closeFile(fileID))
+    if(!fileManager->closeFile(fileID))
     {
         return CLOSE_ERROR;
     }

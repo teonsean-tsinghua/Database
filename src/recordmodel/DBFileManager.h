@@ -1,5 +1,5 @@
-#ifndef FILEMANAGER_H_INCLUDED
-#define FILEMANAGER_H_INCLUDED
+#ifndef DBFILEMANAGER_H_INCLUDED
+#define DBFILEMANAGER_H_INCLUDED
 
 #include"../bufmanager/BufPageManager.h"
 
@@ -10,20 +10,24 @@ class DBFileManager
 private:
     FileManager* fileManager;
     BufPageManager* bufPageManager;
+    DBFileInfo *fileInfo;
     const char* databaseName;
     const char* tableName;
     const char* const root;
+    char* databasePath;
     int fileID;
     bool isOpened;  //Whether or not a file is opened
 
 public:
     DBFileManager(const char* root);
 
-    void setDatabase(const char* name);
+    void useDatabase(const char* name);
 
     int createTable(const char* name);
 
     int openTable(const char* name);
+
+    int dropTable(const char* name);
 
     int closeTable();
 
@@ -35,4 +39,4 @@ public:
     const static int CLOSE_ERROR = OPEN_ERROR + 1;
 };
 
-#endif // FILEMANAGER_H_INCLUDED
+#endif // DBFILEMANAGER_H_INCLUDED
