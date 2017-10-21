@@ -5,7 +5,7 @@ using namespace std;
 
 int main()
 {
-    DBFileManager fm("/home/teon/Document/Database");
+    DBFileManager fm("/home/teon/Documents/Database");
     while(true)
     {
         string command;
@@ -24,24 +24,28 @@ int main()
             cout << "\nPlease enter name of the file: ";
             string filename;
             getline(cin, filename);
+            fm.createTable(filename.c_str());
         }
         else if(command.compare("deleteFile") == 0)
         {
             cout << "\nPlease enter name of the file: ";
             string filename;
             getline(cin, filename);
+            fm.dropTable(filename.c_str());
         }
         else if(command.compare("closeFile") == 0)
         {
             cout << "\nPlease enter name of the file: ";
             string filename;
             getline(cin, filename);
+            fm.closeTable();
         }
-        else if(command.compare("updateFile") == 0)
+        else if(command.compare("openFile") == 0)
         {
             cout << "\nPlease enter name of the file: ";
             string filename;
             getline(cin, filename);
+            fm.openTable(filename.c_str());
         }
         else if(command.compare("insertRecord") == 0)
         {

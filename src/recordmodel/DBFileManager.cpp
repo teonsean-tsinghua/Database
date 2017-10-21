@@ -2,6 +2,7 @@
 #include"../utils/DBLog.h"
 #include<cstring>
 #include<cstdio>
+#include<unistd.h>
 
 DBFileManager::DBFileManager(const char* root):
     databaseName("test"), tableName(NULL), root(root), isOpened(false)
@@ -37,10 +38,20 @@ void DBFileManager::useDatabase(const char* name)
 int DBFileManager::createTable(const char* name)
 {
     char* fullname = new char[256];
-    fullname = "";
+    strcpy(fullname, "");
     strcat(fullname, root);
+    if(access(fullname, F_OK) != 0)
+    {
+        mkdir(fullname, 0777);
+        log("non-existence");
+    }
     strcat(fullname, "/");
     strcat(fullname, databaseName);
+    if(access(fullname, F_OK) != 0)
+    {
+        mkdir(fullname, 0777);
+        log("non-existence2" + string(fullname));
+    }
     strcat(fullname, "/");
     strcat(fullname, name);
     if(!fileManager->createFile(fullname))
@@ -54,8 +65,8 @@ int DBFileManager::createTable(const char* name)
 int DBFileManager::openTable(const char* name)
 {
     char* fullname = new char[256];
-    fullname = "";
     tableName = name;
+    strcpy(fullname, "");
     strcat(fullname, root);
     strcat(fullname, "/");
     strcat(fullname, databaseName);
@@ -72,12 +83,12 @@ int DBFileManager::openTable(const char* name)
 
 int DBFileManager::dropTable(const char* name)
 {
-    if(string(name) == string(tableName))
+    if(isOpened && string(name) == string(tableName))
     {
         closeTable();
     }
     char* fullname = new char[256];
-    fullname = "";
+    strcpy(fullname, "");
     strcat(fullname, root);
     strcat(fullname, "/");
     strcat(fullname, databaseName);
@@ -97,7 +108,7 @@ int DBFileManager::closeTable()
     {
         return SUCCEED;
     }
-    if(!fileManager->closeFile(fileID))
+    if(fileManager->closeFile(fileID) != 0)
     {
         return CLOSE_ERROR;
     }
