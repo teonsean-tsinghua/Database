@@ -3,6 +3,9 @@
 
 #include<../bufmanager/BufPageManager.h>
 
+class DBFileManager
+{
 
+};
 
 #endif // FILEMANAGER_H_INCLUDED
