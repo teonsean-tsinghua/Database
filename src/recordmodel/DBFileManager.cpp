@@ -1,4 +1,5 @@
 #include"DBFileManager.h"
+#include"../utils/DBLog.h"
 #include<cstring>
 #include<cstdio>
 
@@ -12,6 +13,7 @@ DBFileManager::DBFileManager(const char* root):
     strcat(databasePath, databaseName);
     fileManager = new FileManager();
     bufPageManager = new BufPageManager(fileManager);
+    log("File manager initialized.");
 }
 
 DBFileManager::~DBFileManager()
@@ -26,6 +28,7 @@ void DBFileManager::useDatabase(const char* name)
     {
         fileManager->closeFile(fileID);
     }
+    log("switch to database " + string(name));
     databaseName = name;
 }
 
@@ -42,6 +45,7 @@ int DBFileManager::createTable(const char* name)
     {
         return CREATE_ERROR;
     }
+    log("Created file " + string(fullname));
     return SUCCEED;
 }
 
@@ -59,6 +63,7 @@ int DBFileManager::openTable(const char* name)
     {
         return OPEN_ERROR;
     }
+    log("Opened file " + string(fullname));
     isOpened = true;
     return SUCCEED;
 }
@@ -80,6 +85,7 @@ int DBFileManager::dropTable(const char* name)
     {
         return DROP_ERROR;
     }
+    log("Deleted file " + string(fullname));
     return SUCCEED;
 }
 
@@ -93,6 +99,7 @@ int DBFileManager::closeTable()
     {
         return CLOSE_ERROR;
     }
+    log("Closed file " + string(fullname));
     isOpened = false;
     return SUCCEED;
 }
