@@ -1,7 +1,7 @@
 #include"DBFileInfo.h"
 #define PAGE_SIZE 8 * 1024
 
-DBInfoPage::DBInfoPage(const DBRecordInfo& record_info, int record_length):
+DBInfoPageInfo::DBInfoPageInfo(const DBRecordInfo& record_info, int record_length):
     record_info(record_info),
     page_size(PAGE_SIZE),
     record_length(record_length),
@@ -16,7 +16,7 @@ DBInfoPage::DBInfoPage(const DBRecordInfo& record_info, int record_length):
 
 }
 
-DBDataPage::DBDataPage(const DBRecordInfo& record_info, int record_length, int page_id):
+DBDataPageInfo::DBDataPageInfo(const DBRecordInfo& record_info, int record_length, int page_id):
     record_info(record_info),
     record_length(record_length),
     page_id(page_id),

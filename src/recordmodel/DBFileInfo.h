@@ -4,7 +4,7 @@
 #include<vector>
 #include"DBRecordInfo.h"
 
-class DBInfoPage
+class DBInfoPageInfo
 {
 private:
     const DBRecordInfo& record_info;
@@ -26,10 +26,10 @@ private:
     const int max_records_per_page;
 
 public:
-    DBInfoPage(const DBRecordInfo& record_info, int record_length);
+    DBInfoPageInfo(const DBRecordInfo& record_info, int record_length);
 };
 
-class DBDataPage
+class DBDataPageInfo
 {
 private:
     const DBRecordInfo& record_info;
@@ -45,6 +45,6 @@ private:
     char* availability_of_page;
 
 public:
-    DBDataPage(const DBRecordInfo& record_info, int record_length, int page_id);
+    DBDataPageInfo(const DBRecordInfo& record_info, int record_length, int page_id);
 };
 #endif // DBFILEINFO_H_INCLUDED

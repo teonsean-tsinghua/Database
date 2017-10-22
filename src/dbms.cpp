@@ -54,6 +54,8 @@ int main()
             }
             fm.openTable(filename_c);
             fm.setRecordInfo(names, types);
+//TODO:            fm.createInfoPage();
+            fm.closeTable();
         }
         else if(command.compare("deleteFile") == 0)
         {

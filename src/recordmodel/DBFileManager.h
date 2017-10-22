@@ -41,6 +41,22 @@ public:
 
     void setRecordInfo(std::vector<std::string> names, std::vector<int> types);
 
+    bool createInfoPage();  //TODO: Allocate a page for info page and fulfill it according to a DBInfoPageInfo object.
+
+    bool createDataPage();  //TODO: Allocate a page for data page according to a DBDataPageInfo object.
+
+    bool readInfoPage();    //TODO: Read a info page and generates a DBInfoPageInfo object.
+
+    bool readDataPage();    //TODO: Read a data page and generates a DBDataPage object according to the corresponding DBDataPageInfo object.
+
+    void insertRecord();
+
+    void deleteRecord();
+
+    void updateRecord();
+
+    void searchRecord();
+
     ~DBFileManager();
 
     const static int SUCCEED = 0;
