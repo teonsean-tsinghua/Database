@@ -8,8 +8,8 @@
 
 第一页为信息页，按顺序存储如下内容：
 
-  record_length，文件存储的记录的长度， int 类型
-  
+  record_length，文件存储的记录的长度， int 类型 //TODO：除此之外，还应当存储DBRecordInfo中names和types的信息。需要考虑到存储在这之后的值的offset的变化。
+  
   page_number，文件的总页数，包含信息页在内， int 类型
   
   availability_of_page，文件每页是否有空闲空间， char* 类型，实际上是位数组，一位对应一页
@@ -19,5 +19,6 @@
 
 
 记录结构（暂定）：
+
 记录的第一项内容是rid，暂定为10字节长的字符串，前4字节为时间戳，中间2字节为进程id PID，后4字节为随机数，参考了mongoDB的objectID生成方法。
 其余内容、支持的类型可以查看DBRecordInfo.h。
