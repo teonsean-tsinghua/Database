@@ -41,21 +41,21 @@ public:
 
     void setRecordInfo(std::vector<std::string> names, std::vector<int> types);
 
-    bool createInfoPage();  //TODO: Allocate a page for info page and fulfill it according to a DBInfoPageInfo object.
+    bool createInfoPage(int _ID);  //TODO: Allocate a page for info page and fulfill it according to a DBInfoPageInfo object.
 
-    bool createDataPage();  //TODO: Allocate a page for data page according to a DBDataPageInfo object.
+    bool createDataPage(int _ID);  //TODO: Allocate a page for data page according to a DBDataPageInfo object.
 
-    bool readInfoPage();    //TODO: Read a info page and generates a DBInfoPageInfo object.
+    bool readInfoPage(int _ID, int& FileID);    //TODO: Read a info page and generates a DBInfoPageInfo object.
 
-    bool readDataPage();    //TODO: Read a data page and generates a DBDataPage object according to the corresponding DBDataPageInfo object.
+    bool readDataPage(int _ID, int& FileID);    //TODO: Read a data page and generates a DBDataPage object according to the corresponding DBDataPageInfo object.
 
-    void insertRecord();
+    void insertRecord(DBRecordInfo _infoToRecord);
 
-    void deleteRecord();
+    void deleteRecord(DBRecordInfo _infoToDelete);
 
-    void updateRecord();
+    void updateRecord(DBRecordInfo _infoToUpdate);
 
-    void searchRecord();
+    void searchRecord(DBRecordInfo _infoToSearch);
 
     ~DBFileManager();
 

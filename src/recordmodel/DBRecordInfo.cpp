@@ -1,5 +1,6 @@
 #include"DBRecordInfo.h"
 #include"../utils/DBLog.h"
+#include "DBRecordLinker.h"
 #include<cstdio>
 
 const int DBRecordInfo::SIZEOF_TYPE[] = {10 * sizeof(char),

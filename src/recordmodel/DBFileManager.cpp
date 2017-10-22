@@ -139,3 +139,57 @@ int DBFileManager::closeTable()
     isOpened = false;
     return SUCCEED;
 }
+
+bool DBFileManager::createInfoPage(int _ID){
+    char nameParameters[16];
+    sprintf(nameParameters, "INFOPAGE%d", _ID);
+    char* msg = new char[64];
+    sprintf(msg, "File INFOPAGE%d created.", _ID);
+    log(std::string(msg));
+    return fileManager -> createFile(nameParameters);
+}
+
+bool DBFileManager::createDataPage(int _ID){
+    char dataParameters[16];
+    sprintf(dataParameters, "DATAPAGE%d", _ID);
+    char* msg = new char[64];
+    sprintf(msg, "FILE DATAPAGE%d created.", _ID);
+    log(std::string(msg));
+    return fileManager -> createFile(dataParameters);
+}
+
+bool DBFileManager::readInfoPage(int _ID, int &FileID){
+    //TODO connect FileID to data stream
+    char nameParameters[16];
+    sprintf(nameParameters, "INFOPAGE%d", _ID);
+    char* msg = new char[64];
+    sprintf(msg, "File INFOPAGE%d opened.", _ID);
+    log(std::string(msg));
+    return fileManager -> openFile(nameParameters, FileID);
+}
+
+bool DBFileManager::readDataPage(int _ID, int & FileID){
+    //TODO connect FileID to data stream
+    char dataParameters[16];
+    sprintf(dataParameters, "DATAPAGE%d", _ID);
+    char* msg = new char[64];
+    sprintf(msg, "FILE DATAPAGE%d opened.", _ID);
+    log(std::string(msg));
+    return fileManager -> openFile(dataParameters, FileID);
+}
+
+void DBFileManager::insertRecord(DBRecordInfo _infoTOInsert){
+
+}
+
+void DBFileManager::deleteRecord(DBRecordInfo _infoToDelete){
+
+}
+
+void DBFileManager::updateRecord(DBRecordInfo _infoToUpdate){
+
+}
+
+void DBFileManager::searchRecord(DBRecordInfo _infoTOSearch){
+
+}
