@@ -26,7 +26,7 @@ private:
     const int max_records_per_page;
 
 public:
-    DBInfoPage(DBRecordInfo record_info, int record_length);
+    DBInfoPage(const DBRecordInfo& record_info, int record_length);
 };
 
 class DBDataPage
@@ -45,6 +45,6 @@ private:
     char* availability_of_page;
 
 public:
-    DBDataPage(DBRecordInfo &record_info, int record_length, int page_id);
+    DBDataPage(const DBRecordInfo& record_info, int record_length, int page_id);
 };
 #endif // DBFILEINFO_H_INCLUDED
