@@ -3,6 +3,9 @@
 
 #include"../bufmanager/BufPageManager.h"
 #include"DBFileInfo.h"
+#include"DBRecordInfo.h"
+#include<vector>
+#include<string>
 extern int tt;
 extern unsigned char h[61];
 
@@ -13,6 +16,7 @@ class DBFileManager
 private:
     FileManager* fileManager;
     BufPageManager* bufPageManager;
+    DBRecordInfo* recordInfo;
     const char* databaseName;
     const char* tableName;
     const char* const root;
@@ -34,6 +38,8 @@ public:
     int closeTable();
 
     bool opened();
+
+    void setRecordInfo(std::vector<std::string> names, std::vector<int> types);
 
     ~DBFileManager();
 

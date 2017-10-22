@@ -23,10 +23,16 @@ int main()
         }
         else if(command.compare("createFile") == 0)
         {
+            if(fm.opened())
+            {
+                printLine("Please close the currently opened file first.");
+                continue;
+            }
             print("Please enter name of the file: ");
             string filename;
             getline(cin, filename);
-            fm.createTable(filename.c_str());
+            const char* filename_c = filename.c_str();
+            fm.createTable(filename_c);
             int count = 0;
             printLine("Please define the columns of records you want to store in this file.");
             vector<string> names;
@@ -46,6 +52,8 @@ int main()
                 getline(cin, type);
                 types.push_back(atoi(type.c_str()));
             }
+            fm.openTable(filename_c);
+            fm.setRecordInfo(names, types);
         }
         else if(command.compare("deleteFile") == 0)
         {

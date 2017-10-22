@@ -5,7 +5,7 @@
 #include<unistd.h>
 
 DBFileManager::DBFileManager(const char* root):
-    databaseName("test"), tableName(NULL), root(root), isOpened(false)
+    databaseName("test"), tableName(NULL), root(root), isOpened(false), recordInfo(NULL)
 {
     databasePath = new char[256];
     strcpy(databasePath, "");
@@ -88,6 +88,15 @@ int DBFileManager::openTable(const char* name)
     log("Opened file " + string(fullname));
     isOpened = true;
     return SUCCEED;
+}
+
+void DBFileManager::setRecordInfo(std::vector<std::string> names, std::vector<int> types)
+{
+    if(recordInfo != NULL)
+    {
+        delete recordInfo;
+    }
+    recordInfo = new DBRecordInfo(names, types);
 }
 
 int DBFileManager::dropTable(const char* name)
