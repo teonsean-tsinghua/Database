@@ -1,3 +1,10 @@
-All "manager" classes should be singleton.
+所有的manager类都应当是单例的。
+自己编写的所有文件与类命名都应当带上“DB”前缀。
 
-All files we created should be named with a prefix "DB".
+文件结构（暂定）：
+第一页为信息页，按顺序存储如下内容：
+  record_length，文件存储的记录的长度， int 类型
+  page_number，文件的总页数，包含信息页在内， int 类型
+  availability_of_page，文件每页是否有空闲空间， char* 类型，实际上是位数组，一位对应一页
+  
+其余为数据页，按record_length划分为若干个“槽”。页末的槽也是一个位数组，一位对应一个槽。如果一个record_length长度的槽不足以表示所有的槽，则用页末两个槽表示，依次类推。根据粗略计算，记录长度为L时，用来表示位数组的槽数n应满足n >= 8KB / (L * (8 * L + 1))。
