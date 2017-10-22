@@ -2,6 +2,7 @@
 #include "../utils/DBLog.h"
 #include "../utils/pagedef.h"
 #include <ctime>
+#include <cstdio>
 
 DBLinkedRecord::DBLinkedRecord(DBRecordInfo _record, bool _isDebugMode):record(_record){
 	debugmode = _isDebugMode;
@@ -72,7 +73,7 @@ bool DBRecordLinker::insertRecord(DBLinkedRecord _linkedRecord, int _keyvalue){
 			if (recorditer -> getKeyValue() == _keyvalue){
 				linkersize++;
 				if (linkersize * sizeof(DBLinkedRecord) > PAGE_SIZE){
-					throwLastrecord();
+					throwLastRecord();
 					linkersize--;
 				}
 				DBLinkedRecord record = _linkedRecord;
@@ -134,40 +135,34 @@ DBRecordLinker* DBRecordLinker::getPreviousLinker(){
 	return this -> _previouslinker;
 }
 
-DBRecordLinker* DBRecordLinker::getNextRecord(){
+DBRecordLinker* DBRecordLinker::getNextLinker(){
 	return this -> _nextlinker;
 }
 
 void DBRecordLinker::throwLastRecord(){
-	if (this == NULL){
-		if (debugmode){
-			char msg[64];
-			sprintf("Unreasonable throw for last record.");
-			log(std::string(msg));
-		}
-	}
-	DBRecordLinker recorditer = this -> linker;
-	while(recorditer.getNextRecord() != NULL)
-		recorditer = recorditer.getNextRecord();
+	DBLinkedRecord* recorditer = this -> linker;
+	while(recorditer -> getNextRecord() != NULL)
+		recorditer = recorditer -> getNextRecord();
 	DBRecordLinker* thepage;
 	if (this -> getNextLinker() == NULL){
-		thepage = new DBRecordLinker(_debugmode);
+		thepage = new DBRecordLinker(debugmode);
 	}
 	else{
 		thepage = this -> getNextLinker(); 
 	}
-	thepage -> acceptRecord(recorditer);
+	thepage -> acceptFirstRecord(recorditer);
 }
 
-void DBRecordLinker::acceptFirstRecord(DBLinkedRecord dlr){
+void DBRecordLinker::acceptFirstRecord(DBLinkedRecord* dlr){
 	this -> linkersize++;
 	if ((this -> linkersize) * sizeof(DBLinkedRecord) > PAGE_SIZE){
 		this -> throwLastRecord();
 		this -> linkersize--;
 	}
-	DBRecordLinker* recorditer = this -> linker;
+	DBLinkedRecord* recorditer = this -> linker;
 	while(recorditer -> getPreviousRecord() != NULL)
 		recorditer = recorditer -> getPreviousRecord();
-	recorditer -> setPreviousRecord(&dlr);
-	dlr.setNextRecord(recorditer);
+	recorditer -> setPreviousRecord(dlr);
+	dlr -> setNextRecord(recorditer);
+	dlr -> setPreviousRecord(NULL);
 }

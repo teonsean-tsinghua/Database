@@ -27,7 +27,7 @@ private:
 	bool debugmode;
 	int linkersize;
 	void throwLastRecord();
-	void getFirstRecord();
+	void acceptFirstRecord(DBLinkedRecord* _DBLinkedRecord);
 	DBRecordLinker *_previouslinker, *_nextlinker;
 public:
 	DBRecordLinker(bool _debugmode);
