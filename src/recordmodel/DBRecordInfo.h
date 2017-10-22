@@ -1,0 +1,9 @@
+#ifndef DBRECORD_INFO_H_INCLUDED
+#define DBRECORD_INFO_H_INCLUDED
+
+class DBRecordInfo
+{
+
+};
+
+#endif // DBRECORD_INFO_H_INCLUDED

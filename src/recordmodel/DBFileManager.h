@@ -10,7 +10,6 @@ class DBFileManager
 private:
     FileManager* fileManager;
     BufPageManager* bufPageManager;
-    DBFileInfo *fileInfo;
     const char* databaseName;
     const char* tableName;
     const char* const root;
