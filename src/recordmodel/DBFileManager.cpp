@@ -78,7 +78,7 @@ int DBFileManager::openTable(const char* name)
     strcat(fullname, tableName);
     if(access(fullname, F_OK) != 0)
     {
-        log("File " + string(name) + " does not exist.");
+        printLine("File " + string(name) + " does not exist.");
         return OPEN_ERROR;
     }
     if(!fileManager->openFile(fullname, fileID))
@@ -105,7 +105,7 @@ int DBFileManager::dropTable(const char* name)
     strcat(fullname, name);
     if(access(fullname, F_OK) != 0)
     {
-        log("File " + string(name) + " does not exist.");
+        printLine("File " + string(name) + " does not exist.");
         return DROP_ERROR;
     }
     if(remove(fullname) != 0)

@@ -9,7 +9,7 @@ int main()
     while(true)
     {
         string command;
-        cout << "\n>>";
+        print(">>");
         getline(cin, command);
         if(command.compare("") == 1)
         {
@@ -21,14 +21,14 @@ int main()
         }
         else if(command.compare("createFile") == 0)
         {
-            cout << "\nPlease enter name of the file: ";
+            print("Please enter name of the file: ");
             string filename;
             getline(cin, filename);
             fm.createTable(filename.c_str());
         }
         else if(command.compare("deleteFile") == 0)
         {
-            cout << "\nPlease enter name of the file: ";
+            print("Please enter name of the file: ");
             string filename;
             getline(cin, filename);
             fm.dropTable(filename.c_str());
@@ -37,7 +37,7 @@ int main()
         {
             if(!fm.opened())
             {
-                cout << "You have not opened any file yet.\n";
+                printLine("You have not opened any file yet.");
                 continue;
             }
             fm.closeTable();
@@ -46,10 +46,10 @@ int main()
         {
             if(fm.opened())
             {
-                cout << "Please close the currently opened file first.\n";
+                printLine("Please close the currently opened file first.");
                 continue;
             }
-            cout << "\nPlease enter name of the file: ";
+            print("Please enter name of the file: ");
             string filename;
             getline(cin, filename);
             fm.openTable(filename.c_str());
