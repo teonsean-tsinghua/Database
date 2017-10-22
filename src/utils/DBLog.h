@@ -5,4 +5,8 @@
 
 void log(std::string msg);
 
+void print(std::string msg);
+
+void printLine(std::string msg);
+
 #endif // DBLOG_H_INCLUDED

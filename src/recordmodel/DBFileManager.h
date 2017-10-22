@@ -5,6 +5,9 @@
 #include"DBFileInfo.h"
 extern int tt;
 extern unsigned char h[61];
+
+//TODO: Make it singleton.
+
 class DBFileManager
 {
 private:

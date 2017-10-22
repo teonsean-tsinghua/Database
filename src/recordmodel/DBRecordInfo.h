@@ -7,11 +7,12 @@
 
 class DBRecordInfo
 {
-public:
+private:
     std::map<std::string, int> name_to_index;
-    std::vector<std::string> column_name;
-    std::vector<int> column_type;
-    std::vector<int> column_offset;
+    std::string* names;
+    int* types;
+    int* offsets;
+    int column_count;
     int length;
 
     const static int TYPE_RID = 0;  // A 10 Bytes char array
@@ -24,8 +25,11 @@ public:
     const static int TYPE_STRING = TYPE_DOUBLE + 1;
     const static int TYPE_LONG_STRING = TYPE_STRING + 1;
     const static int SIZEOF_TYPE[];
+    const static std::string NAMEOF_TYPE[];
 
-    DBRecordInfo();
+public:
+    DBRecordInfo(std::vector<std::string> &names,
+                 std::vector<int> &types);
 };
 
 #endif // DBRECORD_INFO_H_INCLUDED
