@@ -5,23 +5,59 @@ using namespace std;
 
 int main()
 {
-
+    DBFileManager fm("/home/teon/Documents/Database");
     while(true)
     {
-        //char* command = new char[256];
         string command;
         cout << "\n>>";
-        cin >> command;
-        cout << command << endl;
-        if(command.compare("quit") == 0)
+        getline(cin, command);
+        if(command.compare("") == 1)
+        {
+            continue;
+        }
+        else if(command.compare("quit") == 0)
         {
             break;
         }
-        if(command.compare("createFile") == 0)
+        else if(command.compare("createFile") == 0)
         {
             cout << "\nPlease enter name of the file: ";
             string filename;
-            cin >> filename;
+            getline(cin, filename);
+            fm.createTable(filename.c_str());
+        }
+        else if(command.compare("deleteFile") == 0)
+        {
+            cout << "\nPlease enter name of the file: ";
+            string filename;
+            getline(cin, filename);
+            fm.dropTable(filename.c_str());
+        }
+        else if(command.compare("closeFile") == 0)
+        {
+            cout << "\nPlease enter name of the file: ";
+            string filename;
+            getline(cin, filename);
+            fm.closeTable();
+        }
+        else if(command.compare("openFile") == 0)
+        {
+            cout << "\nPlease enter name of the file: ";
+            string filename;
+            getline(cin, filename);
+            fm.openTable(filename.c_str());
+        }
+        else if(command.compare("insertRecord") == 0)
+        {
+        }
+        else if(command.compare("deleteRecord") == 0)
+        {
+        }
+        else if(command.compare("updateRecord") == 0)
+        {
+        }
+        else if(command.compare("findRecord") == 0)
+        {
         }
     }
     return 0;

@@ -3,7 +3,8 @@
 
 #include"../bufmanager/BufPageManager.h"
 #include"DBFileInfo.h"
-
+extern int tt;
+extern unsigned char h[61];
 class DBFileManager
 {
 private:
@@ -36,6 +37,7 @@ public:
     const static int CREATE_ERROR = SUCCEED + 1;
     const static int OPEN_ERROR = CREATE_ERROR + 1;
     const static int CLOSE_ERROR = OPEN_ERROR + 1;
+    const static int DROP_ERROR = CLOSE_ERROR + 1;
 };
 
 #endif // DBFILEMANAGER_H_INCLUDED
