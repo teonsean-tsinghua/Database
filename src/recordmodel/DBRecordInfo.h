@@ -1,12 +1,14 @@
 #ifndef DBRECORD_INFO_H_INCLUDED
 #define DBRECORD_INFO_H_INCLUDED
 
-#include<hash_map>
+#include<map>
+#include<string>
+#include<vector>
 
 class DBRecordInfo
 {
 public:
-    std::hash_map<std::string, int> name_to_index;
+    std::map<std::string, int> name_to_index;
     std::vector<std::string> column_name;
     std::vector<int> column_type;
     std::vector<int> column_offset;
@@ -21,14 +23,9 @@ public:
     const static int TYPE_DOUBLE = TYPE_FLOAT + 1;
     const static int TYPE_STRING = TYPE_DOUBLE + 1;
     const static int TYPE_LONG_STRING = TYPE_STRING + 1;
-    const static int SIZEOF_TYPE[] = {10 * sizeof(char),
-                                      sizeof(int),
-                                      sizeof(char),
-                                      sizeof(char),
-                                      sizeof(float),
-                                      sizeof(double),
-                                      256 * sizeof(char),
-                                      1024 * sizeof(char)};
+    const static int SIZEOF_TYPE[];
+
+    DBRecordInfo();
 };
 
 #endif // DBRECORD_INFO_H_INCLUDED
