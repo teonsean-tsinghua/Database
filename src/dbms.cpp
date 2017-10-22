@@ -35,13 +35,20 @@ int main()
         }
         else if(command.compare("closeFile") == 0)
         {
-            cout << "\nPlease enter name of the file: ";
-            string filename;
-            getline(cin, filename);
+            if(!fm.opened())
+            {
+                cout << "You have not opened any file yet.\n";
+                continue;
+            }
             fm.closeTable();
         }
         else if(command.compare("openFile") == 0)
         {
+            if(fm.opened())
+            {
+                cout << "Please close the currently opened file first.\n";
+                continue;
+            }
             cout << "\nPlease enter name of the file: ";
             string filename;
             getline(cin, filename);

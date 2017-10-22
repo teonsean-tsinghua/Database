@@ -30,6 +30,8 @@ public:
 
     int closeTable();
 
+    bool opened();
+
     ~DBFileManager();
 
     const static int SUCCEED = 0;

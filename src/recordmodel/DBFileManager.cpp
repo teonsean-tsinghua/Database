@@ -21,6 +21,11 @@ DBFileManager::~DBFileManager()
 {
 }
 
+bool DBFileManager::opened()
+{
+    return isOpened;
+}
+
 void DBFileManager::useDatabase(const char* name)
 {
     if(isOpened)
@@ -43,14 +48,13 @@ int DBFileManager::createTable(const char* name)
     if(access(fullname, F_OK) != 0)
     {
         mkdir(fullname, 0777);
-        log("non-existence");
     }
     strcat(fullname, "/");
     strcat(fullname, databaseName);
     if(access(fullname, F_OK) != 0)
     {
         mkdir(fullname, 0777);
-        log("non-existence2" + string(fullname));
+        log("Created folder " + string(fullname));
     }
     strcat(fullname, "/");
     strcat(fullname, name);
@@ -72,6 +76,11 @@ int DBFileManager::openTable(const char* name)
     strcat(fullname, databaseName);
     strcat(fullname, "/");
     strcat(fullname, tableName);
+    if(access(fullname, F_OK) != 0)
+    {
+        log("File " + string(name) + " does not exist.");
+        return OPEN_ERROR;
+    }
     if(!fileManager->openFile(fullname, fileID))
     {
         return OPEN_ERROR;
@@ -94,6 +103,11 @@ int DBFileManager::dropTable(const char* name)
     strcat(fullname, databaseName);
     strcat(fullname, "/");
     strcat(fullname, name);
+    if(access(fullname, F_OK) != 0)
+    {
+        log("File " + string(name) + " does not exist.");
+        return DROP_ERROR;
+    }
     if(remove(fullname) != 0)
     {
         return DROP_ERROR;
