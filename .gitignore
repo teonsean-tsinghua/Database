@@ -2,5 +2,8 @@ DBMS.cbp
 bin/
 obj/
 DBMS.depend
+DBMS.layout
 *.o
 application
+.DS_Store
+*/.DS_Store
