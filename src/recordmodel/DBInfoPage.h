@@ -9,6 +9,7 @@ public:
 	DBInfoPage();
 	void setbit(unsigned short bit_id, bool val);
 	bool getbit(unsigned short bit_id);
+	unsigned short allocatenewpage();
 	void debug();
 	~DBInfoPage();
 };

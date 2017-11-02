@@ -1,12 +1,9 @@
 #include "DBInfoPage.h"
 #include <stdlib.h>
-// Change to malloc.h for windows
-#include <stdio.h>
-#include <iostream>
-using namespace std;
 
 DBInfoPage::DBInfoPage(){
 	data = (unsigned char*) malloc(PAGE_SIZE);
+	data[0] = 1;
 }
 
 void DBInfoPage::setbit(unsigned short bit_id, bool val){
@@ -31,6 +28,15 @@ void DBInfoPage::debug(){
 	for(unsigned short i = 0; i < PAGE_SIZE; i++)
 	printf("%x ", data[i]);
 	printf("\n");
+}
+
+unsigned short DBInfoPage::allocatenewpage(){
+	for(unsigned short i = 1; i !=0; i++)
+		if (this -> getbit(i) == false){
+			this -> setbit(i, 1);
+			return i;
+		}
+	return 0;
 }
 
 DBInfoPage::~DBInfoPage(){

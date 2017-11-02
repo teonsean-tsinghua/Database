@@ -1,9 +1,7 @@
 #include "DBSinglePageBase.h"
 #include <stdlib.h>
-// malloc.h here in windows
-#include <stdio.h>
 
-DBSinglePageBase::DBSinglePageBase(short previous_page_id, short father_page_id, short father_page_offset, short empty_size){
+DBSinglePageBase::DBSinglePageBase(unsigned short previous_page_id, unsigned short father_page_id, unsigned short father_page_offset, unsigned short empty_size){
 	data = (unsigned char*)malloc(PAGE_SIZE);
 	short* info = (short*)&data;
 	info[0] = previous_page_id;
@@ -12,7 +10,7 @@ DBSinglePageBase::DBSinglePageBase(short previous_page_id, short father_page_id,
 	info[3] = empty_size;
 }
 
-void DBSinglePageBase::setnextpage(short next_page_id){
+void DBSinglePageBase::setnextpage(unsigned short next_page_id){
 	short* info = (short*)&data;
 	info[4] = next_page_id;
 }
@@ -26,9 +24,10 @@ bool DBSinglePageBase::setdata(unsigned char* newdata, int len){
 		return false;
 	}
 	for(short i = 0; i < len; i++)
-		data[i + 8] = newdata[i];
+		data[i + 10] = newdata[i];
 	for(short i = len; i < PAGE_SIZE - 10; i++)
-		data[i + 8] = 255;
+		data[i + 10] = 255;
+	return true;
 }
 
 void DBSinglePageBase::debug(){
