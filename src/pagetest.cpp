@@ -1,14 +1,14 @@
 #include <iostream>
 #include <cstdlib>
-#include "recordmodel/DBPageManager.h"
+#include "recordmodel/DBSinglePageBase.h"
+#include "recordmodel/DBInfoPage.h"
 using namespace std;
 
 int main(){
-	DBPageManager* page = new DBPageManager(0x0001,0x0003,0x0003);
-	unsigned char data[PAGE_SIZE - 8];
-	for(short i = 0; i < PAGE_SIZE - 8; i++)
-		data[i] = i;
-	page -> setdata(data, PAGE_SIZE - 8);
+	DBInfoPage* page = new DBInfoPage();
+	cout << page -> getbit(13204) << endl;
+	page -> setbit((unsigned)13204, 1);
+	cout << page -> getbit(13204) << endl;
 	page -> debug();
 	return 0;
 }

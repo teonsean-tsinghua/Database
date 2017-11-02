@@ -1,26 +1,27 @@
-#include "DBPageManager.h"
-#include <sys/malloc.h>
+#include "DBSinglePageBase.h"
+#include <stdlib.h>
 // malloc.h here in windows
 #include <stdio.h>
 
-DBPageManager::DBPageManager(short previous_page_id, short father_page_id, short father_page_offset, short data_size){
+DBSinglePageBase::DBSinglePageBase(short previous_page_id, short father_page_id, short father_page_offset, short empty_size){
+	data = (unsigned char*)malloc(PAGE_SIZE);
 	short* info = (short*)&data;
 	info[0] = previous_page_id;
 	info[1] = father_page_id;
 	info[2] = father_page_offset;
-	info[3] = data_size;
+	info[3] = empty_size;
 }
 
-void DBPageManager::setnextpage(short next_page_id){
+void DBSinglePageBase::setnextpage(short next_page_id){
 	short* info = (short*)&data;
 	info[4] = next_page_id;
 }
 
-unsigned char* DBPageManager::getdata(){
+unsigned char* DBSinglePageBase::getdata(){
 	return data + 10;
 }
 
-bool DBPageManager::setdata(unsigned char* newdata, int len){
+bool DBSinglePageBase::setdata(unsigned char* newdata, int len){
 	if (len > PAGE_SIZE - 10){
 		return false;
 	}
@@ -30,11 +31,12 @@ bool DBPageManager::setdata(unsigned char* newdata, int len){
 		data[i + 8] = 255;
 }
 
-void DBPageManager::debug(){
+void DBSinglePageBase::debug(){
 	for(short i = 0; i < PAGE_SIZE; i++)
 		printf("%x ", data[i]);
 	printf("\n");
 }
 
-DBPageManager::~DBPageManager(){
+DBSinglePageBase::~DBSinglePageBase(){
+	delete data;
 }
