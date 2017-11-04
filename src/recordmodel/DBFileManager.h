@@ -2,7 +2,7 @@
 #define DBFILEMANAGER_H_INCLUDED
 
 #include"../bufmanager/BufPageManager.h"
-#include"DBFileInfo.h"
+//#include"DBFileInfo.h"
 #include"DBRecordInfo.h"
 #include<vector>
 #include<string>

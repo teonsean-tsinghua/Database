@@ -279,6 +279,20 @@ unsigned char* DBFileManager::readDataPage(int pageID){
         return NULL;
     }
     unsigned char* ret = new unsigned char[PAGE_SIZE];
+    char* dataPageName = new char[512];
+    strcpy(dataPageName, "");
+    strcat(dataPageName, root);
+    strcat(dataPageName, "/");
+    strcat(dataPageName, databaseName);
+    strcat(dataPageName, "/");
+    strcat(dataPageName, tableName);
+    strcat(dataPageName, "/description");
+    int fileID;
+    fileManager -> openFile(dataPageName, fileID);
+    if (fileManager -> readPage(fileID, pageID, (unsigned int*)ret, 0) != 0){
+        return NULL;
+    }
+    fileManager -> closeFile(fileID);
     return ret;
 }
 
@@ -310,6 +324,21 @@ unsigned char* DBFileManager::readUsagePage(){
         return NULL;
     }
     unsigned char* ret = new unsigned char[PAGE_SIZE];
+    char* usagePageName = new char[512];
+    strcpy(usagePageName, "");
+    strcat(usagePageName, root);
+    strcat(usagePageName, "/");
+    strcat(usagePageName, databaseName);
+    strcat(usagePageName, "/");
+    strcat(usagePageName, tableName);
+    strcat(usagePageName, "/description");
+    int fileID, pageID;
+    pageID = 0;
+    fileManager -> openFile(usagePageName, fileID);
+    if (fileManager -> readPage(fileID, pageID, (unsigned int*)ret, 0) != 0){
+        return NULL;
+    }
+    fileManager -> closeFile(fileID);
     return ret;
 }
 
