@@ -7,13 +7,13 @@ using namespace std;
 
 int main()
 {
-    DBFileManager fm("/home/teon/Documents/Database");
+    DBFileManager fm("Data/");
     while(true)
     {
         string command;
         print(">>");
         getline(cin, command);
-        if(command.compare("") == 1)
+        if(command.compare("") == 0)
         {
             continue;
         }
@@ -21,7 +21,7 @@ int main()
         {
             break;
         }
-        else if(command.compare("createFile") == 0)
+        else if(command.compare("create DATABASE") == 0)
         {
             if(fm.opened())
             {

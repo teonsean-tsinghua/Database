@@ -1,9 +1,10 @@
-#include"DBRecordInfo.h"
-#include"../utils/DBLog.h"
-#include "DBRecordLinker.h"
-#include<cstdio>
+#include "DBRecordInfo.h"
+#include "../utils/DBLog.h"
+#include <cstdio>
+#include "../utils/pagedef.h"
+#include <cstring>
 
-const int DBRecordInfo::SIZEOF_TYPE[] = {10 * sizeof(char),
+const int DBRecordInfo::SIZEOF_TYPE[] = {8 * sizeof(char),
                                         sizeof(int),
                                         sizeof(long),
                                         sizeof(char),
@@ -23,29 +24,84 @@ const std::string DBRecordInfo::NAMEOF_TYPE[] = {"RID",
                                                 "string",
                                                 "long string"};
 
-DBRecordInfo::DBRecordInfo(std::vector<std::string> &n,
-                           std::vector<int> &t)
+DBRecordInfo::DBRecordInfo(std::vector<std::string> &_names,
+                           std::vector<int> &_types,
+                           std::vector<int> &_lengths)
 {
-    column_count = n.size();
+    column_count = _names.size();
     names = new std::string[column_count];
     types = new int[column_count];
     offsets = new int[column_count];
+    lengths = new int[column_count];
     offsets[0] = 0;
-    for(int i = 0; i < n.size(); i++)
+    for(int i = 0; i < _names.size(); i++)
     {
-        names[i] = n[i];
-        types[i] = t[i];
+        names[i] = _names[i];
+        types[i] = _types[i];
+        lengths[i] = _lengths[i];
         name_to_index[names[i]] = i;
-        if(i > 0)
-        {
-            offsets[i] = offsets[i - 1] + SIZEOF_TYPE[types[i - 1]];
+        if(i > 0){
+            offsets[i] = offsets[i - 1] + SIZEOF_TYPE[types[i - 1]] * lengths[i - 1] + 2;
         }
         char* msg = new char[64];
         sprintf(msg, "Column %s is of type %s, at offset %d", names[i].c_str(), NAMEOF_TYPE[types[i]].c_str(), offsets[i]);
         log(std::string(msg));
     }
-    length = offsets[n.size() - 1] + SIZEOF_TYPE[types[n.size() - 1]];
+    totalLength = offsets[_names.size() - 1] + SIZEOF_TYPE[types[_names.size() - 1]] * lengths[_names.size() - 1] + 2;
     char* msg = new char[64];
-    sprintf(msg, "Record length is %d.", length);
+    sprintf(msg, "Record length is %d.", totalLength);
     log(std::string(msg));
+}
+
+unsigned char* DBRecordInfo::toBinary(){
+    // When transferring succeed, can just write the data from return loc,
+    // but when transferring failed, will return a NULL pointer.
+    // will be transfered as follows:
+    // [2 bytes total length], [2 bytes number of data]
+    // following [number of data] lines:
+    // [1 bytes data type], [2 bytes data length], [2 bytes offset in data page], [2 bytes length of name of data], [data]
+    unsigned char* infoPageData = new unsigned char[PAGE_SIZE << 1];
+    if (totalLength > 8190){
+        return NULL;
+    }
+    char* msg = new char[64];
+    infoPageData[0] = (unsigned char)(totalLength >> 8);
+    infoPageData[1] = (unsigned char)totalLength % 256;
+    infoPageData[2] = (unsigned char)(column_count >> 8);
+    infoPageData[3] = (unsigned char)column_count % 256;
+    int bytescnt = 4;
+    for(int i = 0; i < column_count; i++){
+        if (bytescnt > 8192)
+            return NULL;
+        infoPageData[bytescnt] = (unsigned char)types[i];
+        bytescnt++;
+        infoPageData[bytescnt] = (unsigned char)(lengths[i] >> 8);
+        bytescnt++;
+        infoPageData[bytescnt] = (unsigned char)lengths[i] % 256;
+        bytescnt++;
+        infoPageData[bytescnt] = (unsigned char)(offsets[i] >> 8);
+        bytescnt++;
+        infoPageData[bytescnt] = (unsigned char)offsets[i] % 256;
+        bytescnt++;
+        infoPageData[bytescnt] = (unsigned char)(names[i].length() >> 8);
+        bytescnt++;
+        infoPageData[bytescnt] = (unsigned char)names[i].length() % 256;
+        bytescnt++;
+        for(int j = 0; j < names[i].length(); j++){
+            infoPageData[bytescnt] = (unsigned char)names[i][j];
+            bytescnt++;
+        }
+    }
+    return infoPageData;
+}
+
+int DBRecordInfo::fromBinary(unsigned char* binaryArray){
+    return SUCCEED;
+}
+
+DBRecordInfo::~DBRecordInfo(){
+    delete names;
+    delete types;
+    delete lengths;
+    delete offsets;
 }

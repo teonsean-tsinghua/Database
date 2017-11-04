@@ -19,5 +19,5 @@
 B-树页面（存储B-树的信息）<br>
 数据结构（暂定） <br>
 所有数据存储的格式均为：<br>
-[2byte PARA1_LENGTH][PARA1]...[2byte LAST_PARA_LENGTH][LAST_PARA] <br>
-注：由于varchar()的存在，这里需要存储每个para的长度，但是申请空间时一律按照最大的空间进行申请
+[2byte TOTAL_LENGTH][2byte NUMBER_OF_PARAS][2byte PARA1_LENGTH][PARA1]...[2byte LAST_PARA_LENGTH][LAST_PARA] <br>
+注：由于varchar()的存在，这里需要存储每个para的长度，但是申请空间时一律按照最大的空间进行申请。 <br>
