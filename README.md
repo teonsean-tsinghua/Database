@@ -3,21 +3,16 @@
 需要向控制台输出信息时，请都使用DBLog中的方法。目前有log、print和printLine，接收参数均为std::string。这样做的目的是方便日后的调试和修改。不再输出调试信息时，只需修改log函数的内容。需要修改输出方式，如cout转为printf，也只需修改print和printLine两个函数。<br>
 <br>
 <br>
-文件结构（暂定）： <br>
-第一页存储每页是否为空（i.e.所剩下的空间是否足够放下一个元素，此外，该页面的第0个bit指向自己） <br>
-其他页每页的头部有以下几个元素： <br>
-1-2字节：前序页面的编号 <br>
-3-4字节：父节点页面的编号（关于分层结构详见后面） <br>
-5-6字节：父节点所在页面的offset <br>
-7-8字节：页面剩余字节数(*不是bit数*) <br>
-9-10字节：后继页面编号 <br>
-之后的8092个字节是可以被正常使用的 <br>
-页面分为四种，其功能大致相同：<br>
-数据库页面（存储数据库的名称）<br>
-表页面（存储一个数据库中各种表的信息） <br>
-数据页面 （存储一个表中全部的数据） <br>
-B-树页面（存储B-树的信息）<br>
-数据结构（暂定） <br>
-所有数据存储的格式均为：<br>
-[2byte TOTAL_LENGTH][2byte NUMBER_OF_PARAS][2byte PARA1_LENGTH][PARA1]...[2byte LAST_PARA_LENGTH][LAST_PARA] <br>
-注：由于varchar()的存在，这里需要存储每个para的长度，但是申请空间时一律按照最大的空间进行申请。 <br>
+DATA/DATA_BASE_NAME/TABLE_NAME/TABLE <br>
+每个文件夹下有一个description文件夹，DATA_BASE_NAME层用于描述数据库的名字，TABLE_NAME层用于描述表的名字，TABLE层用于描述表的具体细节。 <br>
+文件夹包含的内容 <br>
+data <br>
+description(该文件大小为一个page) <br>
+usage(每两个byte描述data的每个页面剩余字节数) <br>
+indexed{INDEX_NAME}(TODO用于描述索引) <br>
+data的详细表示方法：<br>
+[2 bytes INDEX_LENGTH][INDEX](这么做的目的在于支持varchar)<br>
+description的详细表示方法：<br>
+[2 bytes total length], [2 bytes number of data]<br>
+{[1 bytes data type], [2 bytes data length], [2 bytes offset in data page], [2 bytes length of name of data], [name of data]} * NUMBER_OF_DATA<br>
+第0个index是rid，留下的接口是DBFileManager::insertData, DBFileManager::deleteData, DBFilemanager::getDataByKey这三个函数用于插入删除查找数据。<br>

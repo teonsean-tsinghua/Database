@@ -2,8 +2,9 @@
 #define DBFILEMANAGER_H_INCLUDED
 
 #include"../bufmanager/BufPageManager.h"
-//#include"DBFileInfo.h"
-#include"DBRecordInfo.h"
+#include "DBRecordInfo.h"
+#include "DBRecordUsage.h"
+#include "DBRecord.h"
 #include<vector>
 #include<string>
 extern int tt;
@@ -16,6 +17,9 @@ class DBFileManager
 private:
     FileManager* fileManager;
     BufPageManager* bufPageManager;
+    DBRecordInfo* recordInfoParser;
+    DBRecordUsage* recordUsageParser;
+    DBRecord* recordParser;
     const char* databaseName;
     const char* tableName;
     const char* const root;
@@ -49,6 +53,10 @@ public:
     int writeToDescriptionPage(const unsigned char* data);
     int writeToUsagePage(const unsigned char* data);
 
+    int insertData(std::vector<std::string> &data, std::vector<int> &len);
+    int deleteData(std::vector<unsigned long long> *RID_ARRAY);
+    std::vector<unsigned long long>* getDataByKey(const unsigned char* keyName, const unsigned char* value, int valuelen);
+
     bool opened();
 
     ~DBFileManager();
@@ -61,6 +69,9 @@ public:
     const static int LIST_ERROR = DROP_ERROR + 1;
     const static int WRITE_ERROR = LIST_ERROR + 1;
     const static int READ_ERROR = WRITE_ERROR + 1;
+    const static int INSERT_FAIL = READ_ERROR + 1;
+    const static int DELETE_FAIL = INSERT_FAIL + 1;
+    const static int SEARCH_FAIL = DELETE_FAIL + 1;
 };
 
 #endif // DBFILEMANAGER_H_INCLUDED

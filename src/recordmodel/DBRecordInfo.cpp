@@ -38,18 +38,25 @@ DBRecordInfo::DBRecordInfo(std::vector<std::string> &_names,
     {
         names[i] = _names[i];
         types[i] = _types[i];
-        lengths[i] = _lengths[i];
+        lengths[i] = _lengths[i] * SIZEOF_TYPE[types[i]];
         if(i > 0){
-            offsets[i] = offsets[i - 1] + SIZEOF_TYPE[types[i - 1]] * lengths[i - 1] + 2;
+            offsets[i] = offsets[i - 1] + lengths[i - 1] + 2;
         }
         char* msg = new char[64];
         sprintf(msg, "Column %s is of type %s, at offset %d", names[i].c_str(), NAMEOF_TYPE[types[i]].c_str(), offsets[i]);
         log(std::string(msg));
     }
-    totalLength = offsets[_names.size() - 1] + SIZEOF_TYPE[types[_names.size() - 1]] * lengths[_names.size() - 1] + 2;
+    totalLength = offsets[_names.size() - 1] + lengths[_names.size() - 1] + 2;
     char* msg = new char[64];
     sprintf(msg, "Record length is %d.", totalLength);
     log(std::string(msg));
+}
+
+DBRecordInfo::DBRecordInfo(){
+    names = NULL;
+    types = NULL;
+    offsets = NULL;
+    lengths = NULL;
 }
 
 unsigned char* DBRecordInfo::toBinary(){
@@ -63,7 +70,6 @@ unsigned char* DBRecordInfo::toBinary(){
     if (totalLength > 8190){
         return NULL;
     }
-    char* msg = new char[64];
     infoPageData[0] = (unsigned char)(totalLength >> 8);
     infoPageData[1] = (unsigned char)totalLength % 256;
     infoPageData[2] = (unsigned char)(column_count >> 8);
@@ -94,7 +100,7 @@ unsigned char* DBRecordInfo::toBinary(){
     return infoPageData;
 }
 
-int DBRecordInfo::fromBinary(unsigned char* binArray){
+int DBRecordInfo::fromBinary(const unsigned char* binArray){
     if (names != NULL){
         delete[] names;
     }
@@ -130,7 +136,7 @@ int DBRecordInfo::fromBinary(unsigned char* binArray){
         }
         names[i] = _name;
         char* msg = new char[64];
-        sprintf(msg, "Loaded data type %s", _name);
+        sprintf(msg, "Loaded data type %s, with offsets %d", _name, offsets[i]);
         log(std::string(msg));
     }
     return SUCCEED;
@@ -146,6 +152,69 @@ int DBRecordInfo::getOffsetByName(const char* name){
         }
     }
     return -1;
+}
+
+int DBRecordInfo::getLengthByName(const char* name){
+    for(int i = 0; i < column_count; i++){
+        if (strcmp(names[i].c_str(), name) == 0){
+            char* msg = new char[64];
+            sprintf(msg, "Index length is %d.", lengths[i]);
+            log(std::string(msg));
+            return lengths[i];
+        }
+    }
+    return -1;
+}
+
+int DBRecordInfo::getRecordLen(){
+    return totalLength;
+}
+
+unsigned char* DBRecordInfo::parseData(std::vector<std::string> &data, std::vector<int> &len){
+    unsigned char* ret = new unsigned char[8192];
+    int bytescnt = 0;
+    for(int i = 0; i < data.size(); i++){
+        bytescnt = offsets[i];
+
+        if (len[i] > lengths[i]){
+            return NULL;
+        }
+        
+        ret[bytescnt] = (unsigned char)(len[i] >> 8);
+        bytescnt++;
+        ret[bytescnt] = (unsigned char)(len[i] % 256);
+        bytescnt++;
+        for(int j = 0; j < len[i]; j++){
+            ret[bytescnt] = (unsigned short)data[i][j];
+            bytescnt++;
+        }
+    }
+    return ret;
+}
+
+void DBRecordInfo::set(std::vector<std::string> &_names, std::vector<int> &_types, std::vector<int> &_lengths){
+    column_count = _names.size();
+    names = new std::string[column_count];
+    types = new int[column_count];
+    offsets = new int[column_count];
+    lengths = new int[column_count];
+    offsets[0] = 0;
+    for(int i = 0; i < _names.size(); i++)
+    {
+        names[i] = _names[i];
+        types[i] = _types[i];
+        lengths[i] = _lengths[i] * SIZEOF_TYPE[types[i]];
+        if(i > 0){
+            offsets[i] = offsets[i - 1] + lengths[i - 1] + 2;
+        }
+        char* msg = new char[64];
+        sprintf(msg, "Column %s is of type %s, at offset %d", names[i].c_str(), NAMEOF_TYPE[types[i]].c_str(), offsets[i]);
+        log(std::string(msg));
+    }
+    totalLength = offsets[_names.size() - 1] + lengths[_names.size() - 1] + 2;
+    char* msg = new char[64];
+    sprintf(msg, "Record length is %d.", totalLength);
+    log(std::string(msg));
 }
 
 DBRecordInfo::~DBRecordInfo(){

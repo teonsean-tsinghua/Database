@@ -15,6 +15,9 @@ DBFileManager::DBFileManager(const char* root):
     strcat(databasePath, "");
     fileManager = new FileManager();
     bufPageManager = new BufPageManager(fileManager);
+    recordInfoParser = new DBRecordInfo();
+    recordUsageParser = new DBRecordUsage();
+    recordParser = new DBRecord();
     log("File manager initialized.");
 }
 
@@ -115,6 +118,8 @@ int DBFileManager::createTable(const char* name)
         fileManager -> createFile(descriptionFileName);
         tableName = name;
         initializeUsageFile();
+        unsigned char* emptydescription = new unsigned char[PAGE_SIZE];
+        writeToDescriptionPage(emptydescription);
         tableName = "";
         return SUCCEED;
     }
@@ -126,6 +131,7 @@ int DBFileManager::openTable(const char* name)
     if(strcmp(databaseName, "") == 0){
         return OPEN_ERROR;
     }
+    int fileID;
     char* fullname = new char[512];
     tableName = name;
     strcpy(fullname, "");
@@ -136,15 +142,16 @@ int DBFileManager::openTable(const char* name)
     strcat(fullname, tableName);
     if(access(fullname, F_OK) != 0)
     {
-        printLine("File " + string(name) + " does not exist.");
+        printLine("Folder " + string(name) + " does not exist.");
         return OPEN_ERROR;
     }
     if(!fileManager->openFile(fullname, fileID))
     {
         return OPEN_ERROR;
     }
-    log("Opened file " + string(fullname));
-    isOpened = true;
+    log("Opened folder " + string(fullname));
+    recordInfoParser -> fromBinary(readDescriptionPage());
+    recordUsageParser -> setData(readUsagePage());
     return SUCCEED;
 }
 
@@ -270,7 +277,6 @@ int DBFileManager::listTable(){
         }
     }
     closedir(dir);
-    return SUCCEED;
     return SUCCEED;
 }
 
@@ -413,8 +419,50 @@ int DBFileManager::writeToUsagePage(const unsigned char* data){
 
 void DBFileManager::initializeUsageFile(){
     unsigned char* usage = new unsigned char[PAGE_SIZE];
-    for(int i = 0; i < PAGE_SIZE; i++){
-        usage[i] = 0xff;
+    for(int i = 0; i < (PAGE_SIZE >> 1); i++){
+        usage[i * 2] = 32;
+        usage[i * 2 + 1] = 0;
     }
     writeToUsagePage(usage);
+}
+
+int DBFileManager::insertData(std::vector<std::string> &data, std::vector<int> &len){
+    unsigned char* binData = recordInfoParser -> parseData(data, len);
+    int pageIdx = recordUsageParser -> allocateNewRecord(recordInfoParser -> getRecordLen());
+    recordParser -> setData(readDataPage(pageIdx), recordInfoParser -> getRecordLen(), 
+        PAGE_SIZE - (recordUsageParser -> getUsageByPage(pageIdx)));
+    recordParser -> insertData(binData);
+    writeToDataPage(recordParser -> getData(), pageIdx);
+    writeToUsagePage(recordUsageParser -> getData());
+    return SUCCEED;
+}
+
+int DBFileManager::deleteData(std::vector<unsigned long long>* RID_ARRAY){
+    for(int i = 0; i < (PAGE_SIZE / 2); i++){
+        if ((PAGE_SIZE - recordUsageParser -> getUsageByPage(i)) > 0){
+            recordParser -> setData(readDataPage(i), recordInfoParser -> getRecordLen(),
+                PAGE_SIZE - (recordUsageParser -> getUsageByPage(i)));
+            for(int j = 0; j < RID_ARRAY -> size(); j++)
+                if (recordParser -> clearDataByRid((*RID_ARRAY)[j]) == true){
+                    recordUsageParser -> releaseSize(i, recordInfoParser -> getRecordLen());
+                    writeToDataPage(recordParser -> getData(), i);
+                }
+        }
+    }
+    writeToUsagePage(recordUsageParser -> getData());
+    return SUCCEED;
+}
+
+std::vector<unsigned long long>* DBFileManager::getDataByKey(const unsigned char* keyName, const unsigned char* value, int valuelen){
+    std::vector<unsigned long long>* ret = new std::vector<unsigned long long>();
+    int offset = recordInfoParser -> getOffsetByName((char*)keyName);
+    for(int i = 0; i < (PAGE_SIZE / 2); i++){
+        if ((PAGE_SIZE - recordUsageParser -> getUsageByPage(i)) > 0){
+            recordParser -> setData(readDataPage(i), recordInfoParser -> getRecordLen(),
+                PAGE_SIZE - (recordUsageParser -> getUsageByPage(i)));
+            vector<unsigned long long>* retthispage = recordParser -> searchData(value, offset, valuelen);
+            ret -> insert(ret -> end(), retthispage -> begin(), retthispage -> end());
+        }
+    }
+    return ret;
 }

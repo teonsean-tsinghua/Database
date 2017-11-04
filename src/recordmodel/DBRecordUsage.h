@@ -6,9 +6,13 @@ private:
 	unsigned char* data;
 public:
 	DBRecordUsage(unsigned char* _data);
+	DBRecordUsage();
 	~DBRecordUsage();
-	void setdata(unsigned char* _data);
+	void setData(unsigned char* _data);
+	void releaseSize(int releaseIdx, int size);
+	int getUsageByPage(int page);
 	int allocateNewRecord(int size);
+	unsigned char* getData();
 };
 
 #endif

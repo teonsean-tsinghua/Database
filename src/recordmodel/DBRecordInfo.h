@@ -19,12 +19,16 @@ public:
     DBRecordInfo(std::vector<std::string> &_names,
                  std::vector<int> &_types,
                  std::vector<int> &_lengths);
+    DBRecordInfo();
     ~DBRecordInfo();
 
     unsigned char* toBinary();
-    int fromBinary(unsigned char* binaryArray);
+    void set(std::vector<std::string> &_names, std::vector<int> &_types, std::vector<int> &_lengths);
+    int fromBinary(const unsigned char* binaryArray);
     int getOffsetByName(const char* name);
-//    int parsedata(std::vector<>);
+    int getLengthByName(const char* name);
+    unsigned char* parseData(std::vector<std::string> &data, std::vector<int> &len);
+    int getRecordLen();
 
     const static int SUCCEED = 0;
     const static int FROMBINARY_FAIL = SUCCEED + 1;
