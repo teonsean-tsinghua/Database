@@ -8,7 +8,6 @@
 class DBRecordInfo
 {
 private:
-    std::map<std::string, int> name_to_index;
     std::string* names;
     int* types;
     int* lengths;
@@ -24,8 +23,12 @@ public:
 
     unsigned char* toBinary();
     int fromBinary(unsigned char* binaryArray);
+    int getOffsetByName(const char* name);
+//    int parsedata(std::vector<>);
+
     const static int SUCCEED = 0;
     const static int FROMBINARY_FAIL = SUCCEED + 1;
+    const static int PARSE_FAIL = FROMBINARY_FAIL + 1;
 
     const static int TYPE_RID = 0;  // A 8 Bytes char array(can be implement to unsigned Long Long)
     const static int TYPE_INT = TYPE_RID + 1;

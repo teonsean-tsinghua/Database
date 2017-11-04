@@ -3,12 +3,14 @@
 #include <cstdlib>
 #include "recordmodel/DBFileManager.h"
 #include "recordmodel/DBRecordInfo.h"
+#include "recordmodel/DBRecordUsage.h"
 #include "utils/DBLog.h"
 #include "utils/printpage.h"
 using namespace std;
 
 int main()
 {
+    DBFileManager* manager = new DBFileManager("../data");
     std::vector<std::string> _names;
     std::vector<int> _types;
     std::vector<int> _lengths;
@@ -20,13 +22,16 @@ int main()
     _lengths.push_back(12);
     DBRecordInfo* rif = new DBRecordInfo(_names, _types, _lengths);
     unsigned char* bindetail = rif -> toBinary();
-    DBFileManager* manager = new DBFileManager("../data");
     manager -> createDatabase("test1");
     manager -> openDatabase("test1");
     manager -> createTable("test2");
     manager -> openTable("test2");
     manager -> writeToDescriptionPage(bindetail);
-    bindetail = manager -> readDescriptionPage();
-    rif -> fromBinary(bindetail);
+    rif -> getOffsetByName((char*)"test2");
+    unsigned char* usagedetail = manager -> readUsagePage();
+    DBRecordUsage* usageparser = new DBRecordUsage(usagedetail);
+    usageparser -> allocateNewRecord(65523);
+    usageparser -> allocateNewRecord(13212);
+    usageparser -> allocateNewRecord(3);
     return 0;
 }

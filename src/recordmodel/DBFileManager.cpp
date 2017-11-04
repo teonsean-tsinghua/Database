@@ -286,7 +286,7 @@ unsigned char* DBFileManager::readDataPage(int pageID){
     strcat(dataPageName, databaseName);
     strcat(dataPageName, "/");
     strcat(dataPageName, tableName);
-    strcat(dataPageName, "/description");
+    strcat(dataPageName, "/data");
     int fileID;
     fileManager -> openFile(dataPageName, fileID);
     if (fileManager -> readPage(fileID, pageID, (unsigned int*)ret, 0) != 0){
@@ -331,7 +331,7 @@ unsigned char* DBFileManager::readUsagePage(){
     strcat(usagePageName, databaseName);
     strcat(usagePageName, "/");
     strcat(usagePageName, tableName);
-    strcat(usagePageName, "/description");
+    strcat(usagePageName, "/usage");
     int fileID, pageID;
     pageID = 0;
     fileManager -> openFile(usagePageName, fileID);

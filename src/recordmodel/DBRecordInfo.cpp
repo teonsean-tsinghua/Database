@@ -39,7 +39,6 @@ DBRecordInfo::DBRecordInfo(std::vector<std::string> &_names,
         names[i] = _names[i];
         types[i] = _types[i];
         lengths[i] = _lengths[i];
-        name_to_index[names[i]] = i;
         if(i > 0){
             offsets[i] = offsets[i - 1] + SIZEOF_TYPE[types[i - 1]] * lengths[i - 1] + 2;
         }
@@ -135,6 +134,18 @@ int DBRecordInfo::fromBinary(unsigned char* binArray){
         log(std::string(msg));
     }
     return SUCCEED;
+}
+
+int DBRecordInfo::getOffsetByName(const char* name){
+    for(int i = 0; i < column_count; i++){
+        if (strcmp(names[i].c_str(), name) == 0){
+            char* msg = new char[64];
+            sprintf(msg, "Index found at offset %d.", offsets[i]);
+            log(std::string(msg));
+            return offsets[i];
+        }
+    }
+    return -1;
 }
 
 DBRecordInfo::~DBRecordInfo(){
