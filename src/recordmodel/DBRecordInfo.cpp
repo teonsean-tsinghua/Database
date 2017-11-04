@@ -95,13 +95,51 @@ unsigned char* DBRecordInfo::toBinary(){
     return infoPageData;
 }
 
-int DBRecordInfo::fromBinary(unsigned char* binaryArray){
+int DBRecordInfo::fromBinary(unsigned char* binArray){
+    if (names != NULL){
+        delete[] names;
+    }
+    if (types != NULL){
+        delete[] types;
+    }
+    if (lengths != NULL){
+        delete[] lengths;
+    }
+    if (offsets != NULL){
+        delete[] offsets;
+    }
+    totalLength = (int)binArray[0] * 256 + (int) binArray[1];
+    column_count = (int)binArray[2] * 256 + (int) binArray[3];
+    int bytescnt = 4;
+    names = new std::string[column_count];
+    types = new int[column_count];
+    lengths = new int[column_count];
+    offsets = new int[column_count];
+    for(int i = 0; i < column_count; i++){
+        types[i] = int(binArray[bytescnt]);
+        bytescnt++;
+        lengths[i] = int(binArray[bytescnt]) * 256 + int(binArray[bytescnt + 1]);
+        bytescnt += 2;
+        offsets[i] = int(binArray[bytescnt]) * 256 + int(binArray[bytescnt + 1]);
+        bytescnt += 2;
+        int _nameLen = int(binArray[bytescnt]) * 256 + int(binArray[bytescnt + 1]);
+        bytescnt += 2;
+        char* _name = new char[512];
+        for(int j = 0; j < _nameLen; j++){
+            _name[j] = binArray[bytescnt];
+            bytescnt++;
+        }
+        names[i] = _name;
+        char* msg = new char[64];
+        sprintf(msg, "Loaded data type %s", _name);
+        log(std::string(msg));
+    }
     return SUCCEED;
 }
 
 DBRecordInfo::~DBRecordInfo(){
-    delete names;
-    delete types;
-    delete lengths;
-    delete offsets;
+    delete[] names;
+    delete[] types;
+    delete[] lengths;
+    delete[] offsets;
 }

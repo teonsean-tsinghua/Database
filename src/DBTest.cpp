@@ -26,5 +26,7 @@ int main()
     manager -> createTable("test2");
     manager -> openTable("test2");
     manager -> writeToDescriptionPage(bindetail);
+    bindetail = manager -> readDescriptionPage();
+    rif -> fromBinary(bindetail);
     return 0;
 }

@@ -287,18 +287,21 @@ unsigned char* DBFileManager::readDescriptionPage(){
         return NULL;
     }
     unsigned char* ret = new unsigned char[PAGE_SIZE];
-    char* dataPageName = new char[512];
-    strcpy(dataPageName, "");
-    strcat(dataPageName, root);
-    strcat(dataPageName, "/");
-    strcat(dataPageName, databaseName);
-    strcat(dataPageName, "/description");
+    char* descriptionPageName = new char[512];
+    strcpy(descriptionPageName, "");
+    strcat(descriptionPageName, root);
+    strcat(descriptionPageName, "/");
+    strcat(descriptionPageName, databaseName);
+    strcat(descriptionPageName, "/");
+    strcat(descriptionPageName, tableName);
+    strcat(descriptionPageName, "/description");
     int fileID, pageID;
     pageID = 0;
-    fileManager -> openFile(dataPageName, fileID);
+    fileManager -> openFile(descriptionPageName, fileID);
     if (fileManager -> readPage(fileID, pageID, (unsigned int*)ret, 0) != 0){
         return NULL;
     }
+    fileManager -> closeFile(fileID);
     return ret;
 }
 
