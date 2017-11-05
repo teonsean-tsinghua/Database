@@ -46,6 +46,7 @@ public:
     int listTable();
 
     unsigned char* readDataPage(int pageID);
+    unsigned char* readDataPage(int pageID, int offset);
     unsigned char* readDescriptionPage();
     unsigned char* readUsagePage();
     unsigned char* readIndexPage(const char* indexName, int pageID, int offset, int length);//TODO
@@ -57,6 +58,7 @@ public:
 
     int insertData(std::vector<std::string> &data, std::vector<int> &len);
     int deleteData(std::vector<unsigned long long> *RID_ARRAY);
+    int deleteData(int pageID, int offset);//TODO
     std::vector<unsigned long long>* getDataByKey(const unsigned char* keyName, const unsigned char* value, int valuelen);
 
     bool opened();

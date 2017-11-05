@@ -459,6 +459,10 @@ int DBFileManager::deleteData(std::vector<unsigned long long>* RID_ARRAY){
     return SUCCEED;
 }
 
+int DBFileManager::deleteData(int pageID, int offset){
+    return SUCCEED;
+}
+
 std::vector<unsigned long long>* DBFileManager::getDataByKey(const unsigned char* keyName, const unsigned char* value, int valuelen){
     std::vector<unsigned long long>* ret = new std::vector<unsigned long long>();
     int offset = recordInfoParser -> getOffsetByName((char*)keyName);
