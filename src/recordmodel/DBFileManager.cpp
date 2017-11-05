@@ -81,7 +81,7 @@ int DBFileManager::openDatabase(const char* name)
 
 int DBFileManager::createTable(const char* name)
 {
-    // Note: the table here created will be empty, needs furthur implementation to initialize its contents.
+    // Note: the table here created will be empty, needs further implementation to initialize its contents.
     char* fullname = new char[512];
     strcpy(fullname, "");
     strcat(fullname, root);
@@ -350,7 +350,7 @@ unsigned char* DBFileManager::readUsagePage(){
 
 unsigned char* DBFileManager::readIndexPage(const char* indexName, int pageId){}
 
-int DBFileManager::writeToIndexPage(const char* indexName, int pageID){
+int DBFileManager::writeToIndexPage(const unsigned char* indexName, int pageID){
     return SUCCEED;
 };
 
@@ -435,7 +435,7 @@ void DBFileManager::initializeUsageFile(){
 int DBFileManager::insertData(std::vector<std::string> &data, std::vector<int> &len){
     unsigned char* binData = recordInfoParser -> parseData(data, len);
     int pageIdx = recordUsageParser -> allocateNewRecord(recordInfoParser -> getRecordLen());
-    recordParser -> setData(readDataPage(pageIdx), recordInfoParser -> getRecordLen(), 
+    recordParser -> setData(readDataPage(pageIdx), recordInfoParser -> getRecordLen(),
         PAGE_SIZE - (recordUsageParser -> getUsageByPage(pageIdx)));
     recordParser -> insertData(binData);
     writeToDataPage(recordParser -> getData(), pageIdx);
