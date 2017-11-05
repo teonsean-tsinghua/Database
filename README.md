@@ -16,3 +16,6 @@ description的详细表示方法：<br>
 [2 bytes total length], [2 bytes number of data]<br>
 {[1 bytes data type], [2 bytes data length], [2 bytes offset in data page], [2 bytes length of name of data], [name of data]} * NUMBER_OF_DATA<br>
 第0个index是rid，留下的接口是DBFileManager::insertData, DBFileManager::deleteData, DBFilemanager::getDataByKey这三个函数用于插入删除查找数据。<br>
+TODO:<br>
+重构代码，分出IndexManager模块。<br>
+处理内存溢出
