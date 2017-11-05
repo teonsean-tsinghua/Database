@@ -48,10 +48,12 @@ public:
     unsigned char* readDataPage(int pageID);
     unsigned char* readDescriptionPage();
     unsigned char* readUsagePage();
+    unsigned char* readIndexPage(const char* indexName, int pageID);//TODO
 
     int writeToDataPage(const unsigned char* data, int pageID);
     int writeToDescriptionPage(const unsigned char* data);
     int writeToUsagePage(const unsigned char* data);
+    int writeToIndexPage(const unsigned char* data, int pageID);//TODO
 
     int insertData(std::vector<std::string> &data, std::vector<int> &len);
     int deleteData(std::vector<unsigned long long> *RID_ARRAY);

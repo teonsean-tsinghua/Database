@@ -348,6 +348,12 @@ unsigned char* DBFileManager::readUsagePage(){
     return ret;
 }
 
+unsigned char* DBFileManager::readIndexPage(const char* indexName, int pageId){}
+
+int DBFileManager::writeToIndexPage(const char* indexName, int pageID){
+    return SUCCEED;
+};
+
 int DBFileManager::writeToDataPage(const unsigned char* data, int pageID){
     if(strcmp(tableName, "") == 0){
         return WRITE_ERROR;
