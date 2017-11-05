@@ -348,9 +348,9 @@ unsigned char* DBFileManager::readUsagePage(){
     return ret;
 }
 
-unsigned char* DBFileManager::readIndexPage(const char* indexName, int pageId){}
+unsigned char* DBFileManager::readIndexPage(const char* indexName, int pageId, int offset, int length){}
 
-int DBFileManager::writeToIndexPage(const unsigned char* indexName, int pageID){
+int DBFileManager::writeToIndexPage(const char* indexName, const unsigned char* data, int length, bool isFirst){
     return SUCCEED;
 };
 

@@ -53,7 +53,7 @@ public:
     int writeToDataPage(const unsigned char* data, int pageID);
     int writeToDescriptionPage(const unsigned char* data);
     int writeToUsagePage(const unsigned char* data);
-    int writeToIndexPage(const unsigned char* data, int length);//TODO
+    int writeToIndexPage(const char* indexName, const unsigned char* data, int length, bool isFirst = false);//TODO
 
     int insertData(std::vector<std::string> &data, std::vector<int> &len);
     int deleteData(std::vector<unsigned long long> *RID_ARRAY);
