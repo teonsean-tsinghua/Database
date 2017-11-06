@@ -3,6 +3,11 @@
 
 #include"../bufmanager/BufPageManager.h"
 
+/*
+ * All the methods needed to process file IO are provided here.
+ * Use getPage to get a BufType, and all the reading and writing should be done on this BufType.
+ */
+
 class DBFileIOModel
 {
     static DBFileIOModel* instance;
