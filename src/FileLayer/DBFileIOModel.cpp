@@ -35,6 +35,8 @@ void DBFileIOModel::release(int index)
 
 void DBFileIOModel::flush(int index)
 {
+    bpm->access(index);
+    bpm->markDirty(index);
     bpm->writeBack(index);
 }
 
