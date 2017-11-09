@@ -21,7 +21,7 @@ protected:
 public:
     DBDataFileDescriptionSlot(BufType cache, int parse = false);
 
-    void write(int fdp, int fus, int lus);
+    void write();
 
     int addField(std::string name, int type);
 

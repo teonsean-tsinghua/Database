@@ -38,8 +38,6 @@ protected:
 public:
     DBDataFileDescriptionPage(BufType cache, int index, bool parse = false);
 
-    void write();
-
     void addField(std::string name, int type);
 
     void print();

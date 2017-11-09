@@ -2,8 +2,8 @@
 #define DBSLOT_H_INCLUDED
 
 #include"DBFileIOModel.h"
-#include"DBParser.h"
 #include"../DBInclude.h"
+#include"DBType.h"
 
 class DBSlot
 {

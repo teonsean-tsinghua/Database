@@ -25,9 +25,8 @@ int DBPageInfoSlot::size()
     return sizeof(int) * 3 + sizeof(int);
 }
 
-void DBPageInfoSlot::write(int fab, int lf, int nsp)
+void DBPageInfoSlot::write(int lf, int nsp)
 {
-    setFirstAvailableByte(fab);
     setLengthFixed(lf);
     setNextSamePage(nsp);
 }

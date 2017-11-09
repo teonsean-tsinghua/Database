@@ -19,9 +19,7 @@ void DBDataFile::createFile(const char* name)
     int index;
     BufType cache = fm->getPage(fileID, 0, index);
     dfdp = new DBDataFileDescriptionPage(cache, index, false);
-    dfdp->write();
-    fm->notifyPageUpdated(index);
-    fm->flush(index);
+    fm->flush(dfdp->getIndex());
     fm->closeFile(fileID);
 }
 
@@ -49,6 +47,7 @@ void DBDataFile::printFileDescription()
 void DBDataFile::addField(const char* name, int type)
 {
     dfdp->addField(name, type);
+    fm->flush(dfdp->getIndex());
 }
 
 void DBDataFile::openFile(const char* name)

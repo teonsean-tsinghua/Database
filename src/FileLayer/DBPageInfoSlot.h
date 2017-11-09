@@ -36,7 +36,7 @@ public:
 
     void setNextSamePage(int n);
 
-    void write(int fsb, int lf, int nsp);
+    void write(int lf, int nsp);
 
     const static int PAGE_TYPE_OFFSET = 0;
     const static int FIRST_AVAILABLE_BYTE_OFFSET = PAGE_TYPE_OFFSET + sizeof(int);

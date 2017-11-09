@@ -67,7 +67,6 @@ int DBDataFileDescriptionSlot::addField(std::string name, int type)
     recordLength += DBType::typeSize(type);
     indexes[name] = names.size();
     currentRecordInfoLength += (sizeof(int) * 2 + name.size());
-    setRecordInfoLength(currentRecordInfoLength);
     return SUCCEED;
 }
 
@@ -185,11 +184,8 @@ int DBDataFileDescriptionSlot::getTypeOfField(std::string name)
     return -1;
 }
 
-void DBDataFileDescriptionSlot::write(int fdp, int fus, int lus)
+void DBDataFileDescriptionSlot::write()
 {
-    setFirstDataPage(fdp);
-    setFirstUsageSlot(fus);
-    setLastUsageSlot(lus);
     setRecordInfoLength(currentRecordInfoLength);
     char* cache = (char*)recordInfo;
     if(names.size() != types.size())
