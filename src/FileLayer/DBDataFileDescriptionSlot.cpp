@@ -10,9 +10,30 @@ DBDataFileDescriptionSlot::DBDataFileDescriptionSlot(BufType cache, int parse):
     recordInfo = (*this)[RECORD_INFO_OFFSET];
     if(parse)
     {
-        if(DBParser::parseRecordInfo(indexes, names, types, offsets, (char*)recordInfo, getRecordInfoLength()) != SUCCEED)
+        char* cache = (char*)recordInfo;
+        char* end = cache + getRecordInfoLength();
+        int index = 0, offset = 0, type = 0, name_length = 0;
+        if(!indexes.empty() ||
+           !names.empty() ||
+           !types.empty() ||
+           !offsets.empty())
         {
-            DBPrint("error");
+            throw ERROR;
+        }
+        while(cache < end)
+        {
+            sscanf(cache + RECORD_INFO_TYPE_OFFSET, "%d", &type);
+            sscanf(cache + RECORD_INFO_NAME_LENGTH_OFFSET, "%d", &name_length);
+            cache += RECORD_INFO_NAME_OFFSET;
+            std::string name;
+            name = name.assign(cache, name_length);
+            indexes[name] = index;
+            names.push_back(name);
+            types.push_back(type);
+            offsets.push_back(offset);
+            offset += DBType::typeSize(type);
+            cache += name_length;
+            index++;
         }
         recordLength = indexes.size() ? offsets[offsets.size() - 1] + DBType::typeSize(types[types.size() - 1]) : 0;
         currentRecordInfoLength = getRecordInfoLength();
@@ -45,7 +66,7 @@ int DBDataFileDescriptionSlot::addField(std::string name, int type)
     offsets.push_back(recordLength);
     recordLength += DBType::typeSize(type);
     indexes[name] = names.size();
-    currentRecordInfoLength += (sizeof(int) + name.size());
+    currentRecordInfoLength += (sizeof(int) * 2 + name.size());
     setRecordInfoLength(currentRecordInfoLength);
     return SUCCEED;
 }
@@ -170,5 +191,21 @@ void DBDataFileDescriptionSlot::write(int fdp, int fus, int lus)
     setFirstUsageSlot(fus);
     setLastUsageSlot(lus);
     setRecordInfoLength(currentRecordInfoLength);
-    DBParser::writeRecordInfo(names, types, (char*)recordInfo, recordLength);
+    char* cache = (char*)recordInfo;
+    if(names.size() != types.size())
+    {
+        throw ERROR;
+    }
+    for(int i = 0; i < names.size(); i++)
+    {
+        int name_length = names[i].size();
+        sprintf(cache + RECORD_INFO_TYPE_OFFSET, "%d", types[i]);
+        sprintf(cache + RECORD_INFO_NAME_LENGTH_OFFSET, "%d", name_length);
+        cache += RECORD_INFO_NAME_OFFSET;
+        if(names[i].copy(cache, name_length) != name_length)
+        {
+            throw ERROR;
+        }
+        cache += name_length;
+    }
 }

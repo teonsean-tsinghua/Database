@@ -58,6 +58,10 @@ public:
     const static int LAST_USAGE_SLOT_OFFSET = FIRST_USAGE_SLOT_OFFSET + sizeof(int);
     const static int RECORD_INFO_LENGTH_OFFSET = LAST_USAGE_SLOT_OFFSET + sizeof(int);
     const static int RECORD_INFO_OFFSET = RECORD_INFO_LENGTH_OFFSET + sizeof(int);
+
+    const static int RECORD_INFO_TYPE_OFFSET = 0;
+    const static int RECORD_INFO_NAME_LENGTH_OFFSET = RECORD_INFO_TYPE_OFFSET + sizeof(int);
+    const static int RECORD_INFO_NAME_OFFSET = RECORD_INFO_NAME_LENGTH_OFFSET + sizeof(int);
 };
 
 #endif // DBDATAFILEDESCRIPTIONSLOT_H_INCLUDED
