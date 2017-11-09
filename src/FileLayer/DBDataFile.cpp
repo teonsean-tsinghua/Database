@@ -33,6 +33,7 @@ void DBDataFile::deleteFile(const char* name)
 
 void DBDataFile::closeFile()
 {
+    fm->flush(dfdp->getIndex());
     if(fm->closeFile(fileID) != SUCCEED)
     {
         DBPrint("ERROR");
@@ -47,7 +48,6 @@ void DBDataFile::printFileDescription()
 void DBDataFile::addField(const char* name, int type)
 {
     dfdp->addField(name, type);
-    fm->flush(dfdp->getIndex());
 }
 
 void DBDataFile::openFile(const char* name)
