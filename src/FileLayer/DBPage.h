@@ -1,7 +1,8 @@
 #ifndef DBPAGE_H_INCLUDED
 #define DBPAGE_H_INCLUDED
 
-#include"DBSlot.h"
+#include"DBPageInfoSlot.h"
+#include"DBDataFileDescriptionSlot.h"
 #include"../DBInclude.h"
 
 class DBPage
