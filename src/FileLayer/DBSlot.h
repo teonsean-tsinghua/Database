@@ -2,6 +2,10 @@
 #define DBSLOT_H_INCLUDED
 
 #include"DBFileIOModel.h"
+#include"DBParser.h"
+#include<string>
+#include<map>
+#include<vector>
 
 class DBSlot
 {
@@ -19,7 +23,43 @@ public:
     const static int SLOT_LENGTH_OFFSET = 0;    //If slot length is -1, then DBSlot will go find its length at this offset.
 };
 
-class DBFileDescriptionSlot: public DBSlot
+class DBDataFileDescriptionSlot: public DBSlot
+{
+protected:
+    BufType firstDataPage;     // int
+    BufType firstUsageSlot;    // int; pageID * PAGE_SIZE + offset
+    BufType lastUsageSlot;     // int
+    BufType recordInfoLength;  // int
+    BufType recordInfo;
+    std::map<std::string, int> indexes;
+    std::vector<std::string> names;
+    std::vector<int> types;
+    std::vector<int> offsets;
+
+public:
+    DBDataFileDescriptionSlot(BufType cache);
+
+    int getFirstDataPage();
+
+    int getFirstUsageSlot();
+
+    int getLastUsageSlot();
+
+    int getRecordInfoLength();
+
+    int getOffsetOfField(std::string name);
+
+    int getTypeOfField(std::string name);
+
+    const static int FIRST_DATA_PAGE_OFFSET = 0;
+    const static int FIRST_USAGE_SLOT_OFFSET = FIRST_DATA_PAGE_OFFSET + sizeof(int);
+    const static int LAST_USAGE_SLOT_OFFSET = FIRST_USAGE_SLOT_OFFSET + sizeof(int);
+    const static int RECORD_INFO_LENGTH_OFFSET = LAST_USAGE_SLOT_OFFSET + sizeof(int);
+    const static int RECORD_INFO_OFFSET = RECORD_INFO_LENGTH_OFFSET + sizeof(int);
+
+};
+
+class DBUsageSlot:public DBSlot
 {
 protected:
 
@@ -28,26 +68,26 @@ protected:
 class DBPageInfoSlot: public DBSlot
 {
 protected:
-    short* pageType;
-    short* firstAvailableByte;
-    bool* lengthFixed;
-    int* nextSamePage;
+    BufType pageType;           // int
+    BufType firstAvailableByte; // int
+    BufType lengthFixed;        // bool
+    BufType nextSamePage;       // int
 
 public:
 
     DBPageInfoSlot(BufType cache, int slotLength);
 
-    short getPageType();
+    int getPageType();
 
-    short getFirstAvailableByte();
+    int getFirstAvailableByte();
 
     bool isLengthFixed();
 
     int getNextSamePage();
 
     const static int PAGE_TYPE_OFFSET = 0;
-    const static int FIRST_AVAILABLE_BYTE_OFFSET = PAGE_TYPE_OFFSET + sizeof(short);
-    const static int LENGTH_FIXED_OFFSET = FIRST_AVAILABLE_BYTE_OFFSET + sizeof(short);
+    const static int FIRST_AVAILABLE_BYTE_OFFSET = PAGE_TYPE_OFFSET + sizeof(int);
+    const static int LENGTH_FIXED_OFFSET = FIRST_AVAILABLE_BYTE_OFFSET + sizeof(int);
     const static int NEXT_SAME_PAGE_OFFSET = LENGTH_FIXED_OFFSET + sizeof(bool);
 };
 
