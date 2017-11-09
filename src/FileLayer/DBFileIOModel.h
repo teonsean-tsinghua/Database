@@ -2,6 +2,7 @@
 #define DBFILEIOMODEL_H_INCLUDED
 
 #include"../bufmanager/BufPageManager.h"
+#include"../DBInclude.h"
 
 /*
  * All the methods needed to process file IO are provided here.
@@ -41,8 +42,6 @@ public:
 
     void flushAll();
 
-    const static int SUCCEED = 0;
-    const static int ERROR = 1;
 };
 
 #endif // DBFILEIOMODEL_H_INCLUDED

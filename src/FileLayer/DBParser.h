@@ -2,9 +2,7 @@
 #define DBPARSER_H_INCLUDED
 
 #include"DBFileIOModel.h"
-#include<string>
-#include<vector>
-#include<map>
+#include"../DBInclude.h"
 #include"DBType.h"
 
 class DBParser
@@ -25,9 +23,6 @@ public:
     const static int RECORD_INFO_TYPE_OFFSET = 0;
     const static int RECORD_INFO_NAME_LENGTH_OFFSET = RECORD_INFO_TYPE_OFFSET + sizeof(int);
     const static int RECORD_INFO_NAME_OFFSET = RECORD_INFO_NAME_LENGTH_OFFSET + sizeof(int);
-
-    const static int SUCCEED = 0;
-    const static int ERROR = SUCCEED + 1;
 };
 
 #endif // DBPARSER_H_INCLUDED

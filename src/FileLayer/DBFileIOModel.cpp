@@ -1,6 +1,4 @@
 #include"DBFileIOModel.h"
-#include<cstdio>
-#include<cstring>
 
 DBFileIOModel* DBFileIOModel::instance = new DBFileIOModel();
 

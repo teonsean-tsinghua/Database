@@ -1,5 +1,4 @@
 #include"DBType.h"
-#include<cstdio>
 
 const int DBType::size_[] = {sizeof(int)};
 

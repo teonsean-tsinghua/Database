@@ -1,5 +1,4 @@
 #include"DBParser.h"
-#include<cstring>
 
 int DBParser::parseRecordInfo(std::map<std::string, int>& indexes,
                             std::vector<std::string>& names,
