@@ -7,3 +7,7 @@ DBMS.layout
 application
 .DS_Store
 */.DS_Store
+*.db
+*.idx
+*/*.db
+*/*.idx
