@@ -10,9 +10,7 @@
 #include<cstdio>
 
 const static int SUCCEED = 0;
-
 const static int ERROR = SUCCEED - 1;
-
 const static int FIELD_ALREADY_EXIST = ERROR - 1;
 
 #endif // DBINCLUDE_H_INCLUDED

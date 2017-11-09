@@ -12,14 +12,21 @@ protected:
     BufType boundary;
     int index;
 
+    const static char* const name_[];
+;
 public:
-    DBPage(BufType cache, int index, bool parse = false);
+    DBPage(BufType cache, int index, int type, bool parse = false);
 
     BufType operator[](const int offset) const;
 
     int getIndex();
 
+    const char* name(int type);
+
+    virtual void print();
+
     const static int PAGE_INFO_SLOT_OFFSET = 0;
+
 };
 
 class DBDataFileDescriptionPage: public DBPage
@@ -34,7 +41,7 @@ public:
 
     void addField(std::string name, int type);
 
-    void printFileDescription();
+    void print();
 };
 
 class DBDataPage: public DBPage

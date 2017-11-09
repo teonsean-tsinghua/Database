@@ -12,9 +12,11 @@ protected:
     int slotLength;
 
 public:
-    DBSlot(BufType cache, int slotLength = 0, bool parse = false);
+    DBSlot(BufType cache, int slotLength = 0, int parse = false);
 
     virtual int size();
+
+    virtual void print();
 
     int getSlotLength();
 
@@ -39,7 +41,7 @@ protected:
     std::vector<int> offsets;
 
 public:
-    DBDataFileDescriptionSlot(BufType cache, bool parse = false);
+    DBDataFileDescriptionSlot(BufType cache, int parse = false);
 
     void write(int fdp, int fus, int lus);
 
@@ -69,7 +71,9 @@ public:
 
     int getTypeOfField(std::string name);
 
-    void printFileDescription();
+    void print();
+
+    int size();
 
     const static int FIRST_DATA_PAGE_OFFSET = 0;
     const static int FIRST_USAGE_SLOT_OFFSET = FIRST_DATA_PAGE_OFFSET + sizeof(int);
@@ -89,30 +93,40 @@ class DBPageInfoSlot: public DBSlot
 protected:
     BufType pageType;           // int
     BufType firstAvailableByte; // int
-    BufType lengthFixed;        // bool
+    BufType lengthFixed;        // int
     BufType nextSamePage;       // int
     //TODO: usage byte
 
 public:
 
-    DBPageInfoSlot(BufType cache, bool parse = false);
+    DBPageInfoSlot(BufType cache, int type, int parse = false);
 
     int size();
+
+    void print();
 
     int getPageType();
 
     int getFirstAvailableByte();
 
-    bool isLengthFixed();
+    int isLengthFixed();
 
     int getNextSamePage();
 
-    void write();
+    void setPageType(int n);
+
+    void setFirstAvailableByte(int n);
+
+    void setLengthFixed(int n);
+
+    void setNextSamePage(int n);
+
+    void write(int fsb, int lf, int nsp);
 
     const static int PAGE_TYPE_OFFSET = 0;
     const static int FIRST_AVAILABLE_BYTE_OFFSET = PAGE_TYPE_OFFSET + sizeof(int);
     const static int LENGTH_FIXED_OFFSET = FIRST_AVAILABLE_BYTE_OFFSET + sizeof(int);
-    const static int NEXT_SAME_PAGE_OFFSET = LENGTH_FIXED_OFFSET + sizeof(bool);
+    const static int NEXT_SAME_PAGE_OFFSET = LENGTH_FIXED_OFFSET + sizeof(int);
 };
 
 class DBRecordSlot: public DBSlot

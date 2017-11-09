@@ -43,7 +43,7 @@ void DBDataFile::closeFile()
 
 void DBDataFile::printFileDescription()
 {
-    dfdp->printFileDescription();
+    dfdp->print();
 }
 
 void DBDataFile::addField(const char* name, int type)

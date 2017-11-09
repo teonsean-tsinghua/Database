@@ -27,7 +27,7 @@ int DBParser::parseRecordInfo(std::map<std::string, int>& indexes,
         names.push_back(name);
         types.push_back(type);
         offsets.push_back(offset);
-        offset += DBType::size(type);
+        offset += DBType::typeSize(type);
         cache += name_length;
         index++;
     }

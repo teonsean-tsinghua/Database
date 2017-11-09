@@ -1,6 +1,6 @@
 #include"DBSlot.h"
 
-DBSlot::DBSlot(BufType cache, int slotLength, bool parse):
+DBSlot::DBSlot(BufType cache, int slotLength, int parse):
     cache(cache), slotLength(slotLength)
 {
     if(slotLength == -1 && parse)
@@ -14,6 +14,11 @@ int DBSlot::size()
     return 0;
 }
 
+void DBSlot::print()
+{
+
+}
+
 int DBSlot::getSlotLength()
 {
     return slotLength;
@@ -24,7 +29,7 @@ BufType DBSlot::operator[](const int offset) const
     return (BufType)((char*)cache + offset);
 }
 
-DBDataFileDescriptionSlot::DBDataFileDescriptionSlot(BufType cache, bool parse):
+DBDataFileDescriptionSlot::DBDataFileDescriptionSlot(BufType cache, int parse):
     DBSlot(cache, 0, parse)
 {
     firstDataPage = (*this)[FIRST_DATA_PAGE_OFFSET];
@@ -38,18 +43,24 @@ DBDataFileDescriptionSlot::DBDataFileDescriptionSlot(BufType cache, bool parse):
         {
             DBPrint("error");
         }
-        recordLength = indexes.size() ? offsets[offsets.size() - 1] + DBType::size(types[types.size() - 1]) : 0;
+        recordLength = indexes.size() ? offsets[offsets.size() - 1] + DBType::typeSize(types[types.size() - 1]) : 0;
         currentRecordInfoLength = getRecordInfoLength();
     }
     else
     {
         currentRecordInfoLength = 0;
+        setRecordInfoLength(0);
         recordLength = 0;
         indexes.clear();
         names.clear();
         types.clear();
         offsets.clear();
     }
+}
+
+int DBDataFileDescriptionSlot::size()
+{
+    return sizeof(int) * 4 + currentRecordInfoLength;
 }
 
 int DBDataFileDescriptionSlot::addField(std::string name, int type)
@@ -61,9 +72,10 @@ int DBDataFileDescriptionSlot::addField(std::string name, int type)
     names.push_back(name);
     types.push_back(type);
     offsets.push_back(recordLength);
-    recordLength += DBType::size(type);
+    recordLength += DBType::typeSize(type);
     indexes[name] = names.size();
     currentRecordInfoLength += (sizeof(int) + name.size());
+    setRecordInfoLength(currentRecordInfoLength);
     return SUCCEED;
 }
 
@@ -78,47 +90,35 @@ int DBDataFileDescriptionSlot::getFieldCount()
     return indexes.size();
 }
 
-void DBDataFileDescriptionSlot::printFileDescription()
+void DBDataFileDescriptionSlot::print()
 {
     DBPrint("First data page is at ");
-    DBPrint(getFirstDataPage());
-    DBPrintLine();
+    DBPrintLine(getFirstDataPage());
     DBPrint("First usage slot is at ");
-    DBPrint(getFirstUsageSlot());
-    DBPrintLine();
+    DBPrintLine(getFirstUsageSlot());
     DBPrint("Last usage slot is at ");
-    DBPrint(getLastUsageSlot());
-    DBPrintLine();
+    DBPrintLine(getLastUsageSlot());
     DBPrint("Record length is ");
-    DBPrint(getRecordLength());
-    DBPrintLine();
+    DBPrintLine(getRecordLength());
     DBPrint("Record info length is ");
-    DBPrint(getRecordInfoLength());
-    DBPrintLine();
+    DBPrintLine(getRecordInfoLength());
     int cnt = getFieldCount();
     DBPrint("Number of fields: ");
-    DBPrint(cnt);
-    DBPrintLine();
+    DBPrintLine(cnt);
 //    DBPrint("Index: ");
-//    DBPrint(indexes.size());
-//    DBPrintLine();
+//    DBPrintLine(indexes.size());
 //    DBPrint("Name: ");
-//    DBPrint(names.size());
-//    DBPrintLine();
+//    DBPrintLine(names.size());
 //    DBPrint("Type: ");
-//    DBPrint(types.size());
-//    DBPrintLine();
+//    DBPrintLine(types.size());
 //    DBPrint("Offset: ");
-//    DBPrint(offsets.size());
-//    DBPrintLine();
+//    DBPrintLine(offsets.size());
     for(int i = 0; i < cnt; i++)
     {
         DBPrint("Field type: ");
-        DBPrint(DBType::name(types[i]));
-        DBPrintLine();
+        DBPrintLine(DBType::typeName(types[i]));
         DBPrint("Field name: ");
-        DBPrint(names[i]);
-        DBPrintLine();
+        DBPrintLine(names[i]);
     }
 }
 
@@ -202,23 +202,56 @@ void DBDataFileDescriptionSlot::write(int fdp, int fus, int lus)
     DBParser::writeRecordInfo(names, types, (char*)recordInfo, recordLength);
 }
 
-DBPageInfoSlot::DBPageInfoSlot(BufType cache, bool parse):
+DBPageInfoSlot::DBPageInfoSlot(BufType cache, int type, int parse):
     DBSlot(cache, parse)
 {
     pageType = (*this)[PAGE_TYPE_OFFSET];
     firstAvailableByte = (*this)[FIRST_AVAILABLE_BYTE_OFFSET];
     lengthFixed = (*this)[LENGTH_FIXED_OFFSET];
     nextSamePage = (*this)[NEXT_SAME_PAGE_OFFSET];
+    if(parse)
+    {
+        if(type != getPageType())
+        {
+            throw "Incompatible page type";
+        }
+    }
+    else
+    {
+        setPageType(type);
+    }
 }
 
 int DBPageInfoSlot::size()
 {
-    return sizeof(int) * 3 + sizeof(bool);
+    return sizeof(int) * 3 + sizeof(int);
 }
 
-void DBPageInfoSlot::write()
+void DBPageInfoSlot::write(int fab, int lf, int nsp)
 {
-    sprintf((char*)cache, "%d%d%d%d", 0, 0, 0, 0);
+    setFirstAvailableByte(fab);
+    setLengthFixed(lf);
+    setNextSamePage(nsp);
+}
+
+void DBPageInfoSlot::print()
+{
+    DBPrint("Page type: ");
+    DBPrintLine(DBType::pageName(getPageType()));
+    DBPrint("First available byte: ");
+    DBPrintLine(getFirstAvailableByte());
+    DBPrint("Length fixed: ");
+    DBPrintLine(isLengthFixed());
+    if(isLengthFixed())
+    {
+        DBPrintLine("This page stores records with fixed length.");
+    }
+    else
+    {
+        DBPrintLine("This page stores records with variable length.");
+    }
+    DBPrint("Next page of this type: ");
+    DBPrintLine(getNextSamePage());
 }
 
 int DBPageInfoSlot::getPageType()
@@ -235,7 +268,7 @@ int DBPageInfoSlot::getFirstAvailableByte()
     return re;
 }
 
-bool DBPageInfoSlot::isLengthFixed()
+int DBPageInfoSlot::isLengthFixed()
 {
     int re;
     sscanf((char*)lengthFixed, "%d", &re);
@@ -247,6 +280,26 @@ int DBPageInfoSlot::getNextSamePage()
     int re;
     sscanf((char*)nextSamePage, "%d", &re);
     return re;
+}
+
+void DBPageInfoSlot::setPageType(int n)
+{
+    sprintf((char*)pageType, "%d", n);
+}
+
+void DBPageInfoSlot::setFirstAvailableByte(int n)
+{
+    sprintf((char*)firstAvailableByte, "%d", n);
+}
+
+void DBPageInfoSlot::setLengthFixed(int n)
+{
+    sprintf((char*)lengthFixed, "%d", n);
+}
+
+void DBPageInfoSlot::setNextSamePage(int n)
+{
+    sprintf((char*)nextSamePage, "%d", n);
 }
 
 DBRecordSlot::DBRecordSlot(BufType cache, int slotLength):

@@ -1,23 +1,37 @@
 #include"DBType.h"
 
-const int DBType::size_[] = {sizeof(int)};
+const int DBType::typeSize_[] = {sizeof(int)};
 
-const char* const DBType::name_[] = {"int"};
+const char* const DBType::typeName_[] = {"int"};
 
-int DBType::size(int type)
+const char* const DBType::pageName_[] = {"Data file description page",
+                                     "Data page",
+                                     "Index page"};
+
+int DBType::typeSize(int type)
 {
-    if(type < FIRST || type > LAST)
+    if(type < FIRST_TYPE || type > LAST_TYPE)
     {
         return -1;
     }
-    return size_[type];
+    return typeSize_[type];
 }
 
-const char* DBType::name(int type)
+const char* DBType::typeName(int type)
 {
-    if(type < FIRST || type > LAST)
+    if(type < FIRST_TYPE || type > LAST_TYPE)
     {
         return NULL;
     }
-    return name_[type];
+    return typeName_[type];
 }
+
+const char* DBType::pageName(int type)
+{
+    if(type < FIRST_PAGE_TYPE || type > LAST_PAGE_TYPE)
+    {
+        return NULL;
+    }
+    return pageName_[type];
+}
+
