@@ -14,10 +14,10 @@ void DBPrintLine(std::string msg = "");
 
 void DBLog(int msg);
 
-void DBLogLine(int msg = "");
+void DBLogLine(int msg);
 
 void DBPrint(int msg);
 
-void DBPrintLine(int msg = "");
+void DBPrintLine(int msg);
 
 #endif // DBPRINT_H_INCLUDED
