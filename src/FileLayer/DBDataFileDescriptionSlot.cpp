@@ -4,8 +4,8 @@ DBDataFileDescriptionSlot::DBDataFileDescriptionSlot(BufType cache, int mode):
     DBSlot(cache)
 {
     firstDataPage = (*this)[FIRST_DATA_PAGE_OFFSET];
-    firstUsageSlot = (*this)[FIRST_USAGE_SLOT_OFFSET];
-    lastUsageSlot = (*this)[LAST_USAGE_SLOT_OFFSET];
+    firstUsagePage = (*this)[FIRST_USAGE_PAGE_OFFSET];
+    pageNumber = (*this)[PAGE_NUMBER_OFFSET];
     primaryKeyIndex = (*this)[PRIMARY_KEY_INDEX_OFFSET];
     recordInfoLength = (*this)[RECORD_INFO_LENGTH_OFFSET];
     recordInfo = (*this)[RECORD_INFO_OFFSET];
@@ -113,12 +113,12 @@ int DBDataFileDescriptionSlot::getFieldCount()
 
 void DBDataFileDescriptionSlot::print()
 {
+    DBPrint("This file has pages of number ");
+    DBPrintLine(getPageNumber());
     DBPrint("First data page is at ");
     DBPrintLine(getFirstDataPage());
-    DBPrint("First usage slot is at ");
-    DBPrintLine(getFirstUsageSlot());
-    DBPrint("Last usage slot is at ");
-    DBPrintLine(getLastUsageSlot());
+    DBPrint("First usage page is at ");
+    DBPrintLine(getFirstUsagePage());
     DBPrint("Record length is ");
     DBPrintLine(getRecordLength());
     DBPrint("Record info length is ");
@@ -154,17 +154,17 @@ int DBDataFileDescriptionSlot::getFirstDataPage()
     return re;
 }
 
-int DBDataFileDescriptionSlot::getFirstUsageSlot()
+int DBDataFileDescriptionSlot::getFirstUsagePage()
 {
     int re;
-    readInt(firstUsageSlot, &re);
+    readInt(firstUsagePage, &re);
     return re;
 }
 
-int DBDataFileDescriptionSlot::getLastUsageSlot()
+int DBDataFileDescriptionSlot::getPageNumber()
 {
     int re;
-    readInt(lastUsageSlot, &re);
+    readInt(pageNumber, &re);
     return re;
 }
 
@@ -187,14 +187,14 @@ void DBDataFileDescriptionSlot::setFirstDataPage(int n)
     writeInt(firstDataPage, n);
 }
 
-void DBDataFileDescriptionSlot::setFirstUsageSlot(int n)
+void DBDataFileDescriptionSlot::setFirstUsagePage(int n)
 {
-    writeInt(firstUsageSlot, n);
+    writeInt(firstUsagePage, n);
 }
 
-void DBDataFileDescriptionSlot::setLastUsageSlot(int n)
+void DBDataFileDescriptionSlot::setPageNumber(int n)
 {
-    writeInt(lastUsageSlot, n);
+    writeInt(pageNumber, n);
 }
 
 void DBDataFileDescriptionSlot::setRecordInfoLength(int n)

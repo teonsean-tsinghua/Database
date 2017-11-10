@@ -11,10 +11,15 @@ DBDataFileDescriptionPage::DBDataFileDescriptionPage(BufType cache, int index, i
         pis->setLengthFixed(0);
         pis->setFirstAvailableByte(pis->size() + dfds->size());
         dfds->setFirstDataPage(-1);
-        dfds->setFirstUsageSlot(-1);
-        dfds->setLastUsageSlot(-1);
+        dfds->setFirstUsagePage(-1);
+        dfds->setPageNumber(1);
         dfds->setRecordInfoLength(0);
     }
+}
+
+int DBDataFileDescriptionPage::incrementPageNumber()
+{
+    dfds->setPageNumber(dfds->getPageNumber() + 1);
 }
 
 int DBDataFileDescriptionPage::processRawData(std::map<std::string, void*>& raw,

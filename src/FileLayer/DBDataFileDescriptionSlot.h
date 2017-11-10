@@ -11,8 +11,8 @@ class DBDataFileDescriptionSlot: public DBSlot
 {
 protected:
     BufType firstDataPage;     // int
-    BufType firstUsageSlot;    // int; pageID * PAGE_SIZE + offset
-    BufType lastUsageSlot;     // int
+    BufType firstUsagePage;    // int
+    BufType pageNumber;     // int
     BufType primaryKeyIndex;   // int
     BufType recordInfoLength;  // int
     BufType recordInfo;
@@ -35,9 +35,9 @@ public:
 
     int getFirstDataPage();
 
-    int getFirstUsageSlot();
+    int getFirstUsagePage();
 
-    int getLastUsageSlot();
+    int getPageNumber();
 
     int getRecordInfoLength();
 
@@ -45,9 +45,9 @@ public:
 
     void setFirstDataPage(int n);
 
-    void setFirstUsageSlot(int n);
+    void setFirstUsagePage(int n);
 
-    void setLastUsageSlot(int n);
+    void setPageNumber(int n);
 
     void setRecordInfoLength(int n);
 
@@ -70,9 +70,9 @@ public:
     int size();
 
     const static int FIRST_DATA_PAGE_OFFSET = 0;
-    const static int FIRST_USAGE_SLOT_OFFSET = FIRST_DATA_PAGE_OFFSET + sizeof(int);
-    const static int LAST_USAGE_SLOT_OFFSET = FIRST_USAGE_SLOT_OFFSET + sizeof(int);
-    const static int PRIMARY_KEY_INDEX_OFFSET = LAST_USAGE_SLOT_OFFSET + sizeof(int);
+    const static int FIRST_USAGE_PAGE_OFFSET = FIRST_DATA_PAGE_OFFSET + sizeof(int);
+    const static int PAGE_NUMBER_OFFSET = FIRST_USAGE_PAGE_OFFSET + sizeof(int);
+    const static int PRIMARY_KEY_INDEX_OFFSET = PAGE_NUMBER_OFFSET + sizeof(int);
     const static int RECORD_INFO_LENGTH_OFFSET = PRIMARY_KEY_INDEX_OFFSET + sizeof(int);
     const static int RECORD_INFO_OFFSET = RECORD_INFO_LENGTH_OFFSET + sizeof(int);
 
