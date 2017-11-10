@@ -1,7 +1,7 @@
 #include"DBPageInfoSlot.h"
 
 DBPageInfoSlot::DBPageInfoSlot(BufType cache, int type, int mode):
-    DBSlot(cache, mode)
+    DBSlot(cache)
 {
     pageType = (*this)[PAGE_TYPE_OFFSET];
     firstAvailableByte = (*this)[FIRST_AVAILABLE_BYTE_OFFSET];

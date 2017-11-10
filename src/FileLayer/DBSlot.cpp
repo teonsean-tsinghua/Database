@@ -1,6 +1,6 @@
 #include"DBSlot.h"
 
-DBSlot::DBSlot(BufType cache, int mode):
+DBSlot::DBSlot(BufType cache):
     cache(cache)
 {
 

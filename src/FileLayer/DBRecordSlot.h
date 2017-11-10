@@ -6,7 +6,7 @@
 class DBRecordSlot: public DBSlot
 {
 public:
-    DBRecordSlot(BufType cache, int slotLength);
+    DBRecordSlot(BufType cache);
 };
 
 #endif // DBRECORDSLOT_H_INCLUDED

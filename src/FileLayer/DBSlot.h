@@ -12,15 +12,13 @@ protected:
     BufType cache;
 
 public:
-    DBSlot(BufType cache, int mode);
+    DBSlot(BufType cache);
 
     virtual int size();
 
     virtual void print();
 
     BufType operator[](const int offset) const;
-
-    const static int SLOT_LENGTH_OFFSET = 0;    //If slot length is -1, then DBSlot will go find its length at this offset.
 };
 
 #endif // DBSLOT_H_INCLUDED

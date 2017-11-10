@@ -1,7 +1,7 @@
 #include"DBDataFileDescriptionSlot.h"
 
 DBDataFileDescriptionSlot::DBDataFileDescriptionSlot(BufType cache, int mode):
-    DBSlot(cache, mode)
+    DBSlot(cache)
 {
     firstDataPage = (*this)[FIRST_DATA_PAGE_OFFSET];
     firstUsageSlot = (*this)[FIRST_USAGE_SLOT_OFFSET];
