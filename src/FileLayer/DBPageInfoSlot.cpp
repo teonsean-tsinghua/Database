@@ -56,6 +56,13 @@ int DBPageInfoSlot::getPageType()
     return re;
 }
 
+int DBPageInfoSlot::getPageType(BufType cache)
+{
+    int re;
+    readInt((BufType)((char*)cache + PAGE_TYPE_OFFSET), &re);
+    return re;
+}
+
 int DBPageInfoSlot::getFirstAvailableByte()
 {
     int re;

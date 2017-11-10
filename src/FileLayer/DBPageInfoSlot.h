@@ -22,6 +22,8 @@ public:
 
     int getPageType();
 
+    static int getPageType(BufType cache);
+
     int getFirstAvailableByte();
 
     bool isLengthFixed();
