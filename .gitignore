@@ -11,3 +11,4 @@ application
 *.idx
 */*.db
 */*.idx
+test.out
