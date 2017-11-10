@@ -4,20 +4,30 @@
 #include<string>
 #include<iostream>
 
-void DBLog(std::string msg);
+template<typename T>
+void DBLog(const T& msg)
+{
+    std::cout << msg;
+}
 
-void DBLogLine(std::string msg = "");
+template<typename T>
+void DBLogLine(const T& msg)
+{
+    std::cout << msg << std::endl;
+}
 
-void DBPrint(std::string msg);
+template<typename T>
+void DBPrint(const T& msg)
+{
+    std::cout << msg;
+}
 
-void DBPrintLine(std::string msg = "");
+template<typename T>
+void DBPrintLine(const T& msg)
+{
+    std::cout << msg << std::endl;
+}
 
-void DBLog(int msg);
 
-void DBLogLine(int msg);
-
-void DBPrint(int msg);
-
-void DBPrintLine(int msg);
 
 #endif // DBPRINT_H_INCLUDED
