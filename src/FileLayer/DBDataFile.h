@@ -4,6 +4,7 @@
 #include"../DBInclude.h"
 #include"DBDataFileDescriptionPage.h"
 #include"DBDataPage.h"
+#include"DBUsagePage.h"
 
 class DBDataFile
 {
@@ -19,6 +20,8 @@ private:
     DBPage* visit(int pageID);
 
     int findFirstAvailableDataPage();
+
+    int setAvailableOfDataPage(int dpid, bool available);
 
     int allocateNewDataPage();
 

@@ -1,7 +1,7 @@
 #include"DBUsagePage.h"
 
-DBUsagePage::DBUsagePage(BufType cache, int index, int pageID, int mode):
-    DBPage(cache, index, pageID, DBType::USAGE_PAGE, mode)
+DBUsagePage::DBUsagePage(BufType cache, int index, int pid, int mode):
+    DBPage(cache, index, pid, DBType::USAGE_PAGE, mode)
 {
     if(mode == MODE_CREATE)
     {
@@ -14,29 +14,33 @@ DBUsagePage::DBUsagePage(BufType cache, int index, int pageID, int mode):
     us = new DBUsageSlot((*this)[pis->size()]);
 }
 
-bool DBUsagePage::isAvailable(int pageID)
+int DBUsagePage::findFirstAvailable()
 {
-    if(pageID <= this->pageID || pageID > this->pageID + PAGE_SIZE - pis->size())
+    for(int i = pis->size(); i < PAGE_SIZE; i++)
     {
-        return false;
+        if(us->isAvailable(i - pis->size()))
+        {
+            return pageID + i - pis->size() + 1;
+        }
     }
-    return us->isAvailable(pageID - this->pageID - 1);
+    return -1;
+}
+
+bool DBUsagePage::isAvailable(int pid)
+{
+    return us->isAvailable(pid - this->pageID - 1);
 }
 
 bool DBUsagePage::withinRange(int pid)
 {
-    if(pageID <= this->pageID || pageID > this->pageID + PAGE_SIZE - pis->size())
+    if(pid <= this->pageID || pid > this->pageID + PAGE_SIZE - pis->size())
     {
         return false;
     }
     return true;
 }
 
-void DBUsagePage::setAvailable(int pageID, bool available)
+void DBUsagePage::setAvailable(int pid, bool available)
 {
-    if(pageID <= this->pageID || pageID > this->pageID + PAGE_SIZE - pis->size())
-    {
-        return;
-    }
-    us->setAvailable(pageID - this->pageID - 1, available);
+    us->setAvailable(pid - this->pageID - 1, available);
 }

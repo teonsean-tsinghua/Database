@@ -8,6 +8,42 @@ DBDataFile::DBDataFile(const char* root):
     lastDataPage = -1;
 }
 
+int DBDataFile::findFirstAvailableDataPage()
+{
+    DBUsagePage* up = openUsagePage(dfdp->getFirstUsagePage());
+    while(true)
+    {
+        if(up == NULL)
+        {
+            return allocateNewDataPage();
+        }
+        int re = up->findFirstAvailable();
+        if(re > 0 && re < dfdp->getPageNumber())
+        {
+            return re;
+        }
+        up = openUsagePage(up->getNextSameType());
+    }
+}
+
+int DBDataFile::setAvailableOfDataPage(int dpid, bool available)
+{
+    DBUsagePage* up = openUsagePage(dfdp->getFirstUsagePage());
+    while(true)
+    {
+        if(up == NULL)
+        {
+            return ERROR;
+        }
+        if(up->withinRange(dpid))
+        {
+            break;
+        }
+        up = openUsagePage(up->getNextSameType());
+    }
+    up->setAvailable(dpid, available);
+}
+
 int DBDataFile::allocateNewUsagePage()
 {
     int cnt = dfdp->getPageNumber();
@@ -39,16 +75,18 @@ int DBDataFile::allocateNewDataPage()
         return ERROR;
     }
     DBUsagePage* up = openUsagePage(lastUsagePage);
-    if(up == NULL || !up.withinRange(cnt))
+    if(up == NULL || !up->withinRange(cnt))
     {
-        if(allocateNewUsagePage() == ERROR)
+        up = openUsagePage(allocateNewUsagePage());
+        if(up == NULL)
         {
             return ERROR;
         }
     }
+    cnt = dfdp->getPageNumber();
     int index;
     BufType cache = fm->getPage(fileID, cnt, index);
-    DBDataPage* dp = new DBDataPage(cache, index, cnt, MODE_CREATE);
+    DBDataPage* dp = new DBDataPage(cache, index, cnt, dfdp->getRecordLength(), MODE_CREATE, ri);
     pages[cnt] = dp;
     DBLog("Allocated new data page ");
     DBLogLine(cnt);
@@ -59,6 +97,11 @@ int DBDataFile::allocateNewDataPage()
         last->setNextSameType(cnt);
     }
     lastDataPage = cnt;
+    if(!up->withinRange(cnt))
+    {
+        return ERROR;
+    }
+    up->setAvailable(cnt, true);
     return cnt;
 }
 
@@ -67,7 +110,7 @@ DBDataPage* DBDataFile::openDataPage(int pid)
     if(pages.count(pid))
     {
         DBPage* re = pages[pid];
-        return re->getPageType() == DBType::DATA_PAGE ? re : NULL;
+        return re->getPageType() == DBType::DATA_PAGE ? (DBDataPage*)re : NULL;
     }
     if(pid <= 0 || pid >= dfdp->getPageNumber())
     {
@@ -89,7 +132,7 @@ DBUsagePage* DBDataFile::openUsagePage(int pid)
     if(pages.count(pid))
     {
         DBPage* re = pages[pid];
-        return re->getPageType() == DBType::USAGE_PAGE ? re : NULL;
+        return re->getPageType() == DBType::USAGE_PAGE ? (DBUsagePage*)re : NULL;
     }
     if(pid <= 0 || pid >= dfdp->getPageNumber())
     {
@@ -101,7 +144,7 @@ DBUsagePage* DBDataFile::openUsagePage(int pid)
     {
         return NULL;
     }
-    DBUsagePage* re = new DBUsagePage(cache, index, pid, dfdp->getRecordLength(), MODE_PARSE, ri);
+    DBUsagePage* re = new DBUsagePage(cache, index, pid, MODE_PARSE);
     pages[pid] = re;
     return re;
 }
@@ -223,13 +266,14 @@ int DBDataFile::insertRecord(std::map<std::string, void*>& fields)
     if(errors.empty())
     {
         int fadp = findFirstAvailableDataPage();
+        std::cout << "First available found: " << fadp << std::endl;
         int re = insertRecordToPage(fadp, processed);
         switch(re)
         {
         case ERROR:
             return ERROR;
         case DATA_PAGE_FULL:
-            //TODO
+            setAvailableOfDataPage(fadp, false);
         default:
             DBLogLine("Succeeded in inserting record.");
         }

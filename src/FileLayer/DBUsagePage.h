@@ -18,6 +18,8 @@ public:
     void setAvailable(int pageID, bool available);
 
     bool withinRange(int pageID);
+
+    int findFirstAvailable();
 };
 
 #endif // DBUSAGEPAGE_H_INCLUDED
