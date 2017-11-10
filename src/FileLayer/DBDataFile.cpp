@@ -53,6 +53,7 @@ void DBDataFile::printFileDescription()
 int DBDataFile::addField(const char* name, int type, bool nullable)
 {
     int re = dfdp->addField(name, type, nullable);
+    //TODO: might need to rewrite the whole file. But this is not included in the requirements seemingly, so leave it here for now.
     switch(re)
     {
     case EMPTY_FIELD_NAME:
@@ -64,10 +65,38 @@ int DBDataFile::addField(const char* name, int type, bool nullable)
     case EXCEED_PAGE_LIMIT:
         DBPrintLine("You cannot add any more fields to this table.");
         break;
-    default:
-        DBLogLine("Succeeded in adding field.");
     }
     return re;
+}
+
+int DBDataFile::insertRecord(std::map<std::string, void*>& fields)
+{
+    std:map<int, void*> processed;
+    std::map<std::string, int> errors;
+    if(dfdp->processRawData(fields, processed, errors) == SUCCEED)
+    {
+        return SUCCEED;
+    }
+    else
+    {
+        std::map<std::string, int>::iterator iter;
+        for(iter = errors.begin(); iter != errors.end(); iter++)
+        {
+            switch(iter->second)
+            {
+            case DBDataFileDescriptionPage::MISSING_FIELD:
+                DBPrintLine("Field " + iter->first + " should be assigned.");
+                break;
+            case DBDataFileDescriptionPage::EXTRA_FIELD:
+                DBPrintLine("This table does not contain field " + iter->first);
+                break;
+            case DBDataFileDescriptionPage::EDIT__ID:
+                DBPrintLine("You should not modify _id of any record.");
+                break;
+            }
+        }
+        return ERROR;
+    }
 }
 
 int DBDataFile::setPrimaryKey(const char* name)
@@ -81,8 +110,6 @@ int DBDataFile::setPrimaryKey(const char* name)
     case FIELD_NOT_EXIST:
         DBPrintLine("This table does not contain field " + std::string(name));
         break;
-    default:
-        DBLogLine("Succeeded in altering primary key.");
     }
     return re;
 }

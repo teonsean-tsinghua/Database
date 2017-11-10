@@ -55,13 +55,15 @@ public:
 
     int getRecordLength();
 
-    int getOffsetOfField(std::string name);
+    int getOffsetOfField(int index);
 
-    int getTypeOfField(std::string name);
+    int getTypeOfField(int index);
+
+    std::string getNameOfField(int index);
 
     int getIndexOfField(std::string name);
 
-    int getNullableOfField(std::string name);
+    int getNullableOfField(int index);
 
     void print();
 

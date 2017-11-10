@@ -25,6 +25,9 @@ public:
 
     int addField(const char* name, int type, bool nullable);
 
+    //If a nullable field is set to null, then don't include it in fields.
+    int insertRecord(std::map<std::string, void*>& fields);
+
     int setPrimaryKey(const char* name);
 
     void printFileDescription();

@@ -95,7 +95,7 @@ int DBDataFileDescriptionSlot::addField(std::string name, int type, int nullable
     {
         recordLength++;
     }
-    indexes[name] = names.size();
+    indexes[name] = names.size() - 1;
     return SUCCEED;
 }
 
@@ -207,22 +207,31 @@ void DBDataFileDescriptionSlot::setPrimaryKeyIndex(int n)
     writeInt(primaryKeyIndex, n);
 }
 
-int DBDataFileDescriptionSlot::getOffsetOfField(std::string name)
+int DBDataFileDescriptionSlot::getOffsetOfField(int index)
 {
-    if(indexes.count(name))
+    if(index >= 0 && index < offsets.size())
     {
-        return offsets[indexes[name]];
+        return offsets[index];
     }
     return -1;
 }
 
-int DBDataFileDescriptionSlot::getTypeOfField(std::string name)
+int DBDataFileDescriptionSlot::getTypeOfField(int index)
 {
-    if(indexes.count(name))
+    if(index >= 0 && index < types.size())
     {
-        return types[indexes[name]];
+        return types[index];
     }
     return -1;
+}
+
+std::string DBDataFileDescriptionSlot::getNameOfField(int index)
+{
+    if(index >= 0 && index < names.size())
+    {
+        return names[index];
+    }
+    return "";
 }
 
 int DBDataFileDescriptionSlot::getIndexOfField(std::string name)
@@ -234,11 +243,11 @@ int DBDataFileDescriptionSlot::getIndexOfField(std::string name)
     return -1;
 }
 
-int DBDataFileDescriptionSlot::getNullableOfField(std::string name)
+int DBDataFileDescriptionSlot::getNullableOfField(int index)
 {
-    if(indexes.count(name))
+    if(index >= 0 && index < nullables.size())
     {
-        return nullables[indexes[name]];
+        return nullables[index];
     }
     return -1;
 }

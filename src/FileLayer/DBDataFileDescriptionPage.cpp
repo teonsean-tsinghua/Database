@@ -17,6 +17,45 @@ DBDataFileDescriptionPage::DBDataFileDescriptionPage(BufType cache, int index, i
     }
 }
 
+int DBDataFileDescriptionPage::processRawData(std::map<std::string, void*>& raw,
+                                              std::map<int, void*>& processed,
+                                              std::map<std::string, int>& errors)
+{
+    processed.clear();
+    errors.clear();
+    std::map<std::string, void*>::iterator iter;
+    std::vector<bool> included;
+    included.assign(dfds->getFieldCount(), false);
+    for(iter = raw.begin(); iter != raw.end(); iter++)
+    {
+        int idx = dfds->getIndexOfField(iter->first);
+        if(idx < 0)
+        {
+            errors[iter->first] = EXTRA_FIELD;
+            continue;
+        }
+        if(idx == 0)
+        {
+            errors[iter->first] = EDIT__ID;
+            continue;
+        }
+        included[idx] = true;
+        processed[dfds->getOffsetOfField(idx)] = iter->second;
+    }
+    for(int i = 1; i < included.size(); i++)
+    {
+        if(!included[i] && !dfds->getNullableOfField(i))
+        {
+            errors[dfds->getNameOfField(i)] = MISSING_FIELD;
+        }
+    }
+    if(errors.empty())
+    {
+        return SUCCEED;
+    }
+    return ERROR;
+}
+
 int DBDataFileDescriptionPage::setPrimaryKey(std::string name)
 {
     int idx = dfds->getIndexOfField(name);
