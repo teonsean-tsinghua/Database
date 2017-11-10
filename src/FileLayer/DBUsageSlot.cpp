@@ -1,5 +1,11 @@
 #include"DBUsageSlot.h"
 
+DBUsageSlot::DBUsageSlot(BufType cache):
+    DBSlot(cache)
+{
+
+}
+
 void DBUsageSlot::setAvailable(int offset, bool available)
 {
     if(offset >= 0 && offset < PAGE_SIZE)

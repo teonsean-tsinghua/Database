@@ -7,7 +7,8 @@ const char* const DBType::typeName_[] = {"_id", "int"};
 
 const char* const DBType::pageName_[] = {"Data file description page",
                                          "Data page",
-                                         "Index page"};
+                                         "Index page",
+                                         "Data page"};
 
 int DBType::typeSize(int type)
 {
