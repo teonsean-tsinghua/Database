@@ -215,7 +215,7 @@ int DBDataFile::addField(const char* name, int type, bool nullable)
         DBPrintLine("You cannot add any more fields to this table.");
         break;
     default:
-        DBLogLine("Succeeded in adding field.");
+        DBLogLine("Succeeded in adding field " + std::string(name) + ".");
     }
     return re;
 }
@@ -266,7 +266,6 @@ int DBDataFile::insertRecord(std::map<std::string, void*>& fields)
     if(errors.empty())
     {
         int fadp = findFirstAvailableDataPage();
-        std::cout << "First available found: " << fadp << std::endl;
         int re = insertRecordToPage(fadp, processed);
         switch(re)
         {
