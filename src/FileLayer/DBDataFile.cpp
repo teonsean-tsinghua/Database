@@ -202,7 +202,7 @@ int DBDataFile::openFile(const char* name)
     int index;
     BufType cache = fm->getPage(fileID, 0, index);
     ri = new DBRecordInfo();
-    dfdp = new DBDataFileDescriptionPage(cache, index, MODE_PARSE, 0, ri);
+    dfdp = new DBDataFileDescriptionPage(cache, index, 0, MODE_PARSE, ri);
 }
 
 
