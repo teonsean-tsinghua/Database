@@ -3,7 +3,7 @@
 DBPage::DBPage(BufType cache, int index, int type, bool parse):
     cache(cache), index(index)
 {
-    boundary = (*this)[PAGE_SIZE];
+    boundary = (char*)((*this)[PAGE_SIZE]);
     pis = new DBPageInfoSlot((*this)[PAGE_INFO_SLOT_OFFSET], type, parse);
 }
 
@@ -39,11 +39,15 @@ DBDataFileDescriptionPage::DBDataFileDescriptionPage(BufType cache, int index, b
     }
 }
 
-void DBDataFileDescriptionPage::addField(std::string name, int type)
+int DBDataFileDescriptionPage::addField(std::string name, int type)
 {
-    dfds->addField(name, type);
-    dfds->write();
-    pis->setFirstAvailableByte(pis->size() + dfds->size());
+    int re = dfds->addField(name, type, boundary);
+    if(re == SUCCEED)
+    {
+        dfds->write();
+        pis->setFirstAvailableByte(pis->size() + dfds->size());
+    }
+    return re;
 }
 
 void DBDataFileDescriptionPage::print()

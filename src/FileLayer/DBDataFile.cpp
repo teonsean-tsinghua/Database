@@ -6,15 +6,17 @@ DBDataFile::DBDataFile(const char* root):
     fm = DBFileIOModel::getInstance();
 }
 
-void DBDataFile::createFile(const char* name)
+int DBDataFile::createFile(const char* name)
 {
     if(fm->createFile(name) != SUCCEED)
     {
-        DBPrint("ERROR");
+        DBLogLine("ERROR");
+        return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
     }
     if(fm->openFile(name, fileID) != SUCCEED)
     {
-        DBPrint("ERROR");
+        DBLogLine("ERROR");
+        return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
     }
     int index;
     BufType cache = fm->getPage(fileID, 0, index);
@@ -23,20 +25,22 @@ void DBDataFile::createFile(const char* name)
     fm->closeFile(fileID);
 }
 
-void DBDataFile::deleteFile(const char* name)
+int DBDataFile::deleteFile(const char* name)
 {
     if(fm->deleteFile(name) != SUCCEED)
     {
-        DBPrint("ERROR");
+        DBLogLine("ERROR");
+        return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
     }
 }
 
-void DBDataFile::closeFile()
+int DBDataFile::closeFile()
 {
     fm->flush(dfdp->getIndex());
     if(fm->closeFile(fileID) != SUCCEED)
     {
-        DBPrint("ERROR");
+        DBLogLine("ERROR");
+        return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
     }
 }
 
@@ -45,16 +49,17 @@ void DBDataFile::printFileDescription()
     dfdp->print();
 }
 
-void DBDataFile::addField(const char* name, int type)
+int DBDataFile::addField(const char* name, int type)
 {
-    dfdp->addField(name, type);
+    return dfdp->addField(name, type);
 }
 
-void DBDataFile::openFile(const char* name)
+int DBDataFile::openFile(const char* name)
 {
     if(fm->openFile(name, fileID) != SUCCEED)
     {
-        DBPrint("ERROR");
+        DBLogLine("ERROR");
+        return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
     }
     int index;
     BufType cache = fm->getPage(fileID, 0, index);

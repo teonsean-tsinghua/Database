@@ -22,11 +22,11 @@ DBDataFileDescriptionSlot::DBDataFileDescriptionSlot(BufType cache, int parse):
         }
         while(cache < end)
         {
-            sscanf(cache + RECORD_INFO_TYPE_OFFSET, "%d", &type);
-            sscanf(cache + RECORD_INFO_NAME_LENGTH_OFFSET, "%d", &name_length);
+            readInt((BufType)(cache + RECORD_INFO_TYPE_OFFSET), &type);
+            readInt((BufType)(cache + RECORD_INFO_NAME_LENGTH_OFFSET), &name_length);
             cache += RECORD_INFO_NAME_OFFSET;
             std::string name;
-            name = name.assign(cache, name_length);
+            readString(cache, name, name_length);
             indexes[name] = index;
             names.push_back(name);
             types.push_back(type);
@@ -55,18 +55,23 @@ int DBDataFileDescriptionSlot::size()
     return sizeof(int) * 4 + currentRecordInfoLength;
 }
 
-int DBDataFileDescriptionSlot::addField(std::string name, int type)
+int DBDataFileDescriptionSlot::addField(std::string name, int type, char* boundary)
 {
     if(indexes.count(name))
     {
         return FIELD_ALREADY_EXIST;
+    }
+    currentRecordInfoLength += (sizeof(int) * 2 + name.size());
+    if((char*)recordInfo + currentRecordInfoLength >= boundary)
+    {
+        currentRecordInfoLength -= (sizeof(int) * 2 + name.size());
+        return EXCEED_PAGE_LIMIT;
     }
     names.push_back(name);
     types.push_back(type);
     offsets.push_back(recordLength);
     recordLength += DBType::typeSize(type);
     indexes[name] = names.size();
-    currentRecordInfoLength += (sizeof(int) * 2 + name.size());
     return SUCCEED;
 }
 
@@ -121,49 +126,49 @@ int DBDataFileDescriptionSlot::getRecordLength()
 int DBDataFileDescriptionSlot::getFirstDataPage()
 {
     int re;
-    sscanf((char*)firstDataPage, "%d", &re);
+    readInt(firstDataPage, &re);
     return re;
 }
 
 int DBDataFileDescriptionSlot::getFirstUsageSlot()
 {
     int re;
-    sscanf((char*)firstUsageSlot, "%d", &re);
+    readInt(firstUsageSlot, &re);
     return re;
 }
 
 int DBDataFileDescriptionSlot::getLastUsageSlot()
 {
     int re;
-    sscanf((char*)lastUsageSlot, "%d", &re);
+    readInt(lastUsageSlot, &re);
     return re;
 }
 
 int DBDataFileDescriptionSlot::getRecordInfoLength()
 {
     int re;
-    sscanf((char*)recordInfoLength, "%d", &re);
+    readInt(recordInfoLength, &re);
     return re;
 }
 
 void DBDataFileDescriptionSlot::setFirstDataPage(int n)
 {
-    sprintf((char*)firstDataPage, "%d", n);
+    writeInt(firstDataPage, n);
 }
 
 void DBDataFileDescriptionSlot::setFirstUsageSlot(int n)
 {
-    sprintf((char*)firstUsageSlot, "%d", n);
+    writeInt(firstUsageSlot, n);
 }
 
 void DBDataFileDescriptionSlot::setLastUsageSlot(int n)
 {
-    sprintf((char*)lastUsageSlot, "%d", n);
+    writeInt(lastUsageSlot, n);
 }
 
 void DBDataFileDescriptionSlot::setRecordInfoLength(int n)
 {
-    sprintf((char*)recordInfoLength, "%d", n);
+    writeInt(recordInfoLength, n);
 }
 
 int DBDataFileDescriptionSlot::getOffsetOfField(std::string name)
@@ -195,13 +200,10 @@ void DBDataFileDescriptionSlot::write()
     for(int i = 0; i < names.size(); i++)
     {
         int name_length = names[i].size();
-        sprintf(cache + RECORD_INFO_TYPE_OFFSET, "%d", types[i]);
-        sprintf(cache + RECORD_INFO_NAME_LENGTH_OFFSET, "%d", name_length);
+        writeInt((BufType)(cache + RECORD_INFO_TYPE_OFFSET), types[i]);
+        writeInt((BufType)(cache + RECORD_INFO_NAME_LENGTH_OFFSET), name_length);
         cache += RECORD_INFO_NAME_OFFSET;
-        if(names[i].copy(cache, name_length) != name_length)
-        {
-            throw ERROR;
-        }
+        writeString(cache, names[i], name_length);
         cache += name_length;
     }
 }

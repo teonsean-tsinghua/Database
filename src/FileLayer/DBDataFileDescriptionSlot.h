@@ -23,7 +23,7 @@ public:
 
     void write();
 
-    int addField(std::string name, int type);
+    int addField(std::string name, int type, char* boundary);
 
     int getFieldCount();
 

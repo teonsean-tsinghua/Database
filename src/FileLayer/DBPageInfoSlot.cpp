@@ -54,47 +54,47 @@ void DBPageInfoSlot::print()
 int DBPageInfoSlot::getPageType()
 {
     int re;
-    sscanf((char*)pageType, "%d", &re);
+    readInt(pageType, &re);
     return re;
 }
 
 int DBPageInfoSlot::getFirstAvailableByte()
 {
     int re;
-    sscanf((char*)firstAvailableByte, "%d", &re);
+    readInt(firstAvailableByte, &re);
     return re;
 }
 
 int DBPageInfoSlot::isLengthFixed()
 {
     int re;
-    sscanf((char*)lengthFixed, "%d", &re);
+    readInt(lengthFixed, &re);
     return re;
 }
 
 int DBPageInfoSlot::getNextSamePage()
 {
     int re;
-    sscanf((char*)nextSamePage, "%d", &re);
+    readInt(nextSamePage, &re);
     return re;
 }
 
 void DBPageInfoSlot::setPageType(int n)
 {
-    sprintf((char*)pageType, "%d", n);
+    writeInt(pageType, n);
 }
 
 void DBPageInfoSlot::setFirstAvailableByte(int n)
 {
-    sprintf((char*)firstAvailableByte, "%d", n);
+    writeInt(firstAvailableByte, n);
 }
 
 void DBPageInfoSlot::setLengthFixed(int n)
 {
-    sprintf((char*)lengthFixed, "%d", n);
+    writeInt(lengthFixed, n);
 }
 
 void DBPageInfoSlot::setNextSamePage(int n)
 {
-    sprintf((char*)nextSamePage, "%d", n);
+    writeInt(nextSamePage, n);
 }

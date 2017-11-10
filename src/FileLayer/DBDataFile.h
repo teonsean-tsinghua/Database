@@ -15,15 +15,15 @@ private:
 public:
     DBDataFile(const char* root);
 
-    void createFile(const char* name);
+    int createFile(const char* name);
 
-    void openFile(const char* name);
+    int openFile(const char* name);
 
-    void closeFile();
+    int closeFile();
 
-    void deleteFile(const char* name);
+    int deleteFile(const char* name);
 
-    void addField(const char* name, int type);
+    int addField(const char* name, int type);
 
     void printFileDescription();
 };

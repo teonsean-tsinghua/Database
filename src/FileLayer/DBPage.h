@@ -10,7 +10,7 @@ class DBPage
 protected:
     DBPageInfoSlot* pis;
     BufType cache;
-    BufType boundary;
+    char* boundary;
     int index;
 
     const static char* const name_[];
@@ -38,7 +38,7 @@ protected:
 public:
     DBDataFileDescriptionPage(BufType cache, int index, bool parse = false);
 
-    void addField(std::string name, int type);
+    int addField(std::string name, int type);
 
     void print();
 };
