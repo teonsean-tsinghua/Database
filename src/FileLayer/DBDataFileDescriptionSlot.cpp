@@ -138,17 +138,14 @@ void DBDataFileDescriptionSlot::print()
 //    DBPrintLine(offsets.size());
     for(int i = 0; i < cnt; i++)
     {
-        DBPrint("Field type: ");
-        DBPrintLine(DBType::typeName(types[i]));
-        DBPrint("Field name: ");
-        DBPrintLine(names[i]);
+        DBPrint("Field " + names[i] + " is of type " + std::string(DBType::typeName(types[i])));
         if(nullables[i] != 0)
         {
-            DBPrintLine("This field can be null.");
+            DBPrintLine(", and can be null.");
         }
         else
         {
-            DBPrintLine("This field cannot be null.");
+            DBPrintLine(", and cannot be null.");
         }
     }
 }
