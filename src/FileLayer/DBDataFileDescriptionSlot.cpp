@@ -40,15 +40,11 @@ DBDataFileDescriptionSlot::DBDataFileDescriptionSlot(BufType cache, int mode):
             types.push_back(type);
             offsets.push_back(offset);
             nullables.push_back(nullable);
-            if(nullable)
-            {
-                recordLength++; // If nullable, then allocate 1 byte in record slot to store if it's null or not.
-            }
-            offset += DBType::typeSize(type);
+            offset += (DBType::typeSize(type) + 1);
             cache += name_length;
             index++;
         }
-        recordLength = indexes.size() ? offsets[offsets.size() - 1] + DBType::typeSize(types[types.size() - 1]) : 0;
+        recordLength = indexes.size() ? offset : 0;
         currentRecordInfoLength = getRecordInfoLength();
     }
     else if(mode == MODE_CREATE)
@@ -90,11 +86,7 @@ int DBDataFileDescriptionSlot::addField(std::string name, int type, int nullable
     types.push_back(type);
     offsets.push_back(recordLength);
     nullables.push_back(nullable);
-    recordLength += DBType::typeSize(type);
-    if(nullable)
-    {
-        recordLength++;
-    }
+    recordLength += (DBType::typeSize(type) + 1);
     indexes[name] = names.size() - 1;
     return SUCCEED;
 }

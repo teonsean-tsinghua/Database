@@ -12,7 +12,11 @@ protected:
 public:
     DBDataFileDescriptionPage(BufType cache, int index, int mode);
 
-    int incrementPageNumber();
+    void incrementPageNumber();
+
+    int getPageNumber();
+
+    int getRecordLength();
 
     int addField(std::string name, int type, bool nullable);
 

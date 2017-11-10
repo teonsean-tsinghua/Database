@@ -8,7 +8,7 @@ DBDataFileDescriptionPage::DBDataFileDescriptionPage(BufType cache, int index, i
     {
         pis->setPageType(DBType::DATA_FILE_DESCRIPTION_PAGE);
         pis->setNextSamePage(-1);
-        pis->setLengthFixed(0);
+        pis->setLengthFixed(false);
         pis->setFirstAvailableByte(pis->size() + dfds->size());
         dfds->setFirstDataPage(-1);
         dfds->setFirstUsagePage(-1);
@@ -17,9 +17,19 @@ DBDataFileDescriptionPage::DBDataFileDescriptionPage(BufType cache, int index, i
     }
 }
 
-int DBDataFileDescriptionPage::incrementPageNumber()
+void DBDataFileDescriptionPage::incrementPageNumber()
 {
     dfds->setPageNumber(dfds->getPageNumber() + 1);
+}
+
+int DBDataFileDescriptionPage::getPageNumber()
+{
+    return dfds->getPageNumber();
+}
+
+int DBDataFileDescriptionPage::getRecordLength()
+{
+    return dfds->getRecordLength();
 }
 
 int DBDataFileDescriptionPage::processRawData(std::map<std::string, void*>& raw,
