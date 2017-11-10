@@ -10,16 +10,13 @@ class DBSlot
 {
 protected:
     BufType cache;
-    int slotLength;
 
 public:
-    DBSlot(BufType cache, int slotLength = 0, int parse = false);
+    DBSlot(BufType cache, int mode);
 
     virtual int size();
 
     virtual void print();
-
-    int getSlotLength();
 
     BufType operator[](const int offset) const;
 

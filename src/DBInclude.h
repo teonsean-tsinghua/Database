@@ -14,5 +14,12 @@ const static int ERROR = SUCCEED - 1;
 const static int FIELD_ALREADY_EXIST = ERROR - 1;
 const static int EXCEED_PAGE_LIMIT = FIELD_ALREADY_EXIST - 1;
 const static int FILE_OR_DIRECTORY_DOES_NOT_EXIST = EXCEED_PAGE_LIMIT - 1;
+const static int FIELD_NOT_EXIST = FILE_OR_DIRECTORY_DOES_NOT_EXIST - 1;
+const static int FIELD_IS_ALREADY_PRIMARY_KEY = FIELD_NOT_EXIST - 1;
+const static int EMPTY_FIELD_NAME = FIELD_IS_ALREADY_PRIMARY_KEY - 1;
+
+const static int MODE_CREATE = 101;
+
+const static int MODE_PARSE = 202;
 
 #endif // DBINCLUDE_H_INCLUDED

@@ -1,20 +1,20 @@
 #include"DBPageInfoSlot.h"
 
-DBPageInfoSlot::DBPageInfoSlot(BufType cache, int type, int parse):
-    DBSlot(cache, parse)
+DBPageInfoSlot::DBPageInfoSlot(BufType cache, int type, int mode):
+    DBSlot(cache, mode)
 {
     pageType = (*this)[PAGE_TYPE_OFFSET];
     firstAvailableByte = (*this)[FIRST_AVAILABLE_BYTE_OFFSET];
     lengthFixed = (*this)[LENGTH_FIXED_OFFSET];
     nextSamePage = (*this)[NEXT_SAME_PAGE_OFFSET];
-    if(parse)
+    if(mode == MODE_PARSE)
     {
         if(type != getPageType())
         {
             throw "Incompatible page type";
         }
     }
-    else
+    else if(mode == MODE_CREATE)
     {
         setPageType(type);
     }
@@ -41,11 +41,11 @@ void DBPageInfoSlot::print()
     DBPrintLine(isLengthFixed());
     if(isLengthFixed())
     {
-        DBPrintLine("This page stores records with fixed length.");
+        DBPrintLine("This page stores slots with fixed length.");
     }
     else
     {
-        DBPrintLine("This page stores records with variable length.");
+        DBPrintLine("This page stores slots with variable length.");
     }
     DBPrint("Next page of this type: ");
     DBPrintLine(getNextSamePage());

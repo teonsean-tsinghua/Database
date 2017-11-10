@@ -16,7 +16,7 @@ protected:
     const static char* const name_[];
 ;
 public:
-    DBPage(BufType cache, int index, int type, bool parse = false);
+    DBPage(BufType cache, int index, int type, int mode);
 
     BufType operator[](const int offset) const;
 
@@ -36,9 +36,11 @@ protected:
     DBDataFileDescriptionSlot* dfds;
 
 public:
-    DBDataFileDescriptionPage(BufType cache, int index, bool parse = false);
+    DBDataFileDescriptionPage(BufType cache, int index, int mode);
 
     int addField(std::string name, int type);
+
+    int setPrimaryKey(std::string name);
 
     void print();
 };

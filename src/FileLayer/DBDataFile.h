@@ -25,6 +25,8 @@ public:
 
     int addField(const char* name, int type);
 
+    int setPrimaryKey(const char* name);
+
     void printFileDescription();
 };
 

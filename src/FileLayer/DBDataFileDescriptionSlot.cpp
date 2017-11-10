@@ -1,14 +1,15 @@
 #include"DBDataFileDescriptionSlot.h"
 
-DBDataFileDescriptionSlot::DBDataFileDescriptionSlot(BufType cache, int parse):
-    DBSlot(cache, 0, parse)
+DBDataFileDescriptionSlot::DBDataFileDescriptionSlot(BufType cache, int mode):
+    DBSlot(cache, mode)
 {
     firstDataPage = (*this)[FIRST_DATA_PAGE_OFFSET];
     firstUsageSlot = (*this)[FIRST_USAGE_SLOT_OFFSET];
     lastUsageSlot = (*this)[LAST_USAGE_SLOT_OFFSET];
+    primaryKeyIndex = (*this)[PRIMARY_KEY_INDEX_OFFSET];
     recordInfoLength = (*this)[RECORD_INFO_LENGTH_OFFSET];
     recordInfo = (*this)[RECORD_INFO_OFFSET];
-    if(parse)
+    if(mode == MODE_PARSE)
     {
         char* cache = (char*)recordInfo;
         char* end = cache + getRecordInfoLength();
@@ -38,10 +39,11 @@ DBDataFileDescriptionSlot::DBDataFileDescriptionSlot(BufType cache, int parse):
         recordLength = indexes.size() ? offsets[offsets.size() - 1] + DBType::typeSize(types[types.size() - 1]) : 0;
         currentRecordInfoLength = getRecordInfoLength();
     }
-    else
+    else if(mode == MODE_CREATE)
     {
         currentRecordInfoLength = 0;
         setRecordInfoLength(0);
+        setPrimaryKeyIndex(0);
         recordLength = 0;
         indexes.clear();
         names.clear();
@@ -52,7 +54,7 @@ DBDataFileDescriptionSlot::DBDataFileDescriptionSlot(BufType cache, int parse):
 
 int DBDataFileDescriptionSlot::size()
 {
-    return sizeof(int) * 4 + currentRecordInfoLength;
+    return sizeof(int) * 5 + currentRecordInfoLength;
 }
 
 int DBDataFileDescriptionSlot::addField(std::string name, int type, char* boundary)
@@ -60,6 +62,10 @@ int DBDataFileDescriptionSlot::addField(std::string name, int type, char* bounda
     if(indexes.count(name))
     {
         return FIELD_ALREADY_EXIST;
+    }
+    if(name.empty())
+    {
+        return EMPTY_FIELD_NAME;
     }
     currentRecordInfoLength += (sizeof(int) * 2 + name.size());
     if((char*)recordInfo + currentRecordInfoLength >= boundary)
@@ -101,6 +107,8 @@ void DBDataFileDescriptionSlot::print()
     int cnt = getFieldCount();
     DBPrint("Number of fields: ");
     DBPrintLine(cnt);
+    DBPrint("Primary key is: ");
+    DBPrintLine(names[getPrimaryKeyIndex()]);
 //    DBPrint("Index: ");
 //    DBPrintLine(indexes.size());
 //    DBPrint("Name: ");
@@ -151,6 +159,13 @@ int DBDataFileDescriptionSlot::getRecordInfoLength()
     return re;
 }
 
+int DBDataFileDescriptionSlot::getPrimaryKeyIndex()
+{
+    int re;
+    readInt(primaryKeyIndex, &re);
+    return re;
+}
+
 void DBDataFileDescriptionSlot::setFirstDataPage(int n)
 {
     writeInt(firstDataPage, n);
@@ -171,6 +186,11 @@ void DBDataFileDescriptionSlot::setRecordInfoLength(int n)
     writeInt(recordInfoLength, n);
 }
 
+void DBDataFileDescriptionSlot::setPrimaryKeyIndex(int n)
+{
+    writeInt(primaryKeyIndex, n);
+}
+
 int DBDataFileDescriptionSlot::getOffsetOfField(std::string name)
 {
     if(indexes.count(name))
@@ -185,6 +205,15 @@ int DBDataFileDescriptionSlot::getTypeOfField(std::string name)
     if(indexes.count(name))
     {
         return types[indexes[name]];
+    }
+    return -1;
+}
+
+int DBDataFileDescriptionSlot::getIndexOfField(std::string name)
+{
+    if(indexes.count(name))
+    {
+        return indexes[name];
     }
     return -1;
 }

@@ -9,8 +9,9 @@ class DBType
     const static char* const pageName_[];
 
 public:
-    const static int INT = 0;
-    const static int FIRST_TYPE = INT;
+    const static int _ID = 0;
+    const static int INT = _ID + 1;
+    const static int FIRST_TYPE = _ID;
     const static int LAST_TYPE = INT;
 
     const static int DATA_FILE_DESCRIPTION_PAGE = 0;
