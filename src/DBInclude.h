@@ -3,6 +3,7 @@
 
 #include"utils/DBPrint.h"
 #include"utils/DBType.h"
+#include"utils/DBRecordInfo.h"
 #include<string>
 #include<iostream>
 #include<cstring>

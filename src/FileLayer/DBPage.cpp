@@ -1,7 +1,7 @@
 #include"DBPage.h"
 
-DBPage::DBPage(BufType cache, int index, int type, int mode):
-    cache(cache), index(index)
+DBPage::DBPage(BufType cache, int index, int pageID, int type, int mode):
+    cache(cache), index(index), pageID(pageID)
 {
     boundary = (char*)((*this)[PAGE_SIZE]);
     pis = new DBPageInfoSlot((*this)[PAGE_INFO_SLOT_OFFSET], type, mode);
@@ -22,3 +22,7 @@ void DBPage::print()
     pis->print();
 }
 
+int DBPage::getPageID()
+{
+    return pageID;
+}

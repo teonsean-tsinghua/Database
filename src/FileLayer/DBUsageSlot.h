@@ -6,7 +6,6 @@
 class DBUsageSlot:public DBSlot
 {
 protected:
-
 };
 
 #endif // DBUSAGESLOT_H_INCLUDED

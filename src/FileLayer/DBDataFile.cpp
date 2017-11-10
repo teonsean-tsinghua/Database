@@ -21,7 +21,7 @@ int DBDataFile::createFile(const char* name)
     int index;
     BufType cache = fm->getPage(fileID, 0, index);
     ri = new DBRecordInfo();
-    dfdp = new DBDataFileDescriptionPage(cache, index, MODE_CREATE, ri);
+    dfdp = new DBDataFileDescriptionPage(cache, index, 0, MODE_CREATE, ri);
     dfdp->addField("_id", DBType::_ID, false);
     fm->flush(dfdp->getIndex());
     fm->closeFile(fileID);
@@ -86,7 +86,7 @@ int DBDataFile::allocateNewDataPage()
     }
     int index;
     BufType cache = fm->getPage(fileID, cnt, index);
-    DBDataPage* dp = new DBDataPage(cache, index, dfdp->getRecordLength(), MODE_CREATE, ri);
+    DBDataPage* dp = new DBDataPage(cache, index, cnt, dfdp->getRecordLength(), MODE_CREATE, ri);
     pages[cnt] = dp;
     DBLog("Allocated new data page ");
     DBLogLine(cnt);
@@ -202,7 +202,7 @@ int DBDataFile::openFile(const char* name)
     int index;
     BufType cache = fm->getPage(fileID, 0, index);
     ri = new DBRecordInfo();
-    dfdp = new DBDataFileDescriptionPage(cache, index, MODE_PARSE, ri);
+    dfdp = new DBDataFileDescriptionPage(cache, index, MODE_PARSE, 0, ri);
 }
 
 

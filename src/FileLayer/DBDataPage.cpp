@@ -1,7 +1,7 @@
 #include"DBDataPage.h"
 
-DBDataPage::DBDataPage(BufType cache, int index, int recordLength, int mode, DBRecordInfo* ri):
-    DBPage(cache, index, DBType::DATA_PAGE, mode), recordLength(recordLength), ri(ri)
+DBDataPage::DBDataPage(BufType cache, int index, int pageID, int recordLength, int mode, DBRecordInfo* ri):
+    DBPage(cache, index, pageID, DBType::DATA_PAGE, mode), recordLength(recordLength), ri(ri)
 {
     if(mode == MODE_CREATE)
     {

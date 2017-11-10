@@ -11,15 +11,18 @@ protected:
     BufType cache;
     char* boundary;
     int index;
+    int pageID;
 
     const static char* const name_[];
 ;
 public:
-    DBPage(BufType cache, int index, int type, int mode);
+    DBPage(BufType cache, int index, int pageID, int type, int mode);
 
     BufType operator[](const int offset) const;
 
     int getIndex();
+
+    int getPageID();
 
     const char* name(int type);
 
