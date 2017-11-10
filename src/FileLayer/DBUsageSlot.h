@@ -6,6 +6,9 @@
 class DBUsageSlot:public DBSlot
 {
 protected:
+    void setAvailable(int offset, bool available);
+
+    bool isAvailable(int offset);
 };
 
 #endif // DBUSAGESLOT_H_INCLUDED
