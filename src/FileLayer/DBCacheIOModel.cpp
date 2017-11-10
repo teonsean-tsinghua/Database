@@ -22,3 +22,13 @@ void writeString(char* cache, std::string& str, int len)
         throw ERROR;
     }
 }
+
+void readCharToBool(BufType cache, bool* b)
+{
+    *b = (bool)(*(char*)cache);
+}
+
+void writeBoolToChar(BufType cache, bool b)
+{
+    *(char*)cache = (char)(b ? 1 : 0);
+}
