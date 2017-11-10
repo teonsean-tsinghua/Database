@@ -19,6 +19,10 @@ public:
 
     int getRecordLength();
 
+    int getFirstDataPage();
+
+    int getFirstUsagePage();
+
     int addField(std::string name, int type, bool nullable);
 
     int setPrimaryKey(std::string name);

@@ -16,6 +16,8 @@ public:
     bool isAvailable(int pageID);
 
     void setAvailable(int pageID, bool available);
+
+    bool withinRange(int pageID);
 };
 
 #endif // DBUSAGEPAGE_H_INCLUDED

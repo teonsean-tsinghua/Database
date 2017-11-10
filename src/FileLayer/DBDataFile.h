@@ -14,12 +14,21 @@ private:
     DBDataFileDescriptionPage* dfdp;
     std::map<int, DBPage*> pages;
     DBRecordInfo* ri;
-
+    int lastUsagePage;
+    int lastDataPage;
     DBPage* visit(int pageID);
 
     int findFirstAvailableDataPage();
 
     int allocateNewDataPage();
+
+    int allocateNewUsagePage();
+
+    DBDataPage* openDataPage(int pid);
+
+    DBUsagePage* openUsagePage(int pid);
+
+    int insertRecordToPage(int page, std::vector<void*>& processed);
 
 public:
     DBDataFile(const char* root);

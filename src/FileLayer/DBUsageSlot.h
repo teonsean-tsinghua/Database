@@ -5,13 +5,12 @@
 
 class DBUsageSlot:public DBSlot
 {
-protected:
+public:
+    DBUsageSlot(BufType cache);
+
     void setAvailable(int offset, bool available);
 
     bool isAvailable(int offset);
-
-public:
-    DBUsageSlot(BufType cache);
 };
 
 #endif // DBUSAGESLOT_H_INCLUDED

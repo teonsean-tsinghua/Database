@@ -4,6 +4,106 @@ DBDataFile::DBDataFile(const char* root):
     root(root)
 {
     fm = DBFileIOModel::getInstance();
+    lastUsagePage = -1;
+    lastDataPage = -1;
+}
+
+int DBDataFile::allocateNewUsagePage()
+{
+    int cnt = dfdp->getPageNumber();
+    if(cnt <= 0)
+    {
+        return ERROR;
+    }
+    int index;
+    BufType cache = fm->getPage(fileID, cnt, index);
+    DBUsagePage* up = new DBUsagePage(cache, index, cnt, MODE_CREATE);
+    pages[cnt] = up;
+    DBLog("Allocated new usage page ");
+    DBLogLine(cnt);
+    dfdp->incrementPageNumber(DBType::USAGE_PAGE);
+    DBUsagePage* last;
+    if((last = openUsagePage(lastUsagePage)) != NULL)
+    {
+        last->setNextSameType(cnt);
+    }
+    lastUsagePage = cnt;
+    return cnt;
+}
+
+int DBDataFile::allocateNewDataPage()
+{
+    int cnt = dfdp->getPageNumber();
+    if(cnt <= 0)
+    {
+        return ERROR;
+    }
+    DBUsagePage* up = openUsagePage(lastUsagePage);
+    if(up == NULL || !up.withinRange(cnt))
+    {
+        if(allocateNewUsagePage() == ERROR)
+        {
+            return ERROR;
+        }
+    }
+    int index;
+    BufType cache = fm->getPage(fileID, cnt, index);
+    DBDataPage* dp = new DBDataPage(cache, index, cnt, MODE_CREATE);
+    pages[cnt] = dp;
+    DBLog("Allocated new data page ");
+    DBLogLine(cnt);
+    dfdp->incrementPageNumber(DBType::DATA_PAGE);
+    DBDataPage* last;
+    if((last = openDataPage(lastDataPage)) != NULL)
+    {
+        last->setNextSameType(cnt);
+    }
+    lastDataPage = cnt;
+    return cnt;
+}
+
+DBDataPage* DBDataFile::openDataPage(int pid)
+{
+    if(pages.count(pid))
+    {
+        DBPage* re = pages[pid];
+        return re->getPageType() == DBType::DATA_PAGE ? re : NULL;
+    }
+    if(pid <= 0 || pid >= dfdp->getPageNumber())
+    {
+        return NULL;
+    }
+    int index;
+    BufType cache = fm->getPage(fileID, pid, index);
+    if(DBPageInfoSlot::getPageType(cache) != DBType::DATA_PAGE)
+    {
+        return NULL;
+    }
+    DBDataPage* re = new DBDataPage(cache, index, pid, dfdp->getRecordLength(), MODE_PARSE, ri);
+    pages[pid] = re;
+    return re;
+}
+
+DBUsagePage* DBDataFile::openUsagePage(int pid)
+{
+    if(pages.count(pid))
+    {
+        DBPage* re = pages[pid];
+        return re->getPageType() == DBType::USAGE_PAGE ? re : NULL;
+    }
+    if(pid <= 0 || pid >= dfdp->getPageNumber())
+    {
+        return NULL;
+    }
+    int index;
+    BufType cache = fm->getPage(fileID, pid, index);
+    if(DBPageInfoSlot::getPageType(cache) != DBType::USAGE_PAGE)
+    {
+        return NULL;
+    }
+    DBUsagePage* re = new DBUsagePage(cache, index, pid, dfdp->getRecordLength(), MODE_PARSE, ri);
+    pages[pid] = re;
+    return re;
 }
 
 int DBDataFile::createFile(const char* name)
@@ -77,29 +177,10 @@ int DBDataFile::addField(const char* name, int type, bool nullable)
     return re;
 }
 
-int DBDataFile::allocateNewDataPage()
+int DBDataFile::insertRecordToPage(int page, std::vector<void*>& processed)
 {
-    int cnt = dfdp->getPageNumber();
-    if(cnt <= 0)
-    {
-        return -1;
-    }
-    int index;
-    BufType cache = fm->getPage(fileID, cnt, index);
-    DBDataPage* dp = new DBDataPage(cache, index, cnt, dfdp->getRecordLength(), MODE_CREATE, ri);
-    pages[cnt] = dp;
-    DBLog("Allocated new data page ");
-    DBLogLine(cnt);
-    dfdp->incrementPageNumber(DBType::DATA_PAGE);
-    return cnt;
-}
-
-int DBDataFile::findFirstAvailableDataPage()
-{
-    /*
-     * Find the first available data page. If none, create one and return.
-     */
-    return allocateNewDataPage();
+    DBDataPage* dp = (DBDataPage*)(pages[page]);
+    return dp->insert(processed);
 }
 
 int DBDataFile::insertRecord(std::map<std::string, void*>& fields)
@@ -142,16 +223,16 @@ int DBDataFile::insertRecord(std::map<std::string, void*>& fields)
     if(errors.empty())
     {
         int fadp = findFirstAvailableDataPage();
-        DBDataPage* dp = (DBDataPage*)(pages[fadp]);
-        int re = dp->insert(processed);
+        int re = insertRecordToPage(fadp, processed);
         switch(re)
         {
+        case ERROR:
+            return ERROR;
         case DATA_PAGE_FULL:
-            break;
+            //TODO
         default:
             DBLogLine("Succeeded in inserting record.");
         }
-        return re;
     }
     else
     {

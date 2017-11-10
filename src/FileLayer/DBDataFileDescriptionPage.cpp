@@ -28,7 +28,23 @@ void DBDataFileDescriptionPage::incrementPageNumber(int type)
             dfds->setFirstDataPage(dfds->getPageNumber() - 1);
         }
         break;
+    case DBType::USAGE_PAGE:
+        if(dfds->getFirstUsagePage() <= 0)
+        {
+            dfds->setFirstUsagePage(dfds->getPageNumber() - 1);
+        }
+        break;
     }
+}
+
+int DBDataFileDescriptionPage::getFirstDataPage()
+{
+    return dfds->getFirstDataPage();
+}
+
+int DBDataFileDescriptionPage::getFirstUsagePage()
+{
+    return dfds->getFirstUsagePage();
 }
 
 int DBDataFileDescriptionPage::getPageNumber()

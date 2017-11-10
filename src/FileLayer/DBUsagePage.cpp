@@ -23,6 +23,15 @@ bool DBUsagePage::isAvailable(int pageID)
     return us->isAvailable(pageID - this->pageID - 1);
 }
 
+bool DBUsagePage::withinRange(int pid)
+{
+    if(pageID <= this->pageID || pageID > this->pageID + PAGE_SIZE - pis->size())
+    {
+        return false;
+    }
+    return true;
+}
+
 void DBUsagePage::setAvailable(int pageID, bool available)
 {
     if(pageID <= this->pageID || pageID > this->pageID + PAGE_SIZE - pis->size())

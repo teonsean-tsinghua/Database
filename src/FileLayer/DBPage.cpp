@@ -12,6 +12,16 @@ BufType DBPage::operator[](const int offset) const
     return (BufType)((char*)cache + offset);
 }
 
+int DBPage::getNextSameType()
+{
+    return pis->getNextSamePage();
+}
+
+void DBPage::setNextSameType(int pid)
+{
+    pis->setNextSamePage(pid);
+}
+
 int DBPage::getIndex()
 {
     return index;
@@ -20,6 +30,11 @@ int DBPage::getIndex()
 void DBPage::print()
 {
     pis->print();
+}
+
+int DBPage::getPageType()
+{
+    return pis->getPageType();
 }
 
 int DBPage::getPageID()

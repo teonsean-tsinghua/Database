@@ -24,6 +24,12 @@ public:
 
     int getPageID();
 
+    int getPageType();
+
+    void setNextSameType(int pid);
+
+    int getNextSameType();
+
     const char* name(int type);
 
     virtual void print();
