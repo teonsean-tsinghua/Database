@@ -4,7 +4,6 @@
 #include"DBFileIOModel.h"
 #include"DBCacheIOModel.h"
 #include"../DBInclude.h"
-#include"DBType.h"
 #include"DBRecordInfo.h"
 
 class DBSlot

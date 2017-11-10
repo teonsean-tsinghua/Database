@@ -1,7 +1,6 @@
 #ifndef DBTYPE_H_INCLUDED
 #define DBTYPE_H_INCLUDED
 
-#include"../DBInclude.h"
 class DBType
 {
     const static int typeSize_[];

@@ -2,6 +2,7 @@
 #define DBINCLUDE_H_INCLUDED
 
 #include"utils/DBPrint.h"
+#include"utils/DBType.h"
 #include<string>
 #include<iostream>
 #include<cstring>
