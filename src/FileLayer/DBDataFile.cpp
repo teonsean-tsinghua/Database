@@ -69,12 +69,22 @@ int DBDataFile::addField(const char* name, int type, bool nullable)
     return re;
 }
 
+int DBDataFile::findFirstAvailableDataPage()
+{
+    /*
+     * Find the first available data page. If none, create one and return.
+     */
+    return 1;
+}
+
 int DBDataFile::insertRecord(std::map<std::string, void*>& fields)
 {
     std:map<int, void*> processed;
     std::map<std::string, int> errors;
     if(dfdp->processRawData(fields, processed, errors) == SUCCEED)
     {
+        int fadp = findFirstAvailableDataPage();
+
         return SUCCEED;
     }
     else

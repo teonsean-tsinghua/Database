@@ -3,6 +3,7 @@
 
 #include"../DBInclude.h"
 #include"DBDataFileDescriptionPage.h"
+#include"DBDataPage.h"
 
 class DBDataFile
 {
@@ -11,6 +12,11 @@ private:
     const char* root;
     DBFileIOModel* fm;
     DBDataFileDescriptionPage* dfdp;
+    std::map<int, DBPage*> pages;
+
+    DBPage* visit(int pageID);
+
+    int findFirstAvailableDataPage();
 
 public:
     DBDataFile(const char* root);
