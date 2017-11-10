@@ -37,8 +37,6 @@ void DBPageInfoSlot::print()
     DBPrintLine(DBType::pageName(getPageType()));
     DBPrint("First available byte: ");
     DBPrintLine(getFirstAvailableByte());
-    DBPrint("Length fixed: ");
-    DBPrintLine(isLengthFixed());
     if(isLengthFixed())
     {
         DBPrintLine("This page stores slots with fixed length.");
@@ -65,11 +63,11 @@ int DBPageInfoSlot::getFirstAvailableByte()
     return re;
 }
 
-int DBPageInfoSlot::isLengthFixed()
+bool DBPageInfoSlot::isLengthFixed()
 {
     int re;
     readInt(lengthFixed, &re);
-    return re;
+    return re == 1;
 }
 
 int DBPageInfoSlot::getNextSamePage()
@@ -89,9 +87,9 @@ void DBPageInfoSlot::setFirstAvailableByte(int n)
     writeInt(firstAvailableByte, n);
 }
 
-void DBPageInfoSlot::setLengthFixed(int n)
+void DBPageInfoSlot::setLengthFixed(bool n)
 {
-    writeInt(lengthFixed, n);
+    writeInt(lengthFixed, n ? 1 : 0);
 }
 
 void DBPageInfoSlot::setNextSamePage(int n)

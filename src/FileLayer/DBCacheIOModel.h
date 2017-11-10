@@ -16,4 +16,9 @@ void readCharToBool(BufType cache, bool* b);
 
 void writeBoolToChar(BufType cache, bool b);
 
+void readData(BufType cache, char* data, int len);
+
+void writeData(BufType cache, char* data, int len);
+
+
 #endif // DBCACHEIOMODEL_H_INCLUDED

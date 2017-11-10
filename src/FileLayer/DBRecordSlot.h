@@ -5,8 +5,15 @@
 
 class DBRecordSlot: public DBSlot
 {
+protected:
+    DBRecordInfo* ri;
+
 public:
-    DBRecordSlot(BufType cache);
+    DBRecordSlot(BufType cache, DBRecordInfo* ri);
+
+    int write(std::vector<void*>& data);
+
+    int read(std::map<std::string, void*>& data);
 };
 
 #endif // DBRECORDSLOT_H_INCLUDED

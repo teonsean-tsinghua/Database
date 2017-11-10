@@ -13,10 +13,13 @@ private:
     DBFileIOModel* fm;
     DBDataFileDescriptionPage* dfdp;
     std::map<int, DBPage*> pages;
+    DBRecordInfo* ri;
 
     DBPage* visit(int pageID);
 
     int findFirstAvailableDataPage();
+
+    int allocateNewDataPage();
 
 public:
     DBDataFile(const char* root);

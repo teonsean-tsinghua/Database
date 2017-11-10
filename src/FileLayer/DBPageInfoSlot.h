@@ -24,7 +24,7 @@ public:
 
     int getFirstAvailableByte();
 
-    int isLengthFixed();
+    bool isLengthFixed();
 
     int getNextSamePage();
 
@@ -32,7 +32,7 @@ public:
 
     void setFirstAvailableByte(int n);
 
-    void setLengthFixed(int n);
+    void setLengthFixed(bool n);
 
     void setNextSamePage(int n);
 

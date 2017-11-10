@@ -18,20 +18,14 @@ protected:
     BufType recordInfo;
     int recordLength;
     int currentRecordInfoLength;
-    std::map<std::string, int> indexes;
-    std::vector<std::string> names;
-    std::vector<int> nullables;
-    std::vector<int> types;
-    std::vector<int> offsets;
+    DBRecordInfo* ri;
 
 public:
-    DBDataFileDescriptionSlot(BufType cache, int mode);
+    DBDataFileDescriptionSlot(BufType cache, int mode, DBRecordInfo* ri);
 
     void write();
 
-    int addField(std::string name, int type, int nullable, char* boundary);
-
-    int getFieldCount();
+    int addField(std::string name, int type, bool nullable, char* boundary);
 
     int getFirstDataPage();
 
@@ -54,16 +48,6 @@ public:
     void setPrimaryKeyIndex(int n);
 
     int getRecordLength();
-
-    int getOffsetOfField(int index);
-
-    int getTypeOfField(int index);
-
-    std::string getNameOfField(int index);
-
-    int getIndexOfField(std::string name);
-
-    int getNullableOfField(int index);
 
     void print();
 

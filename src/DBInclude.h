@@ -8,6 +8,7 @@
 #include<map>
 #include<vector>
 #include<cstdio>
+#include<list>
 
 const static int SUCCEED = 0;
 const static int ERROR = SUCCEED - 1;
@@ -17,9 +18,13 @@ const static int FILE_OR_DIRECTORY_DOES_NOT_EXIST = EXCEED_PAGE_LIMIT - 1;
 const static int FIELD_NOT_EXIST = FILE_OR_DIRECTORY_DOES_NOT_EXIST - 1;
 const static int FIELD_IS_ALREADY_PRIMARY_KEY = FIELD_NOT_EXIST - 1;
 const static int EMPTY_FIELD_NAME = FIELD_IS_ALREADY_PRIMARY_KEY - 1;
+const static int DATA_PAGE_FULL = EMPTY_FIELD_NAME - 1;
 
 const static int MODE_CREATE = 101;
-
 const static int MODE_PARSE = 202;
+
+const static int UNNULLABLE = 0;
+const static int EXTRA_FIELD = 1;
+const static int EDIT__ID = 2;
 
 #endif // DBINCLUDE_H_INCLUDED

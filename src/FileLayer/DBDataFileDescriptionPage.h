@@ -8,11 +8,12 @@ class DBDataFileDescriptionPage: public DBPage
 {
 protected:
     DBDataFileDescriptionSlot* dfds;
+    DBRecordInfo* ri;
 
 public:
-    DBDataFileDescriptionPage(BufType cache, int index, int mode);
+    DBDataFileDescriptionPage(BufType cache, int index, int mode, DBRecordInfo* ri);
 
-    void incrementPageNumber();
+    void incrementPageNumber(int type);
 
     int getPageNumber();
 
@@ -22,15 +23,7 @@ public:
 
     int setPrimaryKey(std::string name);
 
-    int processRawData(std::map<std::string, void*>& raw,
-                       std::map<int, void*>& processed,
-                       std::map<std::string, int>& errors);
-
     void print();
-
-    const static int MISSING_FIELD = 0;
-    const static int EXTRA_FIELD = 1;
-    const static int EDIT__ID = 2;
 };
 
 #endif // DBDATAFILEDESCRIPTIONPAGE_H_INCLUDED

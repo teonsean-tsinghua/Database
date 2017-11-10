@@ -1,9 +1,9 @@
 #include"DBDataFileDescriptionPage.h"
 
-DBDataFileDescriptionPage::DBDataFileDescriptionPage(BufType cache, int index, int mode):
-    DBPage(cache, index, DBType::DATA_FILE_DESCRIPTION_PAGE, mode)
+DBDataFileDescriptionPage::DBDataFileDescriptionPage(BufType cache, int index, int mode, DBRecordInfo* ri):
+    DBPage(cache, index, DBType::DATA_FILE_DESCRIPTION_PAGE, mode), ri(ri)
 {
-    dfds = new DBDataFileDescriptionSlot((*this)[PAGE_INFO_SLOT_OFFSET + pis->size()], mode);
+    dfds = new DBDataFileDescriptionSlot((*this)[PAGE_INFO_SLOT_OFFSET + pis->size()], mode, ri);
     if(mode == MODE_CREATE)
     {
         pis->setPageType(DBType::DATA_FILE_DESCRIPTION_PAGE);
@@ -17,9 +17,18 @@ DBDataFileDescriptionPage::DBDataFileDescriptionPage(BufType cache, int index, i
     }
 }
 
-void DBDataFileDescriptionPage::incrementPageNumber()
+void DBDataFileDescriptionPage::incrementPageNumber(int type)
 {
     dfds->setPageNumber(dfds->getPageNumber() + 1);
+    switch(type)
+    {
+    case DBType::DATA_PAGE:
+        if(dfds->getFirstDataPage() <= 0)
+        {
+            dfds->setFirstDataPage(dfds->getPageNumber() - 1);
+        }
+        break;
+    }
 }
 
 int DBDataFileDescriptionPage::getPageNumber()
@@ -32,52 +41,13 @@ int DBDataFileDescriptionPage::getRecordLength()
     return dfds->getRecordLength();
 }
 
-int DBDataFileDescriptionPage::processRawData(std::map<std::string, void*>& raw,
-                                              std::map<int, void*>& processed,
-                                              std::map<std::string, int>& errors)
-{
-    processed.clear();
-    errors.clear();
-    std::map<std::string, void*>::iterator iter;
-    std::vector<bool> included;
-    included.assign(dfds->getFieldCount(), false);
-    for(iter = raw.begin(); iter != raw.end(); iter++)
-    {
-        int idx = dfds->getIndexOfField(iter->first);
-        if(idx < 0)
-        {
-            errors[iter->first] = EXTRA_FIELD;
-            continue;
-        }
-        if(idx == 0)
-        {
-            errors[iter->first] = EDIT__ID;
-            continue;
-        }
-        included[idx] = true;
-        processed[dfds->getOffsetOfField(idx)] = iter->second;
-    }
-    for(int i = 1; i < included.size(); i++)
-    {
-        if(!included[i] && !dfds->getNullableOfField(i))
-        {
-            errors[dfds->getNameOfField(i)] = MISSING_FIELD;
-        }
-    }
-    if(errors.empty())
-    {
-        return SUCCEED;
-    }
-    return ERROR;
-}
-
 int DBDataFileDescriptionPage::setPrimaryKey(std::string name)
 {
-    int idx = dfds->getIndexOfField(name);
-    if(idx < 0)
+    if(!ri->indexes.count(name))
     {
         return FIELD_NOT_EXIST;
     }
+    int idx = ri->indexes[name];
     if(idx == dfds->getPrimaryKeyIndex())
     {
         return FIELD_IS_ALREADY_PRIMARY_KEY;
