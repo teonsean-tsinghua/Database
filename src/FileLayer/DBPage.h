@@ -38,7 +38,7 @@ protected:
 public:
     DBDataFileDescriptionPage(BufType cache, int index, int mode);
 
-    int addField(std::string name, int type);
+    int addField(std::string name, int type, bool nullable);
 
     int setPrimaryKey(std::string name);
 

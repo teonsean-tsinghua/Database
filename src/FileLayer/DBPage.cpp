@@ -55,9 +55,9 @@ int DBDataFileDescriptionPage::setPrimaryKey(std::string name)
     return SUCCEED;
 }
 
-int DBDataFileDescriptionPage::addField(std::string name, int type)
+int DBDataFileDescriptionPage::addField(std::string name, int type, bool nullable)
 {
-    int re = dfds->addField(name, type, boundary);
+    int re = dfds->addField(name, type, nullable ? 1 : 0, boundary);
     if(re == SUCCEED)
     {
         dfds->write();

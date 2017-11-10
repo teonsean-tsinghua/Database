@@ -21,7 +21,7 @@ int DBDataFile::createFile(const char* name)
     int index;
     BufType cache = fm->getPage(fileID, 0, index);
     dfdp = new DBDataFileDescriptionPage(cache, index, MODE_CREATE);
-    dfdp->addField("_id", DBType::_ID);
+    dfdp->addField("_id", DBType::_ID, false);
     fm->flush(dfdp->getIndex());
     fm->closeFile(fileID);
 }
@@ -50,9 +50,9 @@ void DBDataFile::printFileDescription()
     dfdp->print();
 }
 
-int DBDataFile::addField(const char* name, int type)
+int DBDataFile::addField(const char* name, int type, bool nullable)
 {
-    int re = dfdp->addField(name, type);
+    int re = dfdp->addField(name, type, nullable);
     switch(re)
     {
     case EMPTY_FIELD_NAME:

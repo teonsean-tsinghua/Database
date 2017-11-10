@@ -20,6 +20,7 @@ protected:
     int currentRecordInfoLength;
     std::map<std::string, int> indexes;
     std::vector<std::string> names;
+    std::vector<int> nullables;
     std::vector<int> types;
     std::vector<int> offsets;
 
@@ -28,7 +29,7 @@ public:
 
     void write();
 
-    int addField(std::string name, int type, char* boundary);
+    int addField(std::string name, int type, int nullable, char* boundary);
 
     int getFieldCount();
 
@@ -60,6 +61,8 @@ public:
 
     int getIndexOfField(std::string name);
 
+    int getNullableOfField(std::string name);
+
     void print();
 
     int size();
@@ -72,7 +75,8 @@ public:
     const static int RECORD_INFO_OFFSET = RECORD_INFO_LENGTH_OFFSET + sizeof(int);
 
     const static int RECORD_INFO_TYPE_OFFSET = 0;
-    const static int RECORD_INFO_NAME_LENGTH_OFFSET = RECORD_INFO_TYPE_OFFSET + sizeof(int);
+    const static int RECORD_INFO_NULLABLE_OFFSET = RECORD_INFO_TYPE_OFFSET + sizeof(int);
+    const static int RECORD_INFO_NAME_LENGTH_OFFSET = RECORD_INFO_NULLABLE_OFFSET + sizeof(int);
     const static int RECORD_INFO_NAME_OFFSET = RECORD_INFO_NAME_LENGTH_OFFSET + sizeof(int);
 };
 

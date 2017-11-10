@@ -23,7 +23,7 @@ public:
 
     int deleteFile(const char* name);
 
-    int addField(const char* name, int type);
+    int addField(const char* name, int type, bool nullable);
 
     int setPrimaryKey(const char* name);
 
