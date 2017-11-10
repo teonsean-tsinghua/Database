@@ -2,7 +2,7 @@
 #define DBDATAFILE_H_INCLUDED
 
 #include"../DBInclude.h"
-#include"DBPage.h"
+#include"DBDataFileDescriptionPage.h"
 
 class DBDataFile
 {

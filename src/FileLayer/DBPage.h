@@ -2,7 +2,6 @@
 #define DBPAGE_H_INCLUDED
 
 #include"DBPageInfoSlot.h"
-#include"DBDataFileDescriptionSlot.h"
 #include"../DBInclude.h"
 
 class DBPage
@@ -28,25 +27,6 @@ public:
 
     const static int PAGE_INFO_SLOT_OFFSET = 0;
 
-};
-
-class DBDataFileDescriptionPage: public DBPage
-{
-protected:
-    DBDataFileDescriptionSlot* dfds;
-
-public:
-    DBDataFileDescriptionPage(BufType cache, int index, int mode);
-
-    int addField(std::string name, int type, bool nullable);
-
-    int setPrimaryKey(std::string name);
-
-    void print();
-};
-
-class DBDataPage: public DBPage
-{
 };
 
 #endif // DBPAGE_H_INCLUDED
