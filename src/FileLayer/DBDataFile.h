@@ -17,7 +17,6 @@ private:
     DBRecordInfo* ri;
     int lastUsagePage;
     int lastDataPage;
-    DBPage* visit(int pageID);
 
     int findFirstAvailableDataPage();
 
@@ -52,6 +51,8 @@ public:
     int setPrimaryKey(const char* name);
 
     void printFileDescription();
+
+    void printAllRecords();
 };
 
 #endif // DBDATAFILE_H_INCLUDED

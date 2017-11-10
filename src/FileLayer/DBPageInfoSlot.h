@@ -14,7 +14,7 @@ protected:
 
 public:
 
-    DBPageInfoSlot(BufType cache, int type, int mode);
+    DBPageInfoSlot(BufType cache);
 
     int size();
 

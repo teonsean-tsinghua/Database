@@ -8,6 +8,22 @@ DBDataFile::DBDataFile(const char* root):
     lastDataPage = -1;
 }
 
+void DBDataFile::printAllRecords()
+{
+    DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+    while(true)
+    {
+        if(dp == NULL)
+        {
+            return;
+        }
+        dp->print();
+        dp->printAllRecords();
+        DBPrintLine("=================");
+        dp = openDataPage(dp->getNextSameType());
+    }
+}
+
 int DBDataFile::findFirstAvailableDataPage()
 {
     DBUsagePage* up = openUsagePage(dfdp->getFirstUsagePage());
@@ -187,6 +203,7 @@ int DBDataFile::closeFile()
     {
         fm->flush(iter->second->getIndex());
     }
+    pages.clear();
     if(fm->closeFile(fileID) != SUCCEED)
     {
         DBLogLine("ERROR");
@@ -214,8 +231,6 @@ int DBDataFile::addField(const char* name, int type, bool nullable)
     case EXCEED_PAGE_LIMIT:
         DBPrintLine("You cannot add any more fields to this table.");
         break;
-    default:
-        DBLogLine("Succeeded in adding field " + std::string(name) + ".");
     }
     return re;
 }
@@ -273,8 +288,6 @@ int DBDataFile::insertRecord(std::map<std::string, void*>& fields)
             return ERROR;
         case DATA_PAGE_FULL:
             setAvailableOfDataPage(fadp, false);
-        default:
-            DBLogLine("Succeeded in inserting record.");
         }
     }
     else
@@ -310,8 +323,6 @@ int DBDataFile::setPrimaryKey(const char* name)
     case FIELD_NOT_EXIST:
         DBPrintLine("This table does not contain field " + std::string(name));
         break;
-    default:
-        DBLogLine("Succeeded in altering primary key.");
     }
     return re;
 }

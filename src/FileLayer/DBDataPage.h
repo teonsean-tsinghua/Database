@@ -17,6 +17,10 @@ public:
 
     int insert(std::vector<void*>& data);
 
+    void print();
+
+    void printAllRecords();
+
 };
 
 #endif // DBDATAPAGE_H_INCLUDED

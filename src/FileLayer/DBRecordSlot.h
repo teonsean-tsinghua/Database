@@ -13,7 +13,9 @@ public:
 
     int write(std::vector<void*>& data);
 
-    int read(std::map<std::string, void*>& data);
+    int read(std::map<int, void*>& data);
+
+    void print();
 };
 
 #endif // DBRECORDSLOT_H_INCLUDED

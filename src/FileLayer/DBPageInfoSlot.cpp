@@ -1,23 +1,12 @@
 #include"DBPageInfoSlot.h"
 
-DBPageInfoSlot::DBPageInfoSlot(BufType cache, int type, int mode):
+DBPageInfoSlot::DBPageInfoSlot(BufType cache):
     DBSlot(cache)
 {
     pageType = (*this)[PAGE_TYPE_OFFSET];
     firstAvailableByte = (*this)[FIRST_AVAILABLE_BYTE_OFFSET];
     lengthFixed = (*this)[LENGTH_FIXED_OFFSET];
     nextSamePage = (*this)[NEXT_SAME_PAGE_OFFSET];
-    if(mode == MODE_PARSE)
-    {
-        if(type != getPageType())
-        {
-            throw "Incompatible page type";
-        }
-    }
-    else if(mode == MODE_CREATE)
-    {
-        setPageType(type);
-    }
 }
 
 int DBPageInfoSlot::size()

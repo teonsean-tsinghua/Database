@@ -19,29 +19,22 @@ DBDataPage::DBDataPage(BufType cache, int index, int pageID, int recordLength, i
             records.push_back(new DBRecordSlot((*this)[cur], ri));
             cur += recordLength;
         }
-        for(int i = 0; i < records.size(); i++)
-        {
-            std::map<std::string, void*> data;
-            records[i]->read(data);
-            for(std::map<std::string, void*>::iterator iter = data.begin(); iter != data.end(); iter++)
-            {
-                int idx = ri->indexes[iter->first];
-                if(iter->second == NULL)
-                {
-                    DBLogLine(iter->first + ": NULL");
-                }
-                else
-                {
-                    switch(ri->types[idx])
-                    {
-                    case DBType::INT:
-                        DBLog(iter->first + ": ");
-                        DBLogLine(*(int*)(iter->second));
-                        break;
-                    }
-                }
-            }
-        }
+    }
+}
+
+void DBDataPage::print()
+{
+    DBPage::print();
+    DBLog("This page contains ");
+    DBLog(records.size());
+    DBLogLine(" records.");
+}
+
+void DBDataPage::printAllRecords()
+{
+    for(int i = 0; i < records.size(); i++)
+    {
+        records[i]->print();
     }
 }
 
@@ -56,6 +49,7 @@ int DBDataPage::insert(std::vector<void*>& data)
     }
     cur += recordLength;
     pis->setFirstAvailableByte(cur);
+    records.push_back(slot);
     if(cur + recordLength < PAGE_SIZE)
     {
         return SUCCEED;

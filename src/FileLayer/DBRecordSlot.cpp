@@ -30,7 +30,38 @@ int DBRecordSlot::write(std::vector<void*>& data)
     return SUCCEED;
 }
 
-int DBRecordSlot::read(std::map<std::string, void*>& data)
+void DBRecordSlot::print()
+{
+    std::map<int, void*> data;
+    if(read(data) != SUCCEED)
+    {
+        return;
+    }
+    for(std::map<int, void*>::iterator iter = data.begin(); iter != data.end(); iter++)
+    {
+        int idx = iter->first;
+        void* ptr = iter->second;
+        DBPrint(ri->names[idx] + ": ");
+        if(ptr == NULL)
+        {
+            DBPrintLine("NULL");
+        }
+        else
+        {
+            switch(ri->types[idx])
+            {
+            case DBType::_ID:
+                DBPrintLine(*(unsigned long long*)ptr);
+                break;
+            case DBType::INT:
+                DBPrintLine(*(int*)ptr);
+                break;
+            }
+        }
+    }
+}
+
+int DBRecordSlot::read(std::map<int, void*>& data)
 {
     data.clear();
     int cnt = ri->getFieldCount();
@@ -45,14 +76,14 @@ int DBRecordSlot::read(std::map<std::string, void*>& data)
         readCharToBool((*this)[offset], &isNull);
         if(ri->nullables[i] && isNull)
         {
-            data[ri->names[i]] = NULL;
+            data[i] = NULL;
         }
         else
         {
             int len = DBType::typeSize(ri->types[i]);
             char* tmp = new char[len];
             readData((*this)[offset + 1], tmp, len);
-            data[ri->names[i]] = (void*)tmp;
+            data[i] = (void*)tmp;
         }
     }
     return SUCCEED;

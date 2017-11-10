@@ -4,7 +4,7 @@ DBPage::DBPage(BufType cache, int index, int pageID, int type, int mode):
     cache(cache), index(index), pageID(pageID)
 {
     boundary = (char*)((*this)[PAGE_SIZE]);
-    pis = new DBPageInfoSlot((*this)[PAGE_INFO_SLOT_OFFSET], type, mode);
+    pis = new DBPageInfoSlot((*this)[PAGE_INFO_SLOT_OFFSET]);
 }
 
 BufType DBPage::operator[](const int offset) const
@@ -29,6 +29,8 @@ int DBPage::getIndex()
 
 void DBPage::print()
 {
+    DBPrint("Page ID: ");
+    DBPrintLine(pageID);
     pis->print();
 }
 
