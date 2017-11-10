@@ -3,6 +3,9 @@
 
 #include<string>
 #include<iostream>
+#include<cstdio>
+
+void DBPrint_ID(char* data);
 
 template<typename T>
 void DBLog(const T& msg)
@@ -27,7 +30,5 @@ void DBPrintLine(const T& msg)
 {
     std::cout << msg << std::endl;
 }
-
-
 
 #endif // DBPRINT_H_INCLUDED

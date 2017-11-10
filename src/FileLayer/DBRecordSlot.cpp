@@ -13,6 +13,7 @@ int DBRecordSlot::write(std::vector<void*>& data)
     {
         return ERROR;
     }
+    write_id((*this)[1]);
     for(int i = 1; i < cnt; i++)
     {
         int offset = ri->offsets[i];
@@ -51,7 +52,8 @@ void DBRecordSlot::print()
             switch(ri->types[idx])
             {
             case DBType::_ID:
-                DBPrintLine(*(unsigned long long*)ptr);
+                DBPrint_ID((char*)ptr);
+                DBPrintLine("");
                 break;
             case DBType::INT:
                 DBPrintLine(*(int*)ptr);
@@ -69,7 +71,8 @@ int DBRecordSlot::read(std::map<int, void*>& data)
     {
         return ERROR;
     }
-    for(int i = 0; i < cnt; i++)
+    data[0] = (void*)((*this)[1]);
+    for(int i = 1; i < cnt; i++)
     {
         int offset = ri->offsets[i];
         bool isNull;

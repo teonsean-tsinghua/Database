@@ -1,7 +1,7 @@
 #include"DBType.h"
 #include<cstdio>
 
-const int DBType::typeSize_[] = {sizeof(unsigned long long), sizeof(int)};
+const int DBType::typeSize_[] = {16, sizeof(int)};
 
 const char* const DBType::typeName_[] = {"_id", "int"};
 
