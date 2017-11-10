@@ -128,14 +128,6 @@ void DBDataFileDescriptionSlot::print()
     DBPrintLine(cnt);
     DBPrint("Primary key is: ");
     DBPrintLine(names[getPrimaryKeyIndex()]);
-//    DBPrint("Index: ");
-//    DBPrintLine(indexes.size());
-//    DBPrint("Name: ");
-//    DBPrintLine(names.size());
-//    DBPrint("Type: ");
-//    DBPrintLine(types.size());
-//    DBPrint("Offset: ");
-//    DBPrintLine(offsets.size());
     for(int i = 0; i < cnt; i++)
     {
         DBPrint("Field " + names[i] + " is of type " + std::string(DBType::typeName(types[i])));
