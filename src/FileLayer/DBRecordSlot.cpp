@@ -33,15 +33,14 @@ int DBRecordSlot::write(std::vector<void*>& data)
 
 void DBRecordSlot::print()
 {
-    std::map<int, void*> data;
+    std::vector<void*> data;
     if(read(data) != SUCCEED)
     {
         return;
     }
-    for(std::map<int, void*>::iterator iter = data.begin(); iter != data.end(); iter++)
+    for(int idx = 0; idx < data.size(); idx++)
     {
-        int idx = iter->first;
-        void* ptr = iter->second;
+        void* ptr = data[idx];
         DBPrint(ri->names[idx] + ": ");
         if(ptr == NULL)
         {
@@ -63,7 +62,12 @@ void DBRecordSlot::print()
     }
 }
 
-int DBRecordSlot::read(std::map<int, void*>& data)
+int DBRecordSlot::equal(std::map<int, void*>& data)
+{
+    return 0;
+}
+
+int DBRecordSlot::read(std::vector<void*>& data)
 {
     data.clear();
     int cnt = ri->getFieldCount();
@@ -71,6 +75,7 @@ int DBRecordSlot::read(std::map<int, void*>& data)
     {
         return ERROR;
     }
+    data.assign(cnt, NULL);
     data[0] = (void*)((*this)[1]);
     for(int i = 1; i < cnt; i++)
     {

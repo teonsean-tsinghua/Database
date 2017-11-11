@@ -13,7 +13,9 @@ public:
 
     int write(std::vector<void*>& data);
 
-    int read(std::map<int, void*>& data);
+    int read(std::vector<void*>& data);
+
+    int equal(std::map<int, void*>& data);
 
     void print();
 };
