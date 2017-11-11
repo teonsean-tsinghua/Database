@@ -235,6 +235,79 @@ int DBDataFile::addField(const char* name, int type, bool nullable)
     return re;
 }
 
+
+int DBDataFile::findEqual(std::map<std::string, void*>& data, std::set<std::map<std::string, void*>*>& result)
+{
+    std::map<int, void*> processed;
+    std::vector<std::string> errors;
+    errors.clear();
+    std::map<std::string, void*>::iterator iter;
+    for(iter = data.begin(); iter != data.end(); iter++)
+    {
+        if(!ri->indexes.count(iter->first))
+        {
+            errors.push_back(iter->first);
+            continue;
+        }
+        int idx = ri->indexes[iter->first];
+        processed[idx] = iter->second;
+    }
+    if(errors.empty())
+    {
+        DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+        while(true)
+        {
+            if(dp == NULL)
+            {
+                break;
+            }
+            dp->findEqual(processed, result);
+            dp = openDataPage(dp->getNextSameType());
+
+        }
+        int i = 0;
+//        for(std::set<std::map<std::string, void*>*>::iterator iter = result.begin(); iter != result.end(); iter++)
+//        {
+//            std::map<std::string, void*>* ele = *iter;
+//            DBPrint("Equal record: ");
+//            DBPrintLine(i++);
+//            for(std::map<std::string, void*>::iterator iter2 = ele->begin(); iter2 != ele->end(); iter2++)
+//            {
+//                std::string name =iter2->first;
+//                int idx = ri->indexes[name];
+//                void* ptr = iter2->second;
+//                DBPrint(name + ": ");
+//                if(ptr == NULL)
+//                {
+//                    DBPrintLine("NULL");
+//                }
+//                else
+//                {
+//                    switch(ri->types[idx])
+//                    {
+//                    case DBType::_ID:
+//                        DBPrint_ID((char*)ptr);
+//                        DBPrintLine("");
+//                        break;
+//                    case DBType::INT:
+//                        DBPrintLine(*(int*)ptr);
+//                        break;
+//                    }
+//                }
+//            }
+//        }
+        return SUCCEED;
+    }
+    else
+    {
+        for(int i = 0; i < errors.size(); i++)
+        {
+            DBPrintLine("This table does not contain field " + errors[i]);
+        }
+        return ERROR;
+    }
+}
+
 int DBDataFile::insertRecordToPage(int page, std::vector<void*>& processed)
 {
     DBDataPage* dp = (DBDataPage*)(pages[page]);

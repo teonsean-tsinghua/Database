@@ -22,6 +22,22 @@ DBDataPage::DBDataPage(BufType cache, int index, int pageID, int recordLength, i
     }
 }
 
+int DBDataPage::findEqual(std::map<int, void*>& data, std::set<std::map<std::string, void*>*>& result)
+{
+    for(int i = 0; i < records.size(); i++)
+    {
+        if(records[i]->equal(data) == EQUAL_RECORD)
+        {
+            std::map<std::string, void*>* re = new std::map<std::string, void*>();
+            if(records[i]->read(*re) == SUCCEED)
+            {
+                result.insert(re);
+            }
+        }
+    }
+    return SUCCEED;
+}
+
 void DBDataPage::print()
 {
     DBPage::print();

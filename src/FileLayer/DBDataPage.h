@@ -21,6 +21,8 @@ public:
 
     void printAllRecords();
 
+    int findEqual(std::map<int, void*>& data, std::set<std::map<std::string, void*>*>& result);
+
 };
 
 #endif // DBDATAPAGE_H_INCLUDED

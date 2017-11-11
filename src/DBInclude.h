@@ -12,7 +12,7 @@
 #include<map>
 #include<vector>
 #include<cstdio>
-#include<list>
+#include<set>
 
 const static int SUCCEED = 0;
 const static int ERROR = SUCCEED - 1;
@@ -23,6 +23,8 @@ const static int FIELD_NOT_EXIST = FILE_OR_DIRECTORY_DOES_NOT_EXIST - 1;
 const static int FIELD_IS_ALREADY_PRIMARY_KEY = FIELD_NOT_EXIST - 1;
 const static int EMPTY_FIELD_NAME = FIELD_IS_ALREADY_PRIMARY_KEY - 1;
 const static int DATA_PAGE_FULL = EMPTY_FIELD_NAME - 1;
+const static int EQUAL_RECORD = DATA_PAGE_FULL - 1;
+const static int NON_EQUAL_RECORD = EQUAL_RECORD - 1;
 
 const static int MODE_CREATE = 101;
 const static int MODE_PARSE = 202;

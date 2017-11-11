@@ -32,7 +32,9 @@ int main()
 //    df.printAllRecords();
     df.closeFile();
     df.openFile("test.db");
-    df.printFileDescription();
-    df.printAllRecords();
+//    df.printFileDescription();
+//    df.printAllRecords();
+    set<map<string, void*>*> re;
+    df.findEqual(f, re);
     return 0;
 }

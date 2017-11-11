@@ -48,6 +48,8 @@ public:
     //If a nullable field is set to null, then don't include it in fields.
     int insertRecord(std::map<std::string, void*>& fields);
 
+    int findEqual(std::map<std::string, void*>& data, std::set<std::map<std::string, void*>*>& result);
+
     int setPrimaryKey(const char* name);
 
     void printFileDescription();

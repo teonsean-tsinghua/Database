@@ -64,7 +64,55 @@ void DBRecordSlot::print()
 
 int DBRecordSlot::equal(std::map<int, void*>& data)
 {
-    return 0;
+    std::map<int, void*>::iterator iter;
+    for(iter = data.begin(); iter != data.end(); iter++)
+    {
+        int idx = iter->first;
+        char* ptr = (char*)iter->second;
+        if(ptr == NULL)
+        {
+            bool isNull;
+            readCharToBool((*this)[ri->offsets[idx]], &isNull);
+            if(!isNull)
+            {
+                return NON_EQUAL_RECORD;
+            }
+        }
+        else if(strncmp(ptr, (char*)(*this)[ri->offsets[idx] + 1], DBType::typeSize(ri->types[idx])) != 0)
+        {
+            return NON_EQUAL_RECORD;
+        }
+    }
+    return EQUAL_RECORD;
+}
+
+int DBRecordSlot::read(std::map<std::string, void*>& data)
+{
+    data.clear();
+    int cnt = ri->getFieldCount();
+    if(cnt < 0)
+    {
+        return ERROR;
+    }
+    data["_id"] = (void*)((*this)[1]);
+    for(int i = 1; i < cnt; i++)
+    {
+        int offset = ri->offsets[i];
+        bool isNull;
+        readCharToBool((*this)[offset], &isNull);
+        if(ri->nullables[i] && isNull)
+        {
+            data[ri->names[i]] = NULL;
+        }
+        else
+        {
+            int len = DBType::typeSize(ri->types[i]);
+            char* tmp = new char[len];
+            readData((*this)[offset + 1], tmp, len);
+            data[ri->names[i]] = (void*)tmp;
+        }
+    }
+    return SUCCEED;
 }
 
 int DBRecordSlot::read(std::vector<void*>& data)

@@ -15,6 +15,8 @@ public:
 
     int read(std::vector<void*>& data);
 
+    int read(std::map<std::string, void*>& data);
+
     int equal(std::map<int, void*>& data);
 
     void print();
