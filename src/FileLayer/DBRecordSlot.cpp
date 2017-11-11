@@ -62,6 +62,11 @@ void DBRecordSlot::print()
     }
 }
 
+void DBRecordSlot::copy(DBRecordSlot* src, DBRecordSlot* dest, int length)
+{
+    copyData(src->cache, dest->cache, length);
+}
+
 int DBRecordSlot::update(std::map<int, void*>& data)
 {
     std::map<int, void*>::iterator iter;

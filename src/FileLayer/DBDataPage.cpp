@@ -34,6 +34,57 @@ int DBDataPage::update(std::map<int, void*>& key_value, std::map<int, void*>& up
     return SUCCEED;
 }
 
+int DBDataPage::remove(std::map<int, void*>& data)
+{
+    std::vector<bool> removed;
+    removed.assign(records.size(), false);
+    int cnt = 0;
+    for(int i = 0; i < records.size(); i++)
+    {
+        if(records[i]->equal(data) == EQUAL_RECORD)
+        {
+            removed[i] = true;
+            cnt++;
+        }
+    }
+    if(cnt == 0)
+    {
+        return SUCCEED;
+    }
+    int head = 0, tail = records.size() - 1;
+    while(head < tail)
+    {
+        while(!removed[head] && head < tail)
+        {
+            head++;
+        }
+        if(head >= tail)
+        {
+            break;
+        }
+        while(removed[tail] && head < tail)
+        {
+            tail--;
+        }
+        if(head >= tail)
+        {
+            break;
+        }
+        DBRecordSlot::copy(records[tail], records[head], recordLength);
+        head++;
+        tail--;
+    }
+    pis->setFirstAvailableByte(pis->getFirstAvailableByte() - cnt * recordLength);
+    int cur = pis->size(), end = pis->getFirstAvailableByte();
+    records.clear();
+    while(cur < end)
+    {
+        records.push_back(new DBRecordSlot((*this)[cur], ri));
+        cur += recordLength;
+    }
+    return SUCCEED;
+}
+
 int DBDataPage::findEqual(std::map<int, void*>& data, std::set<std::map<std::string, void*>*>& result)
 {
     for(int i = 0; i < records.size(); i++)

@@ -20,6 +20,8 @@ void readData(BufType cache, char* data, int len);
 
 void writeData(BufType cache, char* data, int len);
 
+void copyData(BufType src, BufType dest, int len);
+
 void read_id(BufType cache, char* data);
 
 void write_id(BufType cache);

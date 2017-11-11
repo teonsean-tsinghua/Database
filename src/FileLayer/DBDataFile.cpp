@@ -292,6 +292,35 @@ void DBDataFile::processKeyValue(std::map<std::string, void*>& data,
     }
 }
 
+int DBDataFile::remove(std::map<std::string, void*>& data)
+{
+    std::map<int, void*> processed;
+    std::vector<std::string> errors;
+    processKeyValue(data, processed, errors);
+    if(errors.empty())
+    {
+        DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+        while(true)
+        {
+            if(dp == NULL)
+            {
+                break;
+            }
+            dp->remove(processed);
+            dp = openDataPage(dp->getNextSameType());
+        }
+        return SUCCEED;
+    }
+    else
+    {
+        for(int i = 0; i < errors.size(); i++)
+        {
+            DBPrintLine("This table does not contain field " + errors[i]);
+        }
+        return ERROR;
+    }
+}
+
 int DBDataFile::update(std::map<std::string, void*>& key_value, std::map<std::string, void*>& update_value)
 {
     std::map<int, void*> processed;
@@ -313,7 +342,6 @@ int DBDataFile::update(std::map<std::string, void*>& key_value, std::map<std::st
                 }
                 dp->update(processed, processed2);
                 dp = openDataPage(dp->getNextSameType());
-
             }
             return SUCCEED;
         }
@@ -352,7 +380,6 @@ int DBDataFile::findEqual(std::map<std::string, void*>& data, std::set<std::map<
             }
             dp->findEqual(processed, result);
             dp = openDataPage(dp->getNextSameType());
-
         }
         int i = 0;
         for(std::set<std::map<std::string, void*>*>::iterator iter = result.begin(); iter != result.end(); iter++)

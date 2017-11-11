@@ -30,15 +30,17 @@ int main()
     f["test3"] = &data3;
     for(int i = 0; i < 1000; i++)
         df.insertRecord(f);
-    f2["test2"] = &data4;
-    df.update(f, f2);
-    f3["test2"] = &data4;
+//    f2["test2"] = &data4;
+//    df.update(f, f2);
+//    f3["test2"] = &data4;
 //    df.printAllRecords();
     df.closeFile();
     df.openFile("test.db");
 //    df.printFileDescription();
 //    df.printAllRecords();
-    set<map<string, void*>*> re;
-    df.findEqual(f3, re);
+//    set<map<string, void*>*> re;
+//    df.findEqual(f, re);
+    df.remove(f);
+    df.printAllRecords();
     return 0;
 }
