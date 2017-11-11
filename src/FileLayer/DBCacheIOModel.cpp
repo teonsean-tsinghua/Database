@@ -43,6 +43,12 @@ void writeData(BufType cache, char* data, int len)
     strncpy((char*)cache, data, len);
 }
 
+void read_id(BufType cache, char* data)
+{
+    *(unsigned long long*)data = *(unsigned long long*)cache;
+    *(unsigned long long*)(data + 8) = *(unsigned long long*)((char*)cache + 8);
+}
+
 void write_id(BufType cache)
 {
     *(unsigned long long*)cache = time(0);

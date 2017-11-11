@@ -21,7 +21,11 @@ public:
 
     void printAllRecords();
 
+    int update(std::map<int, void*>& key_value, std::map<int, void*>& update_value);
+
     int findEqual(std::map<int, void*>& data, std::set<std::map<std::string, void*>*>& result);
+
+    int findEqual(std::map<int, void*>& data, std::set<char*>& result);
 
 };
 

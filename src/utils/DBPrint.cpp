@@ -2,6 +2,6 @@
 
 void DBPrint_ID(char* data)
 {
-    printf("%x", *(unsigned long long*)data);
-    printf("%x", *(unsigned long long*)(data + 8));
+    printf("%llx", *(unsigned long long*)data);
+    printf("%llx", *(unsigned long long*)(data + 8));
 }

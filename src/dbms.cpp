@@ -13,6 +13,7 @@ int main()
     int data = 1;
     int data2 = 99999;
     int data3 = -99999;
+    int data4 = 10;
 //    int i = 0;
 //    do
 //    {
@@ -23,18 +24,21 @@ int main()
     df.addField("test1", DBType::INT, false);
     df.addField("test2", DBType::INT, false);
     df.addField("test3", DBType::INT, true);
-    map<string, void*> f;
+    map<string, void*> f, f2, f3;
     f["test1"] = &data;
     f["test2"] = &data2;
     f["test3"] = &data3;
     for(int i = 0; i < 1000; i++)
-    df.insertRecord(f);
+        df.insertRecord(f);
+    f2["test2"] = &data4;
+    df.update(f, f2);
+    f3["test2"] = &data4;
 //    df.printAllRecords();
     df.closeFile();
     df.openFile("test.db");
 //    df.printFileDescription();
 //    df.printAllRecords();
     set<map<string, void*>*> re;
-    df.findEqual(f, re);
+    df.findEqual(f3, re);
     return 0;
 }

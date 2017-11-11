@@ -62,6 +62,25 @@ void DBRecordSlot::print()
     }
 }
 
+int DBRecordSlot::update(std::map<int, void*>& data)
+{
+    std::map<int, void*>::iterator iter;
+    for(iter = data.begin(); iter != data.end(); iter++)
+    {
+        int idx = iter->first;
+        char* ptr = (char*)iter->second;
+        if(ptr == NULL)
+        {
+            writeBoolToChar((*this)[ri->offsets[idx]], true);
+        }
+        else
+        {
+            writeData((*this)[ri->offsets[idx] + 1], ptr, DBType::typeSize(ri->types[idx]));
+        }
+    }
+    return SUCCEED;
+}
+
 int DBRecordSlot::equal(std::map<int, void*>& data)
 {
     std::map<int, void*>::iterator iter;
@@ -94,7 +113,9 @@ int DBRecordSlot::read(std::map<std::string, void*>& data)
     {
         return ERROR;
     }
-    data["_id"] = (void*)((*this)[1]);
+    char* _id = new char[DBType::typeSize(DBType::_ID)];
+    read_id((*this)[1], _id);
+    data["_id"] = (void*)_id;
     for(int i = 1; i < cnt; i++)
     {
         int offset = ri->offsets[i];
@@ -112,6 +133,21 @@ int DBRecordSlot::read(std::map<std::string, void*>& data)
             data[ri->names[i]] = (void*)tmp;
         }
     }
+    return SUCCEED;
+}
+
+int DBRecordSlot::compare_id(char* _id)
+{
+    if(strncmp(_id, (char*)((*this)[1]), DBType::typeSize(DBType::_ID)) == 0)
+    {
+        return EQUAL_RECORD;
+    }
+    return NON_EQUAL_RECORD;
+}
+
+int DBRecordSlot::get_id(char* _id)
+{
+    read_id((*this)[1], _id);
     return SUCCEED;
 }
 

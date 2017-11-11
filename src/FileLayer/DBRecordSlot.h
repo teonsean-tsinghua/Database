@@ -19,6 +19,12 @@ public:
 
     int equal(std::map<int, void*>& data);
 
+    int update(std::map<int, void*>& data);
+
+    int compare_id(char* _id);
+
+    int get_id(char* _id);
+
     void print();
 };
 

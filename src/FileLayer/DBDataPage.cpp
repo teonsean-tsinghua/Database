@@ -22,6 +22,18 @@ DBDataPage::DBDataPage(BufType cache, int index, int pageID, int recordLength, i
     }
 }
 
+int DBDataPage::update(std::map<int, void*>& key_value, std::map<int, void*>& update_value)
+{
+    for(int i = 0; i < records.size(); i++)
+    {
+        if(records[i]->equal(key_value) == EQUAL_RECORD)
+        {
+            records[i]->update(update_value);
+        }
+    }
+    return SUCCEED;
+}
+
 int DBDataPage::findEqual(std::map<int, void*>& data, std::set<std::map<std::string, void*>*>& result)
 {
     for(int i = 0; i < records.size(); i++)
@@ -33,6 +45,20 @@ int DBDataPage::findEqual(std::map<int, void*>& data, std::set<std::map<std::str
             {
                 result.insert(re);
             }
+        }
+    }
+    return SUCCEED;
+}
+
+int DBDataPage::findEqual(std::map<int, void*>& data, std::set<char*>& result)
+{
+    for(int i = 0; i < records.size(); i++)
+    {
+        if(records[i]->equal(data) == EQUAL_RECORD)
+        {
+            char* _id = new char[DBType::typeSize(DBType::_ID)];
+            records[i]->get_id(_id);
+            result.insert(_id);
         }
     }
     return SUCCEED;

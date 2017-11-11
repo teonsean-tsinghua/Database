@@ -235,96 +235,17 @@ int DBDataFile::addField(const char* name, int type, bool nullable)
     return re;
 }
 
-
-int DBDataFile::findEqual(std::map<std::string, void*>& data, std::set<std::map<std::string, void*>*>& result)
-{
-    std::map<int, void*> processed;
-    std::vector<std::string> errors;
-    errors.clear();
-    std::map<std::string, void*>::iterator iter;
-    for(iter = data.begin(); iter != data.end(); iter++)
-    {
-        if(!ri->indexes.count(iter->first))
-        {
-            errors.push_back(iter->first);
-            continue;
-        }
-        int idx = ri->indexes[iter->first];
-        processed[idx] = iter->second;
-    }
-    if(errors.empty())
-    {
-        DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
-        while(true)
-        {
-            if(dp == NULL)
-            {
-                break;
-            }
-            dp->findEqual(processed, result);
-            dp = openDataPage(dp->getNextSameType());
-
-        }
-        int i = 0;
-//        for(std::set<std::map<std::string, void*>*>::iterator iter = result.begin(); iter != result.end(); iter++)
-//        {
-//            std::map<std::string, void*>* ele = *iter;
-//            DBPrint("Equal record: ");
-//            DBPrintLine(i++);
-//            for(std::map<std::string, void*>::iterator iter2 = ele->begin(); iter2 != ele->end(); iter2++)
-//            {
-//                std::string name =iter2->first;
-//                int idx = ri->indexes[name];
-//                void* ptr = iter2->second;
-//                DBPrint(name + ": ");
-//                if(ptr == NULL)
-//                {
-//                    DBPrintLine("NULL");
-//                }
-//                else
-//                {
-//                    switch(ri->types[idx])
-//                    {
-//                    case DBType::_ID:
-//                        DBPrint_ID((char*)ptr);
-//                        DBPrintLine("");
-//                        break;
-//                    case DBType::INT:
-//                        DBPrintLine(*(int*)ptr);
-//                        break;
-//                    }
-//                }
-//            }
-//        }
-        return SUCCEED;
-    }
-    else
-    {
-        for(int i = 0; i < errors.size(); i++)
-        {
-            DBPrintLine("This table does not contain field " + errors[i]);
-        }
-        return ERROR;
-    }
-}
-
-int DBDataFile::insertRecordToPage(int page, std::vector<void*>& processed)
-{
-    DBDataPage* dp = (DBDataPage*)(pages[page]);
-    return dp->insert(processed);
-}
-
-int DBDataFile::insertRecord(std::map<std::string, void*>& fields)
+void DBDataFile::processWriteValue(std::map<std::string, void*>& data,
+                                    std::vector<void*>& processed,
+                                    std::map<std::string, int>& errors)
 {
     int n = ri->getFieldCount();
-    std::vector<void*> processed;
-    std::map<std::string, int> errors;
     std::vector<bool> included;
     included.assign(n, false);
     processed.assign(n, NULL);
     errors.clear();
     std::map<std::string, void*>::iterator iter;
-    for(iter = fields.begin(); iter != fields.end(); iter++)
+    for(iter = data.begin(); iter != data.end(); iter++)
     {
         if(!ri->indexes.count(iter->first))
         {
@@ -351,6 +272,142 @@ int DBDataFile::insertRecord(std::map<std::string, void*>& fields)
             errors[ri->names[i]] = UNNULLABLE;
         }
     }
+}
+
+void DBDataFile::processKeyValue(std::map<std::string, void*>& data,
+                                std::map<int, void*>& processed,
+                                std::vector<std::string>& errors)
+{
+    errors.clear();
+    std::map<std::string, void*>::iterator iter;
+    for(iter = data.begin(); iter != data.end(); iter++)
+    {
+        if(!ri->indexes.count(iter->first))
+        {
+            errors.push_back(iter->first);
+            continue;
+        }
+        int idx = ri->indexes[iter->first];
+        processed[idx] = iter->second;
+    }
+}
+
+int DBDataFile::update(std::map<std::string, void*>& key_value, std::map<std::string, void*>& update_value)
+{
+    std::map<int, void*> processed;
+    std::vector<std::string> errors;
+    processKeyValue(key_value, processed, errors);
+    if(errors.empty())
+    {
+        std::map<int, void*> processed2;
+        std::vector<std::string> errors2;
+        processKeyValue(update_value, processed2, errors2);
+        if(errors2.empty())
+        {
+            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+            while(true)
+            {
+                if(dp == NULL)
+                {
+                    break;
+                }
+                dp->update(processed, processed2);
+                dp = openDataPage(dp->getNextSameType());
+
+            }
+            return SUCCEED;
+        }
+        else
+        {
+            for(int i = 0; i < errors.size(); i++)
+            {
+                DBPrintLine("This table does not contain field " + errors[i]);
+            }
+            return ERROR;
+        }
+    }
+    else
+    {
+        for(int i = 0; i < errors.size(); i++)
+        {
+            DBPrintLine("This table does not contain field " + errors[i]);
+        }
+        return ERROR;
+    }
+}
+
+int DBDataFile::findEqual(std::map<std::string, void*>& data, std::set<std::map<std::string, void*>*>& result)
+{
+    std::map<int, void*> processed;
+    std::vector<std::string> errors;
+    processKeyValue(data, processed, errors);
+    if(errors.empty())
+    {
+        DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+        while(true)
+        {
+            if(dp == NULL)
+            {
+                break;
+            }
+            dp->findEqual(processed, result);
+            dp = openDataPage(dp->getNextSameType());
+
+        }
+        int i = 0;
+        for(std::set<std::map<std::string, void*>*>::iterator iter = result.begin(); iter != result.end(); iter++)
+        {
+            std::map<std::string, void*>* ele = *iter;
+            DBPrint("Equal record: ");
+            DBPrintLine(i++);
+            for(std::map<std::string, void*>::iterator iter2 = ele->begin(); iter2 != ele->end(); iter2++)
+            {
+                std::string name =iter2->first;
+                int idx = ri->indexes[name];
+                void* ptr = iter2->second;
+                DBPrint(name + ": ");
+                if(ptr == NULL)
+                {
+                    DBPrintLine("NULL");
+                }
+                else
+                {
+                    switch(ri->types[idx])
+                    {
+                    case DBType::_ID:
+                        DBPrint_ID((char*)ptr);
+                        DBPrintLine("");
+                        break;
+                    case DBType::INT:
+                        DBPrintLine(*(int*)ptr);
+                        break;
+                    }
+                }
+            }
+        }
+        return SUCCEED;
+    }
+    else
+    {
+        for(int i = 0; i < errors.size(); i++)
+        {
+            DBPrintLine("This table does not contain field " + errors[i]);
+        }
+        return ERROR;
+    }
+}
+
+int DBDataFile::insertRecordToPage(int page, std::vector<void*>& processed)
+{
+    DBDataPage* dp = (DBDataPage*)(pages[page]);
+    return dp->insert(processed);
+}
+
+int DBDataFile::insertRecord(std::map<std::string, void*>& fields)
+{
+    std::vector<void*> processed;
+    std::map<std::string, int> errors;
+    processWriteValue(fields, processed, errors);
     if(errors.empty())
     {
         int fadp = findFirstAvailableDataPage();
