@@ -49,7 +49,7 @@ int DBDataFile::setAvailableOfDataPage(int dpid, bool available)
     {
         if(up == NULL)
         {
-            return ERROR;
+            return SUCCEED;
         }
         if(up->withinRange(dpid))
         {
@@ -58,6 +58,7 @@ int DBDataFile::setAvailableOfDataPage(int dpid, bool available)
         up = openUsagePage(up->getNextSameType());
     }
     up->setAvailable(dpid, available);
+    return SUCCEED;
 }
 
 int DBDataFile::allocateNewUsagePage()

@@ -5,6 +5,7 @@ using namespace std;
 int main()
 {
     DBDataFile df("");
+    srand((unsigned)time(NULL));
 //    freopen("test.out", "w", stdout);
     df.createFile("test.db");
     df.openFile("test.db");
@@ -40,7 +41,7 @@ int main()
 //    df.printAllRecords();
 //    set<map<string, void*>*> re;
 //    df.findEqual(f, re);
-    df.remove(f);
+//    df.remove(f);
     df.printAllRecords();
     return 0;
 }

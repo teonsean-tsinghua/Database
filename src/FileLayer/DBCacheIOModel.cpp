@@ -51,12 +51,18 @@ void copyData(BufType src, BufType dest, int len)
 void read_id(BufType cache, char* data)
 {
     *(unsigned long long*)data = *(unsigned long long*)cache;
-    *(unsigned long long*)(data + 8) = *(unsigned long long*)((char*)cache + 8);
+    *(unsigned int*)(data + 8) = *(unsigned int*)((char*)cache + 8);
+    *(unsigned int*)(data + 12) = *(unsigned int*)((char*)cache + 12);
+    *(unsigned short*)(data + 16) = *(unsigned short*)((char*)cache + 16);
+    *(unsigned short*)(data + 18) = *(unsigned short*)((char*)cache + 18);
 }
 
 void write_id(BufType cache)
 {
     *(unsigned long long*)cache = time(0);
-    *(unsigned long long*)((char*)cache + 8) = (unsigned long long)cache;
+    *(unsigned int*)((char*)cache + 8) = rand() * rand();
+    *(unsigned int*)((char*)cache + 12) = (unsigned int)(unsigned long long)cache;
+    *(unsigned short*)((char*)cache + 16) = (unsigned short)getpid();
+    *(unsigned short*)((char*)cache + 18) = (unsigned short)(rand());
 }
 

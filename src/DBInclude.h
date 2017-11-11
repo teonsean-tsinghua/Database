@@ -4,7 +4,7 @@
 #include"utils/DBPrint.h"
 #include"utils/DBType.h"
 #include"utils/DBRecordInfo.h"
-#include<time.h>
+#include<ctime>
 #include<unistd.h>
 #include<string>
 #include<iostream>
@@ -12,6 +12,7 @@
 #include<map>
 #include<vector>
 #include<cstdio>
+#include<cstdlib>
 #include<set>
 
 const static int SUCCEED = 0;

@@ -8,7 +8,7 @@ class DBType
     const static char* const pageName_[];
 
 public:
-    const static int _ID = 0;   // _id: time stamp for first 8 bytes, cache address for last 8 bytes;
+    const static int _ID = 0;   // _id: time stamp for first 8 bytes, a random number for next 4 bytes, cache address for next 4 bytes, pid for next 2 bytes, a rand number for last 2 bytes;
     const static int INT = _ID + 1;
     const static int FIRST_TYPE = _ID;
     const static int LAST_TYPE = INT;
