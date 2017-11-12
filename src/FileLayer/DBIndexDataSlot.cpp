@@ -10,15 +10,15 @@ void DBIndexDataSlot(BufType cache, int _dataLen):
 };
 
 void DBIndexDataSlot::writeData(int idx, char* data, int len){
-	 char* dataIterator = (char*)cache + (idx - 1) * dataLen + 4 * idx;
+	 char* dataIterator = (char*)cache + (idx - 1) * dataLen + 4 * idx + size();
 	 for(int i = 0; i < len; i++){
 	 	dataIterator[i] = data[i];
 	 }
 }
 
-void DBIndexDataSlot::writePointer(int idx, int pagenum){
-	int* intIterator = (char*)cache + (idx - 1) * (dataLen + 4);
-	intIterator[0] = pagenum;
+void DBIndexDataSlot::writePointer(int idx, BufType pagenum){
+	int* intIterator = (char*)cache + (idx - 1) * (dataLen + 4) + size();
+	intIterator[0] = pagenum[0];
 }
 
 int DBIndexDataSlot::size(){
@@ -57,4 +57,20 @@ void DBIndexDataSlot::writeIsLeaf(bool _isLeaf){
 
 void DBIndexDataSlot::writeDataCnt(int _dataCnt){
 	writeInt(dataCnt, _dataCnt);
+}
+
+char* getDataByIdx(int idx){
+	char* re;
+	re = (char*) cache + size() + (idx - 1) * (dataLen + 4) + 4;
+	return re;
+}
+
+BufType getPointerByIdx(int idx){
+	BufType re;
+	re = (BufType)((char*) cache + size() + (idx - 1) * (dataLen + 4));
+	return re;
+}
+
+int getMaxSize(){
+	return (PAGE_SIZE - size() - 4) / dataLen;
 }

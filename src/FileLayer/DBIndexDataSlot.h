@@ -13,7 +13,7 @@ public:
 
     void writeData(int idx, char* data, int len);
 
-    void writePointer(int idx, int pagenum);
+    void writePointer(int idx, BufType pagenum);
 
     int size();
 
@@ -24,6 +24,12 @@ public:
     int getIsLeaf();
 
     int getDataCnt();
+
+    int getMaxSize();
+
+    char* getDataByIdx(int idx);
+
+    BufType getPointerByIdx(int idx);
 
     void writeFatherPageId(int _fatherPageId);
 
