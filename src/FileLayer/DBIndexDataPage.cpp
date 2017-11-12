@@ -1,6 +1,7 @@
 #include "DBIndexDataPage.h"
 
-DBIndexDataPage::DBIndexDataPage(BufType cache, int _dataLen):ids(cache, _dataLen){
+DBIndexDataPage::DBIndexDataPage(BufType cache, int index, int pageID, int mode, int _dataLen):
+	ids(cache, _dataLen), DBPage(cache, index, pageID, DBType::INDEX_DATA_PAGE, mode){
 	dataLen = _dataLen;
 }
 
@@ -49,4 +50,13 @@ int DBIndexDataPage::search(char* data){
 		if (comparator(data, ids -> getDataByIdx(i), dataLen) == GREATER)
 			return ids -> getPointerByIdx(i);
 	return ids -> getPointerByIdx(ids -> getDataCnt());
+}
+
+BufType DBIndexDataPage::getCache(){
+	return cache;
+}
+
+void DBIndexDataPage::getCache(BufType _cache){
+	for(int i = 0; i < (PAGE_SIZE >> 2); i++)
+		cache[i] = _cache[i];
 }

@@ -1,8 +1,9 @@
 #ifndef DBINDEXDATAPAGE_H_INCLUDED
 #define DBINDEXDATAPAGE_H_INCLUDED
 #include "DBIndexDataSlot.h"
+#include "DBPage.h"
 
-class DBIndexDataPage{
+class DBIndexDataPage: public DBPage{
 private:
 	const int GREATER = 0;
 	const int LESS = GREATER + 1;
@@ -11,6 +12,10 @@ private:
 	int dataLen;
 
 	int comparator(char* a, char* b, int len);
+
+	BufType getCache();
+
+	void setCache(BufType _cache);
 public:
 	DBIndexDataPage(BufType cache, int _dataLen);
 
