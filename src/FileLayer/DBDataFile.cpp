@@ -186,6 +186,7 @@ int DBDataFile::createFile(const char* name)
     fm->flush(dfdp->getIndex());
     fm->closeFile(fileID);
     delete ri;
+    return SUCCEED;
 }
 
 int DBDataFile::deleteFile(const char* name)
@@ -195,6 +196,7 @@ int DBDataFile::deleteFile(const char* name)
         DBLogLine("ERROR");
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
     }
+    return SUCCEED;
 }
 
 int DBDataFile::closeFile()
@@ -210,6 +212,7 @@ int DBDataFile::closeFile()
         DBLogLine("ERROR");
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
     }
+    return SUCCEED;
 }
 
 void DBDataFile::printFileDescription()
@@ -468,6 +471,7 @@ int DBDataFile::insertRecord(std::map<std::string, void*>& fields)
         }
         return ERROR;
     }
+    return SUCCEED;
 }
 
 int DBDataFile::setPrimaryKey(const char* name)
@@ -496,6 +500,7 @@ int DBDataFile::openFile(const char* name)
     BufType cache = fm->getPage(fileID, 0, index);
     ri = new DBRecordInfo();
     dfdp = new DBDataFileDescriptionPage(cache, index, 0, MODE_PARSE, ri);
+    return SUCCEED;
 }
 
 
