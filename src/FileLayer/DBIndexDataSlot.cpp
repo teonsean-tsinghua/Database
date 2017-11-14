@@ -1,23 +1,33 @@
 #include "DBIndexDataSlot.h"
 
-void DBIndexDataSlot(BufType cache, int _dataLen):
+DBIndexDataSlot::DBIndexDataSlot(BufType cache, int _dataLen):
     DBSlot(cache)
 {
-	dataLen = _dataLen;
+	this -> dataLen = _dataLen;
 	fatherPageId = (*this)[FATHER_PAGE_ID_OFFSET];
 	isLeaf = (*this)[IS_LEAF_OFFSET];
 	dataCnt = (*this)[DATA_CNT_OFFSET];
 };
 
+void DBIndexDataSlot::refresh(){
+	int _fatherPageId = fatherPageId[0];
+	int _isLeaf = isLeaf[0];
+	int _dataCnt = dataCnt[0];
+	cache = new unsigned int[PAGE_SIZE >> 2];
+	cache[0] = _fatherPageId;
+	cache[1] = _isLeaf;
+	cache[2] = _dataCnt;
+}
+
 void DBIndexDataSlot::writeData(int idx, char* data, int len){
-	 char* dataIterator = (char*)cache + (idx - 1) * dataLen + 4 * idx + size();
+	 char* dataIterator = ((char*)cache + (idx - 1) * dataLen + 4 * idx + size());
 	 for(int i = 0; i < len; i++){
 	 	dataIterator[i] = data[i];
 	 }
 }
 
 void DBIndexDataSlot::writePointer(int idx, BufType pagenum){
-	int* intIterator = (char*)cache + (idx - 1) * (dataLen + 4) + size();
+	int* intIterator = (int*)((char*)cache + (idx - 1) * (dataLen + 4) + size());
 	intIterator[0] = pagenum[0];
 }
 
@@ -29,15 +39,15 @@ void DBIndexDataSlot::print(){
 	// TODO: write some debugging info that may be used in the future.
 }
 
-int DBIndexDataSlot::getFatherPageId(){
+int DBIndexDataSlot::getFatherPageID(){
 	int re;
 	readInt(fatherPageId, &re);
 	return re;
 }
 
-int DBIndexDataSlot::getIsLeaf(){
+int DBIndexDataSlot::getisLeaf(){
 	int re;
-	readInt(getIsLeaf, &re);
+	readInt(isLeaf, &re);
 	return re;
 }
 
@@ -47,7 +57,7 @@ int DBIndexDataSlot::getDataCnt(){
 	return re;
 }
 
-void DBIndexDataSlot::writeFatherPageId(int _fatherPageId){
+void DBIndexDataSlot::writeFatherPageID(int _fatherPageId){
 	writeInt(fatherPageId, _fatherPageId);
 }
 
@@ -59,18 +69,18 @@ void DBIndexDataSlot::writeDataCnt(int _dataCnt){
 	writeInt(dataCnt, _dataCnt);
 }
 
-char* getDataByIdx(int idx){
+char* DBIndexDataSlot::getDataByIdx(int idx){
 	char* re;
-	re = (char*) cache + size() + (idx - 1) * (dataLen + 4) + 4;
+	re = (char*)cache + size() + (idx - 1) * (dataLen + 4) + 4;
 	return re;
 }
 
-BufType getPointerByIdx(int idx){
+BufType DBIndexDataSlot::getPointerByIdx(int idx){
 	BufType re;
-	re = (BufType)((char*) cache + size() + (idx - 1) * (dataLen + 4));
+	re = (BufType)((char*)cache + size() + (idx - 1) * (dataLen + 4));
 	return re;
 }
 
-int getMaxSize(){
+int DBIndexDataSlot::getMaxSize(){
 	return (PAGE_SIZE - size() - 4) / dataLen;
 }

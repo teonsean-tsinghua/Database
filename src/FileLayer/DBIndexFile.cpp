@@ -1,8 +1,11 @@
 #include "DBIndexFile.h"
 
-DBIndexFile::DBIndexFile(){
+DBIndexFile::DBIndexFile(const char* name, int _dataLen){
+    dataLen = _dataLen;
+    indexname = name;
 	fm = DBFileIOModel::getInstance();
 	up = NULL;
+    fileID = -1;
 }
 
 int DBIndexFile::allocateNewPage(){
@@ -17,9 +20,12 @@ int DBIndexFile::allocateNewPage(){
 	return ret;
 }
 
-void DBIndexFile::copyToNewPage(int pageID){
+int DBIndexFile::copyToNewPage(int pageID){
 	int newPageID = allocateNewPage();
-	(DBIndexDataPage*) pages[newPageID] -> setCache((DBIndexDataPage*)pages[pageID] -> getCache());
+    DBIndexDataPage* newPage = (DBIndexDataPage*) pages[newPageID];
+    DBIndexDataPage* curpage = (DBIndexDataPage*)pages[pageID];
+	newPage -> setCache(curpage -> getCache());
+    return newPageID;
 }
 
 DBUsagePage* DBIndexFile::openUsagePage(int pid){
@@ -27,10 +33,6 @@ DBUsagePage* DBIndexFile::openUsagePage(int pid){
     {
         DBPage* re = pages[pid];
         return re->getPageType() == DBType::USAGE_PAGE ? (DBUsagePage*)re : NULL;
-    }
-    if(pid <= 0 || pid >= dfdp->getPageNumber())
-    {
-        return NULL;
     }
     int index;
     BufType cache = fm->getPage(fileID, pid, index);
@@ -46,14 +48,14 @@ DBUsagePage* DBIndexFile::openUsagePage(int pid){
 DBIndexDataPage* DBIndexFile::openIndexDataPage(int pid){
 	if (pages.count(pid)){
 		DBPage* re = pages[pid];
-		return re -> getPageType == DBType::INDEX_DATA_PAGE ? (DBIndexDataPage*) re : NULL;	
+		return re -> getPageType() == DBType::INDEX_DATA_PAGE ? (DBIndexDataPage*) re : NULL;	
 	}
 	int index;
 	BufType cache = fm -> getPage(fileID, pid, index);
 	if (DBPageInfoSlot::getPageType(cache) != DBType::INDEX_DATA_PAGE){
 		return NULL;
 	}
-	DBIndexDataPage* re = new DBIndexDataPage(cache, index, pid, MODE_PARSE);
+	DBIndexDataPage* re = new DBIndexDataPage(cache, index, pid, MODE_PARSE, dataLen);
 	pages[pid] = re;
 	return re;
 }
@@ -71,12 +73,6 @@ int DBIndexFile::createFile(const char* name){
     }
     int index;
     BufType cache = fm->getPage(fileID, 0, index);
-    ri = new DBRecordInfo();
-    dfdp = new DBDataFileDescriptionPage(cache, index, 0, MODE_CREATE, ri);
-    dfdp->addField("_id", DBType::_ID, false);
-    fm->flush(dfdp->getIndex());
-    fm->closeFile(fileID);
-    delete ri;
     return SUCCEED;
 }
 
@@ -90,7 +86,7 @@ int DBIndexFile::deleteFile(const char* name){
 }
 
 int DBIndexFile::closeFile(const char* name){
-	fm->flush(dfdp->getIndex());
+//	fm->flush(dfdp->getIndex());
     for(std::map<int, DBPage*>::iterator iter = pages.begin(); iter != pages.end(); iter++)
     {
         fm->flush(iter->second->getIndex());

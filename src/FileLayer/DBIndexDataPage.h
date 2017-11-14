@@ -5,33 +5,43 @@
 
 class DBIndexDataPage: public DBPage{
 private:
-	const int GREATER = 0;
-	const int LESS = GREATER + 1;
-	const int EQUAL = LESS + 1;
+	const static int GREATER = 0;
+	const static int LESS = GREATER + 1;
+	const static int EQUAL = LESS + 1;
 	DBIndexDataSlot* ids;
 	int dataLen;
 
 	int comparator(char* a, char* b, int len);
+public:
+	DBIndexDataPage(BufType cache, int index, int pageID, int mode, int _dataLen);
+
+	int insert(char* data, int len, unsigned int* pointer, int idx);
+
+	BufType search(char* data, int len);
+	
+	int deleteByIdx(int idx);
+
+	BufType getPointerByIdx(int idx);
+	
+	int getMaxSize();
+
+	bool getisLeaf();
+
+	int getFather();
+
+	void refresh();
+
+	void getMiddle();
+
+	int searchIdx(const char* data, int len);
 
 	BufType getCache();
 
 	void setCache(BufType _cache);
-public:
-	DBIndexDataPage(BufType cache, int _dataLen);
-
-	int insert(char* data, int len, int pointer, int idx);
-
-	int search(char* data);
-	
-	int deleteByIdx(int idx);
-
-	int getPointerByIdx(int idx);
-	
-	int getMaxSize();
 
 	const static int SUCCEED = 0;
 	const static int OVER_FLOW = SUCCEED + 1;
-	const static int UNDEF_FLOW = OVER_FLOW + 1; 
+	const static int UNDER_FLOW = OVER_FLOW + 1; 
 };
 
 #endif

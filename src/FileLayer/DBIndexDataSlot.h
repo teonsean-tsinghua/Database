@@ -19,9 +19,9 @@ public:
 
     void print();
 
-    int getFatherPageId();
+    int getFatherPageID();
 
-    int getIsLeaf();
+    int getisLeaf();
 
     int getDataCnt();
 
@@ -31,11 +31,13 @@ public:
 
     BufType getPointerByIdx(int idx);
 
-    void writeFatherPageId(int _fatherPageId);
+    void writeFatherPageID(int _fatherPageId);
 
     void writeIsLeaf(bool isLeaf);
 
     void writeDataCnt(int _dataCnt);
+
+    void refresh();
 
     const static int FATHER_PAGE_ID_OFFSET = 0;
     const static int IS_LEAF_OFFSET = FATHER_PAGE_ID_OFFSET + 1;
