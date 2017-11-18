@@ -62,7 +62,7 @@ void DBIndexDataSlot::print(){
 	else
 		std::cout << "Leaf Page: " << "false" << endl;
 	for(int i = 0; i < getDataCnt(); i++){
-		std::cout << "Linker " << i << ", " << "point to page " << getPointerByIdx(i);
+		std::cout << "Linker " << i << ", " << "point to page " << getPointerbyIdx(i);
 		std::cout << " and key is: ";
 		for(int j = 0; j < dataLen; j++){
 			printf("%02x", ((char*)cache + size() + sizeof(unsigned int) * (i + 1) + dataLen * i + j)[0]);
@@ -75,28 +75,27 @@ int DBIndexDataSlot::getDataSize(){
 	return getDataCnt() * (dataLen + sizeof(unsigned int));
 }
 
-char* DBIndexDataSlot::getDataByIdx(int idx){
+char* DBIndexDataSlot::getDatabyIdx(int idx){
 	char* re;
 	re = (char*)cache + size() + (idx) * (dataLen + sizeof(unsigned int)) + sizeof(unsigned int);
 	return re;
 }
 
-unsigned int DBIndexDataSlot::getPointerByIdx(int idx){
-	unsigned int re;
-	readUnsignedInt((*this)[size() + (idx) * (dataLen + sizeof(unsigned int))], &re);
-	return (unsigned int)re;
+int DBIndexDataSlot::getPointerbyIdx(int idx){
+	int re;
+	readInt((*this)[size() + (idx) * (dataLen + sizeof(unsigned int))], &re);
+	return re;
 }
 
 int DBIndexDataSlot::getMaxSize(){
 	return (PAGE_SIZE - this -> size()) / (dataLen + sizeof(unsigned int));
 }
 
-void DBIndexDataSlot::appendData(BufType data, int size){
-	int totsize = getDataSize();
+void DBIndexDataSlot::appendData(char* data, int size){
+	int totsize = getDataSize() + this -> size();
 	char* byteCache = (char*) cache;
-	char* byteData = (char*) data;
 	for(int i = 0; i < size + sizeof(unsigned int); i++){
-		byteCache[this -> size() + getDataSize() + i] = byteData[i];
+		byteCache[totsize + i] = data[i];
 	}
 	writeInt(dataCnt, getDataCnt() + 1);
 }

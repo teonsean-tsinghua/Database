@@ -1,4 +1,3 @@
-/*
 #include "DBIndexDataPage.h"
 
 DBIndexDataPage::DBIndexDataPage(BufType cache, int index, int pageID, int mode, int _dataLen):
@@ -12,45 +11,47 @@ DBIndexDataPage::DBIndexDataPage(BufType cache, int index, int pageID, int mode,
         ids -> setDataCnt(0);
         memset((char*)(*this)[ids -> size()], 0, PAGE_SIZE - ids -> size());
     }
-    else{}
 }
 
-int DBIndexDataPage::insert(BufType data, int len, unsigned int* pointer, int idx){
+int DBIndexDataPage::insert(char* data, int len, int pointer, int idx){
 	int currentTotal = ids -> getDataCnt();
 	if(currentTotal == ids -> getMaxSize())
 		return OVER_FLOW;
-	for(int i = currentTotal; i > idx; i--){
-		ids -> writeData(i + 1, ids -> getDataByIdx(i), dataLen);
-		ids -> writePointer(i + 1, ids -> getPointerByIdx(i));
+	for(int i = currentTotal; i >= idx; i--){
+		ids -> writeData(i + 1, ids -> getDatabyIdx(i), dataLen);
+		ids -> writePointer(i + 1, ids -> getPointerbyIdx(i));
 	}
 	ids -> writeData(idx, data, len);
 	ids -> writePointer(idx, pointer);
+	ids -> setDataCnt(ids -> getDataCnt() + 1);
 	return SUCCEED;
 }
 
-int DBIndexDataPage::deleteByIdx(int idx){
+int DBIndexDataPage::deletebyIdx(int idx){
 	int currentTotal = ids -> getDataCnt();
-	if (currentTotal == (ids -> getMaxSize()) >> 1 && (ids -> getFather() != -1))
+	if (currentTotal == (ids -> getMaxSize()) >> 1 && (ids -> getFatherPageID() != -1))
 		return UNDER_FLOW;
-	if (ids -> getFather() == -1 && currentTotal == 1)
+	if (ids -> getFatherPageID() == -1 && currentTotal == 1)
 		return UNDER_FLOW;
 	for(int i = idx; i < currentTotal; i++){
-		ids -> writeData(i, ids -> getDataByIdx(i + 1), dataLen);
-		ids -> writePointer(i, ids -> getPointerByIdx(i + 1));
+		ids -> writeData(i, ids -> getDatabyIdx(i + 1), dataLen);
+		ids -> writePointer(i, ids -> getPointerbyIdx(i + 1));
 	}
+	ids -> setDataCnt(ids -> getDataCnt() - 1);
 	return SUCCEED;
 }
 
-void DBIndexDataPage::updateIdx(BufType data, int idx){
+void DBIndexDataPage::updateIdx(char* data, int idx){
 	ids -> writeData(idx, data, dataLen);
 }
 
 void DBIndexDataPage::forceDelete(int idx){
 	int currentTotal = ids -> getDataCnt();
 	for(int i = idx; i < currentTotal; i++){
-		ids -> writeData(i, ids -> getDataByIdx(i + 1), dataLen);
-		ids -> writePointer(i, ids -> getPointerByIdx(i + 1))
+		ids -> writeData(i, ids -> getDatabyIdx(i + 1), dataLen);
+		ids -> writePointer(i, ids -> getPointerbyIdx(i + 1));
 	}
+	ids -> setDataCnt(ids -> getDataCnt() - 1);
 }
 
 int DBIndexDataPage::comparator(char* a, char* b, int len){
@@ -61,8 +62,8 @@ int DBIndexDataPage::comparator(char* a, char* b, int len){
 	return EQUAL;
 }
 
-int DBIndexDataPage::getOffsetbyIdx(int idx){
-	return ids -> size() + (dataLen + sizeof(int)) * idx + sizeof(int);
+int DBIndexDataPage::getDataOffsetbyIdx(int idx){
+	return ids -> size() + (dataLen + sizeof(unsigned int)) * idx + sizeof(unsigned int);
 }
 
 int DBIndexDataPage::getMaxSize(){
@@ -73,15 +74,12 @@ int DBIndexDataPage::getFloatSize(){
 	return (ids -> getDataCnt()) - ((ids -> getMaxSize()) >> 1);
 }
 
-BufType DBIndexDataPage::getPointerByIdx(int idx){
-	return ids -> getPointerByIdx(idx);
-}
-
-BufType DBIndexDataPage::search(char* data, int len){
-	for(int i = 0; i < ids -> getDataCnt(); i++)
-		if (comparator(data, ids -> getDataByIdx(i), dataLen) == GREATER)
-			return ids -> getPointerByIdx(i);
-	return ids -> getPointerByIdx(ids -> getDataCnt());
+int DBIndexDataPage::search(char* data, int len){
+	for(int i = 0; i < ids -> getDataCnt(); i++){
+		if (comparator(data, ids -> getDatabyIdx(i), dataLen) != GREATER)
+			return ids -> getPointerbyIdx(i);
+	}
+	return ids -> getPointerbyIdx(ids -> getDataCnt() - 1);
 }
 
 BufType DBIndexDataPage::getCache(){
@@ -92,7 +90,7 @@ BufType DBIndexDataPage::getDataHead(){
 	return cache + ids -> size() / sizeof(int);
 }
 
-void DBIndexDataPage::appendData(BufType data, int size){
+void DBIndexDataPage::appendData(char* data, int size){
 	ids -> appendData(data, size);
 }
 
@@ -105,12 +103,20 @@ bool DBIndexDataPage::getisLeaf(){
 	return ids -> getisLeaf();
 }
 
-int getPointerByIdx(int idx){
-	return ids -> getPointerByIdx(idx);
+void DBIndexDataPage::setisLeaf(bool _isLeaf){
+	ids -> setisLeaf(_isLeaf);
 }
 
-int DBIndexDataPage::searchIdx(const char* data, int len){
-	return 0;
+void DBIndexDataPage::setFatherPageID(int _fatherPageID){
+	ids -> setFatherPageID(_fatherPageID);
+}
+
+void DBIndexDataPage::setDataCnt(int _dataCnt){
+	ids -> setDataCnt(_dataCnt);
+}
+
+int DBIndexDataPage::getPointerbyIdx(int idx){
+	return ids -> getPointerbyIdx(idx);
 }
 
 int DBIndexDataPage::getDataCnt(){
@@ -121,11 +127,10 @@ int DBIndexDataPage::getDataSize(){
 	return ids -> getDataSize();
 }
 
-void DBIndexDataPage::refresh(){
-	ids -> refresh();
-}
-
 int DBIndexDataPage::getFather(){
 	return ids -> getFatherPageID();
 }
-*/
+
+void DBIndexDataPage::print(){
+	ids -> print();
+}

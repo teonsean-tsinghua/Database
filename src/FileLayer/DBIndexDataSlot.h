@@ -29,15 +29,15 @@ public:
 
     int getDataSize();
 
-    void appendData(BufType data, int size);
+    void appendData(char* data, int size);
 
     void setDataCnt(int _dataCnt);
 
     int getMaxSize();
 
-    char* getDataByIdx(int idx);
+    char* getDatabyIdx(int idx);
 
-    unsigned int getPointerByIdx(int idx);
+    int getPointerbyIdx(int idx);
 
     void print();
 
