@@ -1,3 +1,4 @@
+/*
 #include "DBIndexDataPage.h"
 
 DBIndexDataPage::DBIndexDataPage(BufType cache, int index, int pageID, int mode, int _dataLen):
@@ -127,3 +128,4 @@ void DBIndexDataPage::refresh(){
 int DBIndexDataPage::getFather(){
 	return ids -> getFatherPageID();
 }
+*/

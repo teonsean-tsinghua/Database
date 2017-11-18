@@ -9,19 +9,17 @@ private:
 	BufType isLeaf;
 	BufType dataCnt;
 public:
-    DBIndexDataSlot(BufType cache, int _dataLen, bool isLeaf);
+    DBIndexDataSlot(BufType cache, int _dataLen);
 
     void writeData(int idx, char* data, int len);
 
-    void writePointer(int idx, BufType pagenum);
+    void writePointer(int idx, unsigned int pagenum);
 
     int size();
 
-    void print();
-
     int getFatherPageID();
 
-    void setFatherPageID();
+    void setFatherPageID(int _fatherPageId);
 
     int getisLeaf();
 
@@ -39,19 +37,13 @@ public:
 
     char* getDataByIdx(int idx);
 
-    BufType getPointerByIdx(int idx);
+    unsigned int getPointerByIdx(int idx);
 
-    void writeFatherPageID(int _fatherPageId);
-
-    void writeIsLeaf(bool isLeaf);
-
-    void writeDataCnt(int _dataCnt);
-
-    void refresh();
+    void print();
 
     const static int FATHER_PAGE_ID_OFFSET = 0;
-    const static int IS_LEAF_OFFSET = FATHER_PAGE_ID_OFFSET + 1;
-    const static int DATA_CNT_OFFSET = IS_LEAF_OFFSET + 1;
+    const static int IS_LEAF_OFFSET = FATHER_PAGE_ID_OFFSET + sizeof(unsigned int);
+    const static int DATA_CNT_OFFSET = IS_LEAF_OFFSET + sizeof(unsigned int);
 };
 
 #endif

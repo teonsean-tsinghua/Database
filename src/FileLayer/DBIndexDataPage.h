@@ -1,3 +1,4 @@
+/*
 #ifndef DBINDEXDATAPAGE_H_INCLUDED
 #define DBINDEXDATAPAGE_H_INCLUDED
 #include "DBIndexDataSlot.h"
@@ -61,3 +62,5 @@ public:
 };
 
 #endif
+
+*/

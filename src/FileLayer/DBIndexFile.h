@@ -1,3 +1,4 @@
+/*
 #ifndef DBINDEXFILE_H_INCLUDED
 #define DBINDEXFILE_H_INCLUDED
 #include "DBIndexDataPage.h"
@@ -34,3 +35,4 @@ public:
 };
 
 #endif
+*/

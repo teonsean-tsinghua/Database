@@ -1,3 +1,4 @@
+/*
 #include "DBIndexFile.h"
 
 DBIndexFile::DBIndexFile(const char* name, int _dataLen){
@@ -119,3 +120,5 @@ int DBIndexFile::setAvailableOfIndexPage(int ipid, bool available){
 	up -> setAvailable(ipid, available);
 	return SUCCEED;
 }
+
+*/

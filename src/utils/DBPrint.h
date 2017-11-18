@@ -31,10 +31,4 @@ void DBPrintLine(const T& msg)
 {
     std::cout << msg << std::endl;
 }
-
-void DBPrintPage(BufType page){
-	for(int i = 0; i < PAGE_SIZE; i++)
-		printf("%x\n", page[i]);
-}
-
 #endif // DBPRINT_H_INCLUDED

@@ -10,4 +10,11 @@ void DBPrintPage(unsigned char* start){
 	printf("\n");
 }
 
+void DBPrintBufPage(BufType start, int cnt){
+	printf("%08x", start[0]);
+	for(int i = 1; i < cnt; i++)
+		printf(" %08x", start[i]);
+	printf("\n");
+}
+
 #endif

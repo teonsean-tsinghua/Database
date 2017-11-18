@@ -9,35 +9,19 @@ DBIndexDataSlot::DBIndexDataSlot(BufType cache, int _dataLen):
 	dataCnt = (*this)[DATA_CNT_OFFSET];
 };
 
-void DBIndexDataSlot::refresh(){
-	int _fatherPageId = fatherPageId[0];
-	int _isLeaf = isLeaf[0];
-	int _dataCnt = dataCnt[0];
-	delete[] cache;
-	cache = new unsigned int[PAGE_SIZE >> 2];
-	cache[0] = _fatherPageId;
-	cache[1] = _isLeaf;
-	cache[2] = _dataCnt;
-}
-
 void DBIndexDataSlot::writeData(int idx, char* data, int len){
-	 char* dataIterator = ((char*)cache + (idx - 1) * dataLen + 4 * idx + size());
+	 char* dataIterator = (char*)(cache) + (idx) * (dataLen + sizeof(unsigned int)) + sizeof(unsigned int) + size();
 	 for(int i = 0; i < len; i++){
 	 	dataIterator[i] = data[i];
 	 }
 }
 
-void DBIndexDataSlot::writePointer(int idx, BufType pagenum){
-	int* intIterator = (int*)((char*)cache + (idx - 1) * (dataLen + 4) + size());
-	intIterator[0] = pagenum[0];
+void DBIndexDataSlot::writePointer(int idx, unsigned int pagenum){
+	writeUnsignedInt((BufType)((char*)cache + size() + idx * (dataLen + sizeof(unsigned int))), pagenum);
 }
 
 int DBIndexDataSlot::size(){
-	return sizeof(int) * 2 + sizeof(int);
-}
-
-void DBIndexDataSlot::print(){
-	// TODO: write some debugging info that may be used in the future.
+	return sizeof(unsigned int) * 2 + sizeof(unsigned int);
 }
 
 int DBIndexDataSlot::getFatherPageID(){
@@ -47,11 +31,11 @@ int DBIndexDataSlot::getFatherPageID(){
 }
 
 void DBIndexDataSlot::setFatherPageID(int _newid){
-	fatherPageId[0] = _newid;
+	writeInt(fatherPageId, _newid);
 }
 
 void DBIndexDataSlot::setDataCnt(int _cnt){
-	dataCnt[0] = _cnt;
+	writeInt(dataCnt, _cnt);
 }
 
 int DBIndexDataSlot::getisLeaf(){
@@ -61,7 +45,7 @@ int DBIndexDataSlot::getisLeaf(){
 }
 
 void DBIndexDataSlot::setisLeaf(bool _isLeaf){
-	this -> isLeaf = (int)_isLeaf;
+	writeInt(isLeaf, (unsigned int)_isLeaf);
 }
 
 int DBIndexDataSlot::getDataCnt(){
@@ -70,43 +54,49 @@ int DBIndexDataSlot::getDataCnt(){
 	return re;
 }
 
+void DBIndexDataSlot::print(){
+	std::cout << "Father Page ID: " << getFatherPageID() << endl;
+	std::cout << "Data Count:" << getDataCnt() << endl;
+	if (getisLeaf() == 1)
+		std::cout << "Leaf Page: " << "true" << endl;
+	else
+		std::cout << "Leaf Page: " << "false" << endl;
+	for(int i = 0; i < getDataCnt(); i++){
+		std::cout << "Linker " << i << ", " << "point to page " << getPointerByIdx(i);
+		std::cout << " and key is: ";
+		for(int j = 0; j < dataLen; j++){
+			printf("%02x", ((char*)cache + size() + sizeof(unsigned int) * (i + 1) + dataLen * i + j)[0]);
+		}
+		printf("\n");
+	}
+}
+
 int DBIndexDataSlot::getDataSize(){
-	return getDataCnt() * (dataLen + sizeof(int)) + sizeof(int);
-}
-
-void DBIndexDataSlot::writeFatherPageID(int _fatherPageId){
-	writeInt(fatherPageId, _fatherPageId);
-}
-
-void DBIndexDataSlot::writeIsLeaf(bool _isLeaf){
-	writeInt(isLeaf, _isLeaf? 1 : 0);
-}
-
-void DBIndexDataSlot::writeDataCnt(int _dataCnt){
-	writeInt(dataCnt, _dataCnt);
+	return getDataCnt() * (dataLen + sizeof(unsigned int));
 }
 
 char* DBIndexDataSlot::getDataByIdx(int idx){
 	char* re;
-	re = (char*)cache + size() + (idx - 1) * (dataLen + sizeof(int)) + sizeof(int);
+	re = (char*)cache + size() + (idx) * (dataLen + sizeof(unsigned int)) + sizeof(unsigned int);
 	return re;
 }
 
-BufType DBIndexDataSlot::getPointerByIdx(int idx){
-	BufType re;
-	re = (BufType)((char*)cache + size() + (idx - 1) * (dataLen + sizeof(int)));
-	return re;
+unsigned int DBIndexDataSlot::getPointerByIdx(int idx){
+	unsigned int re;
+	readUnsignedInt((*this)[size() + (idx) * (dataLen + sizeof(unsigned int))], &re);
+	return (unsigned int)re;
 }
 
 int DBIndexDataSlot::getMaxSize(){
-	return (PAGE_SIZE - size()) / dataLen;
+	return (PAGE_SIZE - this -> size()) / (dataLen + sizeof(unsigned int));
 }
 
 void DBIndexDataSlot::appendData(BufType data, int size){
 	int totsize = getDataSize();
-	for(int i = 0; i < size; i++){
-		cache[(size() + totsize) / sizeof(int)] = data[i];
-		totsize = totsize + sizeof(int);
+	char* byteCache = (char*) cache;
+	char* byteData = (char*) data;
+	for(int i = 0; i < size + sizeof(unsigned int); i++){
+		byteCache[this -> size() + getDataSize() + i] = byteData[i];
 	}
-	dataCnt[0] = (totsize - size()) / (dataLen + sizeof(int));
+	writeInt(dataCnt, getDataCnt() + 1);
 }

@@ -1,3 +1,4 @@
+/*
 #include "DBBPlusTree.h"
 
 DBBPlusTree::DBBPlusTree(const char* indexname, int _dataLen){
@@ -118,8 +119,9 @@ void DBBPlusTree::solveOverFlow(char* data, int len, int pageID){
 	int fatherPageID = idp -> getFather();
 	pagecnt = idp -> copyToNewPage(pageID);
 	DBIndexDataPage fatherDP = idf -> openIndexDataPage(fatherPageID);
-	if(idf -> getDataCnt() == idf -> getMaxSize()){}
+	if(fatherDP -> getDataCnt() == fatherDP -> getMaxSize()){}
 	else{
 		fatherPageID -> insert(fatherDP -> getDataHead(), dataLen, pagecnt, fatherDP -> searchIdx(data, len));
 	}
 }
+*/
