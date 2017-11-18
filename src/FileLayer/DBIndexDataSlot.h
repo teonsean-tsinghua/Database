@@ -9,7 +9,7 @@ private:
 	BufType isLeaf;
 	BufType dataCnt;
 public:
-    DBIndexDataSlot(BufType cache, int _dataLen);
+    DBIndexDataSlot(BufType cache, int _dataLen, bool isLeaf);
 
     void writeData(int idx, char* data, int len);
 
@@ -21,9 +21,19 @@ public:
 
     int getFatherPageID();
 
+    void setFatherPageID();
+
     int getisLeaf();
 
+    void setisLeaf(bool _isLeaf);
+
     int getDataCnt();
+
+    int getDataSize();
+
+    void appendData(BufType data, int size);
+
+    void setDataCnt(int _dataCnt);
 
     int getMaxSize();
 

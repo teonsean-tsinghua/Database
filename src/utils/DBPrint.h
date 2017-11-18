@@ -1,9 +1,10 @@
 #ifndef DBPRINT_H_INCLUDED
 #define DBPRINT_H_INCLUDED
 
-#include<string>
-#include<iostream>
-#include<cstdio>
+#include <string>
+#include <iostream>
+#include <cstdio>
+#include "pagedef.h"
 
 void DBPrint_ID(char* data);
 
@@ -29,6 +30,11 @@ template<typename T>
 void DBPrintLine(const T& msg)
 {
     std::cout << msg << std::endl;
+}
+
+void DBPrintPage(BufType page){
+	for(int i = 0; i < PAGE_SIZE; i++)
+		printf("%x\n", page[i]);
 }
 
 #endif // DBPRINT_H_INCLUDED

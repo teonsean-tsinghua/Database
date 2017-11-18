@@ -21,17 +21,33 @@ public:
 	
 	int deleteByIdx(int idx);
 
+	void forceDelete(int idx);
+
 	BufType getPointerByIdx(int idx);
 	
 	int getMaxSize();
+
+	int getFloatSize();
+
+	int getPointerbyIdx(int idx);
+
+	void updateIdx(BufType data, int idx);
 
 	bool getisLeaf();
 
 	int getFather();
 
-	void refresh();
+	int getDataCnt();
 
-	void getMiddle();
+	int getDataSize();
+
+	int getOffsetbyIdx(int idx);
+
+	BufType getDataHead();
+
+	void appendData(BufType data1, int size);
+
+	void refresh();
 
 	int searchIdx(const char* data, int len);
 

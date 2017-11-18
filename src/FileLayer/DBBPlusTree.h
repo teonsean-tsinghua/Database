@@ -19,9 +19,17 @@ public:
 
 	int search(char* data, int len);
 
-	void solveUnderFlow();
+	void solveUnderFlow(char* data, int len, int pageID);
 
-	void solveOverFlow();
+	void solveOverFlow(char* data, int len, int pageID);
+
+	int getBrother(char* data, int len, int pageID);
+
+	void mergePage(int leftPageID, int rightPageID, int fatherPageID, char* data, int len);
+
+	void rotateLeft(int leftPageID, int rightPageID, int fatherPageID, char* data, int len);
+
+	void rotateRight(int leftPageID, int rightPageID, int fatherPageID, char* data, int len);
 };
 
 #endif

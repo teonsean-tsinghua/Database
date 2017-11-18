@@ -28,6 +28,8 @@ public:
 
 	int closeFile(const char* name);
 
+	void freePage(int pid);
+
 	int setAvailableOfIndexPage(int ipid, bool available);
 };
 

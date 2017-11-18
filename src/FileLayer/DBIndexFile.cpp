@@ -25,6 +25,7 @@ int DBIndexFile::copyToNewPage(int pageID){
     DBIndexDataPage* newPage = (DBIndexDataPage*) pages[newPageID];
     DBIndexDataPage* curpage = (DBIndexDataPage*)pages[pageID];
 	newPage -> setCache(curpage -> getCache());
+    this -> setAvailableOfIndexPage(newPageID, false);
     return newPageID;
 }
 
@@ -98,6 +99,10 @@ int DBIndexFile::closeFile(const char* name){
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
     }
     return SUCCEED;
+}
+
+void DBIndexFile::freePage(int pid){
+    up -> setAvailableOfIndexPage(pid, true);
 }
 
 int DBIndexFile::setAvailableOfIndexPage(int ipid, bool available){

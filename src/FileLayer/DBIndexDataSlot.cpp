@@ -13,6 +13,7 @@ void DBIndexDataSlot::refresh(){
 	int _fatherPageId = fatherPageId[0];
 	int _isLeaf = isLeaf[0];
 	int _dataCnt = dataCnt[0];
+	delete[] cache;
 	cache = new unsigned int[PAGE_SIZE >> 2];
 	cache[0] = _fatherPageId;
 	cache[1] = _isLeaf;
@@ -45,16 +46,32 @@ int DBIndexDataSlot::getFatherPageID(){
 	return re;
 }
 
+void DBIndexDataSlot::setFatherPageID(int _newid){
+	fatherPageId[0] = _newid;
+}
+
+void DBIndexDataSlot::setDataCnt(int _cnt){
+	dataCnt[0] = _cnt;
+}
+
 int DBIndexDataSlot::getisLeaf(){
 	int re;
 	readInt(isLeaf, &re);
 	return re;
 }
 
+void DBIndexDataSlot::setisLeaf(bool _isLeaf){
+	this -> isLeaf = (int)_isLeaf;
+}
+
 int DBIndexDataSlot::getDataCnt(){
 	int re;
 	readInt(dataCnt, &re);
 	return re;
+}
+
+int DBIndexDataSlot::getDataSize(){
+	return getDataCnt() * (dataLen + sizeof(int)) + sizeof(int);
 }
 
 void DBIndexDataSlot::writeFatherPageID(int _fatherPageId){
@@ -71,16 +88,25 @@ void DBIndexDataSlot::writeDataCnt(int _dataCnt){
 
 char* DBIndexDataSlot::getDataByIdx(int idx){
 	char* re;
-	re = (char*)cache + size() + (idx - 1) * (dataLen + 4) + 4;
+	re = (char*)cache + size() + (idx - 1) * (dataLen + sizeof(int)) + sizeof(int);
 	return re;
 }
 
 BufType DBIndexDataSlot::getPointerByIdx(int idx){
 	BufType re;
-	re = (BufType)((char*)cache + size() + (idx - 1) * (dataLen + 4));
+	re = (BufType)((char*)cache + size() + (idx - 1) * (dataLen + sizeof(int)));
 	return re;
 }
 
 int DBIndexDataSlot::getMaxSize(){
-	return (PAGE_SIZE - size() - 4) / dataLen;
+	return (PAGE_SIZE - size()) / dataLen;
+}
+
+void DBIndexDataSlot::appendData(BufType data, int size){
+	int totsize = getDataSize();
+	for(int i = 0; i < size; i++){
+		cache[(size() + totsize) / sizeof(int)] = data[i];
+		totsize = totsize + sizeof(int);
+	}
+	dataCnt[0] = (totsize - size()) / (dataLen + sizeof(int));
 }
