@@ -18,6 +18,8 @@ public:
 	int insert(char* data, int len, int pointer, int idx, int offset);
 
 	int search(char* data, int len);
+
+	int searchIdx(char* data, int len);
 	
 	int deleteByIdx(int idx);
 

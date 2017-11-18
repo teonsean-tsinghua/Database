@@ -2,18 +2,20 @@
 
 DBIndexDataPage::DBIndexDataPage(BufType cache, int index, int pageID, int mode, int _dataLen):
 	DBPage(cache, index, pageID, DBType::INDEX_DATA_PAGE, mode){
+	std::cout << "DBIndexDataPage, 3: pageID = " << pageID << " page type = " << DBType::INDEX_DATA_PAGE << endl;
 	ids = new DBIndexDataSlot(cache, _dataLen);
 	dataLen = _dataLen;
-	if(mode == MODE_CREATE)
-    {
-        ids -> setIsLeaf(false);
+	if(mode == MODE_CREATE){
+		ids -> setIsLeaf(true);
         ids -> setFatherPageID(-1);
         ids -> setDataCnt(0);
+        ids -> setPageType(DBType::INDEX_DATA_PAGE);
         memset((char*)(*this)[ids -> size()], 0, PAGE_SIZE - ids -> size());
     }
 }
 
 int DBIndexDataPage::insert(char* data, int len, int pointer, int idx, int offset){
+	std::cout << "DBIDP 18 , insert at " << idx << endl;
 	int currentTotal = ids -> getDataCnt();
 	if(currentTotal == ids -> getMaxSize())
 		return OVER_FLOW;
@@ -88,6 +90,14 @@ int DBIndexDataPage::search(char* data, int len){
 			return ids -> getPointerByIdx(i);
 	}
 	return ids -> getPointerByIdx(ids -> getDataCnt() - 1);
+}
+
+int DBIndexDataPage::searchIdx(char* data, int len){
+	for(int i = 0; i < ids -> getDataCnt(); i++){
+		if (comparator(data, ids -> getDataByIdx(i), dataLen) != GREATER)
+			return i;
+	}
+	return ids -> getDataCnt();
 }
 
 BufType DBIndexDataPage::getCache(){

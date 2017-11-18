@@ -1,21 +1,25 @@
 #ifndef DBINDEXUSAGEPAGE_H_INCLUDED
 #define DBINDEXUSAGEPAGE_H_INCLUDED
 
-#include"../DBInclude.h"
+#include "DBIndexUsageSlot.h"
+#include "DBPage.h"
+#include "../DBInclude.h"
 
 class DBIndexUsagePage: public DBPage
 {
 protected:
-    DBIndexUsageSlot* us;
+    DBIndexUsageSlot* ius;
 
 public:
-    DBUsagePage(BufType cache, int index, int pageID, int mode);
+    DBIndexUsagePage(BufType cache, int index, int pageID, int mode);
 
     bool isAvailable(int pageID);
 
     void setAvailable(int pageID, bool available);
 
     bool withinRange(int pageID);
+
+    void print();
 
     int findFirstAvailable();
 

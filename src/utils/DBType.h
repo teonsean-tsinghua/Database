@@ -17,8 +17,9 @@ public:
     const static int DATA_PAGE = DATA_FILE_DESCRIPTION_PAGE + 1;
     const static int INDEX_DATA_PAGE = DATA_PAGE + 1;
     const static int USAGE_PAGE = INDEX_DATA_PAGE + 1;
+    const static int INDEX_USAGE_PAGE = USAGE_PAGE + 1;
     const static int FIRST_PAGE_TYPE = DATA_FILE_DESCRIPTION_PAGE;
-    const static int LAST_PAGE_TYPE = USAGE_PAGE;
+    const static int LAST_PAGE_TYPE = INDEX_USAGE_PAGE;
 
     static int typeSize(int type);
 

@@ -1,6 +1,8 @@
 #ifndef DBINDEXUSAGESLOT_H_INCLUDED
 #define DBINDEXUSAGESLOT_H_INCLUDED
 
+#include"DBSlot.h"
+
 class DBIndexUsageSlot:public DBSlot
 {
 public:
@@ -11,4 +13,4 @@ public:
     bool isAvailable(int offset);
 };
 
-#endif
+#endif // DBUSAGESLOT_H_INCLUDED

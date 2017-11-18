@@ -8,6 +8,7 @@ private:
 	BufType fatherPageId;
 	BufType isLeaf;
 	BufType dataCnt;
+    BufType pageType;
 public:
     DBIndexDataSlot(BufType cache, int _dataLen);
 
@@ -43,11 +44,16 @@ public:
 
     int getOffsetByIdx(int idx);
 
+    int getPageType();
+
+    void setPageType(int type);
+
     void print();
 
-    const static int FATHER_PAGE_ID_OFFSET = 0;
-    const static int IS_LEAF_OFFSET = FATHER_PAGE_ID_OFFSET + sizeof(unsigned int);
+    const static int PAGE_TYPE_OFFSET = 0;
+    const static int IS_LEAF_OFFSET = PAGE_TYPE_OFFSET + sizeof(unsigned int);
     const static int DATA_CNT_OFFSET = IS_LEAF_OFFSET + sizeof(unsigned int);
+    const static int FATHER_PAGE_ID_OFFSET = DATA_CNT_OFFSET + sizeof(unsigned int);
 };
 
 #endif

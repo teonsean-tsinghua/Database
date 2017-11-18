@@ -7,6 +7,7 @@ DBIndexDataSlot::DBIndexDataSlot(BufType cache, int _dataLen):
 	fatherPageId = (*this)[FATHER_PAGE_ID_OFFSET];
 	isLeaf = (*this)[IS_LEAF_OFFSET];
 	dataCnt = (*this)[DATA_CNT_OFFSET];
+	pageType = (*this)[PAGE_TYPE_OFFSET];
 };
 
 void DBIndexDataSlot::writeData(int idx, char* data, int len){
@@ -25,7 +26,7 @@ void DBIndexDataSlot::writeOffset(int idx, int offset){
 }
 
 int DBIndexDataSlot::size(){
-	return sizeof(unsigned int) * 2 + sizeof(unsigned int);
+	return sizeof(unsigned int) * 3 + sizeof(unsigned int);
 }
 
 int DBIndexDataSlot::getFatherPageID(){
@@ -59,12 +60,14 @@ int DBIndexDataSlot::getDataCnt(){
 }
 
 void DBIndexDataSlot::print(){
+	std::cout << "Data Length: " << dataLen << endl;
 	std::cout << "Father Page ID: " << getFatherPageID() << endl;
-	std::cout << "Data Count:" << getDataCnt() << endl;
+	std::cout << "Data Count: " << getDataCnt() << endl;
 	if (getIsLeaf() == 1)
 		std::cout << "Leaf Page: " << "true" << endl;
 	else
 		std::cout << "Leaf Page: " << "false" << endl;
+	std::cout << "Page Type: " << getPageType() << endl;
 	for(int i = 0; i < getDataCnt(); i++){
 		std::cout << "Linker " << i << ", " << "point to page " << getPointerByIdx(i) << ", offset " << getOffsetByIdx(i);
 		std::cout << " and key is: ";
@@ -73,6 +76,16 @@ void DBIndexDataSlot::print(){
 		}
 		printf("\n");
 	}
+}
+
+int DBIndexDataSlot::getPageType(){
+	int re;
+	readInt(pageType, &re);
+	return re;
+}
+
+void DBIndexDataSlot::setPageType(int type){
+	writeInt(pageType, type);
 }
 
 int DBIndexDataSlot::getDataSize(){

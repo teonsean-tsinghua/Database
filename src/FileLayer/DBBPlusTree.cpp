@@ -1,7 +1,7 @@
 #include "DBBPlusTree.h"
 
 DBBPlusTree::DBBPlusTree(const char* indexname, int _dataLen){
-	idf = new DBIndexFile(indexname);
+	idf = new DBIndexFile(indexname, _dataLen);
 	dataLen = _dataLen;
 }
 
@@ -16,7 +16,7 @@ void DBBPlusTree::insert(char* data, int len, int targetPage, int offset){
 		pageID = idp -> search(data, len);
 		idp = idf -> openIndexDataPage(pageID);
 	}
-	int status = idp -> insert(data, len, targetPage, pageID, idp -> search(data, len));
+	int status = idp -> insert(data, len, targetPage, idp -> searchIdx(data, len), offset);
 	if (status == DBIndexDataPage::OVER_FLOW){
 		solveOverFlow(data, len, pageID);
 	}
@@ -120,5 +120,20 @@ void DBBPlusTree::solveOverFlow(char* data, int len, int pageID){
 	if(fatherDP -> getDataCnt() == fatherDP -> getMaxSize()){}
 	else{
 		fatherDP -> insert((char*)fatherDP -> getDataHead(), dataLen, pagecnt, fatherDP -> search(data, len), 0);
+	}
+}
+
+void DBBPlusTree::closeFile(){
+	idf -> closeFile();
+}
+
+void DBBPlusTree::createFile(){
+	idf -> createFile();
+}
+
+void DBBPlusTree::print(){
+	for(int i = 1; i < 2 ;i++){
+		DBIndexDataPage* idp = idf -> openIndexDataPage(i);
+		idp -> print();
 	}
 }

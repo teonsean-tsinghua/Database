@@ -1,9 +1,14 @@
-#include "DBIndexUsageSlot.h"
+#include"DBIndexUsageSlot.h"
 
-DBIndexUsageSlot::DBIndexUsageSlot(BufType Cache):DBSlot(cache){}
+DBIndexUsageSlot::DBIndexUsageSlot(BufType cache):
+    DBSlot(cache)
+{
 
-void DBIndexUsageSlot::setAvailable(int offset, bool available){
-    writeBoolToChar((*this)[offset], target);
+}
+
+void DBIndexUsageSlot::setAvailable(int offset, bool available)
+{
+    writeBoolToChar((*this)[offset], available);
 }
 
 bool DBIndexUsageSlot::isAvailable(int offset)

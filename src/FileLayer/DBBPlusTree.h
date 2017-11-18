@@ -30,6 +30,12 @@ public:
 	void rotateLeft(int leftPageID, int rightPageID, int fatherPageID, char* data, int len);
 
 	void rotateRight(int leftPageID, int rightPageID, int fatherPageID, char* data, int len);
+
+	void closeFile();
+
+	void createFile();
+
+	void print();
 };
 
 #endif
