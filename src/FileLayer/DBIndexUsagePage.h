@@ -1,14 +1,12 @@
-#ifndef DBUSAGEPAGE_H_INCLUDED
-#define DBUSAGEPAGE_H_INCLUDED
+#ifndef DBINDEXUSAGEPAGE_H_INCLUDED
+#define DBINDEXUSAGEPAGE_H_INCLUDED
 
-#include"DBPage.h"
-#include"DBUsageSlot.h"
 #include"../DBInclude.h"
 
-class DBUsagePage: public DBPage
+class DBIndexUsagePage: public DBPage
 {
 protected:
-    DBUsageSlot* us;
+    DBIndexUsageSlot* us;
 
 public:
     DBUsagePage(BufType cache, int index, int pageID, int mode);
@@ -24,4 +22,4 @@ public:
     int visibleSize();
 };
 
-#endif // DBUSAGEPAGE_H_INCLUDED
+#endif

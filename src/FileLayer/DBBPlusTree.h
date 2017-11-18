@@ -1,4 +1,3 @@
-/*
 #ifndef DBBPLUSTREE_H_INCLUDED
 #define DBBPLUSTREE_H_INCLUDED
 
@@ -14,7 +13,7 @@ private:
 public:
 	DBBPlusTree(const char* indexname, int _dataLen);
 
-	void insert(char* data, int len);
+	void insert(char* data, int len, int targetPage, int offset);
 
 	void deleteData(char* data, int len);
 
@@ -24,7 +23,7 @@ public:
 
 	void solveOverFlow(char* data, int len, int pageID);
 
-	int getBrother(char* data, int len, int pageID);
+	int getBrother(char* data, int len, int pageID, bool &left);
 
 	void mergePage(int leftPageID, int rightPageID, int fatherPageID, char* data, int len);
 
@@ -34,4 +33,3 @@ public:
 };
 
 #endif
-*/

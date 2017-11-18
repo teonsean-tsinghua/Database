@@ -15,15 +15,17 @@ public:
 
     void writePointer(int idx, unsigned int pagenum);
 
+    void writeOffset(int idx, int offset);
+
     int size();
 
     int getFatherPageID();
 
     void setFatherPageID(int _fatherPageId);
 
-    int getisLeaf();
+    int getIsLeaf();
 
-    void setisLeaf(bool _isLeaf);
+    void setIsLeaf(bool _isLeaf);
 
     int getDataCnt();
 
@@ -35,9 +37,11 @@ public:
 
     int getMaxSize();
 
-    char* getDatabyIdx(int idx);
+    char* getDataByIdx(int idx);
 
-    int getPointerbyIdx(int idx);
+    unsigned int getPointerByIdx(int idx);
+
+    int getOffsetByIdx(int idx);
 
     void print();
 

@@ -15,11 +15,11 @@ private:
 public:
 	DBIndexDataPage(BufType cache, int index, int pageID, int mode, int _dataLen);
 
-	int insert(char* data, int len, int pointer, int idx);
+	int insert(char* data, int len, int pointer, int idx, int offset);
 
 	int search(char* data, int len);
 	
-	int deletebyIdx(int idx);
+	int deleteByIdx(int idx);
 
 	void forceDelete(int idx);
 	
@@ -27,9 +27,9 @@ public:
 
 	int getFloatSize();
 
-	int getPointerbyIdx(int idx);
+	int getPointerByIdx(int idx);
 
-	void setisLeaf(bool _isLeaf);
+	void setIsLeaf(bool _isLeaf);
 
 	void setFatherPageID(int _fatherPageID);
 
@@ -37,7 +37,7 @@ public:
 
 	void updateIdx(char* data, int idx);
 
-	bool getisLeaf();
+	bool getIsLeaf();
 
 	int getFather();
 
@@ -45,7 +45,9 @@ public:
 
 	int getDataSize();
 
-	int getDataOffsetbyIdx(int idx);
+	int getDataOffsetByIdx(int idx);
+
+	BufType getDataByIdx(int idx);
 
 	BufType getDataHead();
 

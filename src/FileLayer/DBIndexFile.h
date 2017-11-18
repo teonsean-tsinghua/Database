@@ -1,6 +1,6 @@
-/*
 #ifndef DBINDEXFILE_H_INCLUDED
 #define DBINDEXFILE_H_INCLUDED
+#include "../DBInclude.h"
 #include "DBIndexDataPage.h"
 #include "DBUsagePage.h"
 
@@ -12,10 +12,13 @@ private:
 	const char* indexname;
 	int fileID;
 	int dataLen;
+	int lastUsagePage;
 public:
-	DBIndexFile(const char* name, int _dataLen);
+	DBIndexFile(const char* name);
 
-	int allocateNewPage();
+	int allocateNewIndexPage();
+
+	int allocateNewUsagePage();
 
 	int copyToNewPage(int pageID);
 
@@ -23,16 +26,15 @@ public:
 
 	DBIndexDataPage* openIndexDataPage(int pid);
 
+	int setAvailableOfIndexPage(int ipid, bool available);
+
 	int createFile(const char* name);
+
+	int openFile(const char* name);
 
 	int deleteFile(const char* name);
 
-	int closeFile(const char* name);
-
-	void freePage(int pid);
-
-	int setAvailableOfIndexPage(int ipid, bool available);
+	int closeFile();
 };
 
 #endif
-*/
