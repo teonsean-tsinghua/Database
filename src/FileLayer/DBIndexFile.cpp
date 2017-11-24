@@ -1,16 +1,19 @@
 #include "DBIndexFile.h"
 
-DBIndexFile::DBIndexFile(const char* name, int _dataLen){
-    indexname = name;
+DBIndexFile::DBIndexFile(const char* root, int _dataLen):
+    root(root),
+{
 	fm = DBFileIOModel::getInstance();
-	iup = NULL;
     fileID = -1;
-    dataLen = _dataLen;
-    lastIndexUsagePage = -1;
-    isFileOpen = false;
+    open = false;
 }
 
-int DBIndexFile::allocateNewIndexPage(){
+int DBIndexFile::allocateNewIndexPage()
+{
+    if(!open)
+    {
+        return FILE_NOT_OPENED;
+    }
 	iup = openIndexUsagePage(lastIndexUsagePage);
 	int ret = 0;
 	while(true){
@@ -33,17 +36,12 @@ int DBIndexFile::allocateNewIndexPage(){
 	return ret;
 }
 
-int DBIndexFile::allocateNewUsagePage(){
-    DBIndexUsagePage* iup = openIndexUsagePage(lastIndexUsagePage);
-    int ret = 0;
-    lastIndexUsagePage += iup -> visibleSize() + 1;
-    iup -> setNextSameType(lastIndexUsagePage);
-    pages[lastIndexUsagePage] = openIndexUsagePage(lastIndexUsagePage);
-    std::cout << "allocate new index usage page at " << ret << endl;
-    return lastIndexUsagePage;
-}
-
-int DBIndexFile::copyToNewPage(int pageID){
+int DBIndexFile::copyToNewPage(int pageID)
+{
+    if(!open)
+    {
+        return FILE_NOT_OPENED;
+    }
 	int newPageID = allocateNewIndexPage();
     DBIndexDataPage* newPage = (DBIndexDataPage*) pages[newPageID];
     DBIndexDataPage* curpage = (DBIndexDataPage*)pages[pageID];
@@ -52,32 +50,17 @@ int DBIndexFile::copyToNewPage(int pageID){
     return newPageID;
 }
 
-DBIndexUsagePage* DBIndexFile::openIndexUsagePage(int pid){
-    if (isFileOpen == false)
-        openFile();
-    if(pages.count(pid))
+DBIndexDataPage* DBIndexFile::openIndexDataPage(int pid)
+{
+    if(!open)
     {
-        DBPage* re = pages[pid];
-        return re->getPageType() == DBType::INDEX_USAGE_PAGE ? (DBIndexUsagePage*)re : NULL;
+        return FILE_NOT_OPENED;
     }
-    int index;
-    BufType cache = fm->getPage(fileID, pid, index);
-    if(DBPageInfoSlot::getPageType(cache) != DBType::INDEX_USAGE_PAGE)
-    {
-        return NULL;
-    }
-    DBIndexUsagePage* re = new DBIndexUsagePage(cache, index, pid, MODE_PARSE);
-    pages[pid] = re;
-    std::cout << "allocate new index usage page at " << pid << endl;
-    return re;
-}
-
-DBIndexDataPage* DBIndexFile::openIndexDataPage(int pid){
     if (isFileOpen == false)
         openFile();
 	if (pages.count(pid)){
 		DBPage* re = pages[pid];
-		return re -> getPageType() == DBType::INDEX_DATA_PAGE ? (DBIndexDataPage*) re : NULL;	
+		return re -> getPageType() == DBType::INDEX_DATA_PAGE ? (DBIndexDataPage*) re : NULL;
 	}
 	int index;
 	BufType cache = fm -> getPage(fileID, pid, index);
@@ -88,7 +71,13 @@ DBIndexDataPage* DBIndexFile::openIndexDataPage(int pid){
 	return re;
 }
 
-int DBIndexFile::createFile(){
+int DBIndexFile::createFile()
+{
+    if(open)
+    {
+        DBLogLine("ERROR");
+        return A_FILE_ALREADY_OPENED;
+    }
     if(fm->createFile(indexname) != SUCCEED)
     {
         DBLogLine("ERROR");
@@ -101,7 +90,7 @@ int DBIndexFile::createFile(){
     }
     int index;
     BufType cache = fm->getPage(fileID, 0, index);
-    DBIndexUsagePage* us = new DBIndexUsagePage(cache, 0, 0, MODE_CREATE);
+    DBUsagePage* us = new DBUsagePage(cache, 0, 0, MODE_CREATE);
     cache = fm -> getPage(fileID, 1, index);
     DBIndexDataPage* idp = new DBIndexDataPage(cache, 1, 1, MODE_CREATE, 5);
     fm -> flush(us -> getIndex());
@@ -111,6 +100,11 @@ int DBIndexFile::createFile(){
 }
 
 int DBIndexFile::deleteFile(){
+    if(open)
+    {
+        DBLogLine("ERROR");
+        return A_FILE_ALREADY_OPENED;
+    }
     if(fm->deleteFile(indexname) != SUCCEED)
     {
         DBLogLine("ERROR");
@@ -119,7 +113,12 @@ int DBIndexFile::deleteFile(){
     return SUCCEED;
 }
 
-int DBIndexFile::closeFile(){
+int DBIndexFile::closeFile()
+{
+    if(!open)
+    {
+        return FILE_NOT_OPENED;
+    }
     lastIndexUsagePage = -1;
     for(std::map<int, DBPage*>::iterator iter = pages.begin(); iter != pages.end(); iter++)
     {
@@ -134,8 +133,13 @@ int DBIndexFile::closeFile(){
     return SUCCEED;
 }
 
-int DBIndexFile::setAvailableOfIndexPage(int ipid, bool available){
-	DBIndexUsagePage* up = openIndexUsagePage(0);
+int DBIndexFile::setAvailableOfIndexPage(int ipid, bool available)
+{
+    if(!open)
+    {
+        return FILE_NOT_OPENED;
+    }
+	DBUsagePage* up = openIndexUsagePage(0);
 	while(true){
 		if (up == NULL){
 			return ERROR;
@@ -150,7 +154,11 @@ int DBIndexFile::setAvailableOfIndexPage(int ipid, bool available){
 }
 
 int DBIndexFile::openFile(){
-    lastIndexUsagePage = 0;
+    if(open)
+    {
+        DBLogLine("ERROR");
+        return A_FILE_ALREADY_OPENED;
+    }
     if(fm->openFile(indexname, fileID) != SUCCEED){
         DBLogLine("ERROR");
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;

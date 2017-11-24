@@ -6,10 +6,15 @@ DBDataFile::DBDataFile(const char* root):
     fm = DBFileIOModel::getInstance();
     lastUsagePage = -1;
     lastDataPage = -1;
+    open = false;
 }
 
 void DBDataFile::printAllRecords()
 {
+    if(!open)
+    {
+        return;
+    }
     DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
     while(true)
     {
@@ -26,6 +31,10 @@ void DBDataFile::printAllRecords()
 
 int DBDataFile::findFirstAvailableDataPage()
 {
+    if(!open)
+    {
+        return FILE_NOT_OPENED;
+    }
     DBUsagePage* up = openUsagePage(dfdp->getFirstUsagePage());
     while(true)
     {
@@ -44,6 +53,10 @@ int DBDataFile::findFirstAvailableDataPage()
 
 int DBDataFile::setAvailableOfDataPage(int dpid, bool available)
 {
+    if(!open)
+    {
+        return FILE_NOT_OPENED;
+    }
     DBUsagePage* up = openUsagePage(dfdp->getFirstUsagePage());
     while(true)
     {
@@ -63,6 +76,10 @@ int DBDataFile::setAvailableOfDataPage(int dpid, bool available)
 
 int DBDataFile::allocateNewUsagePage()
 {
+    if(!open)
+    {
+        return FILE_NOT_OPENED;
+    }
     int cnt = dfdp->getPageNumber();
     if(cnt <= 0)
     {
@@ -86,6 +103,10 @@ int DBDataFile::allocateNewUsagePage()
 
 int DBDataFile::allocateNewDataPage()
 {
+    if(!open)
+    {
+        return FILE_NOT_OPENED;
+    }
     int cnt = dfdp->getPageNumber();
     if(cnt <= 0)
     {
@@ -124,6 +145,10 @@ int DBDataFile::allocateNewDataPage()
 
 DBDataPage* DBDataFile::openDataPage(int pid)
 {
+    if(!open)
+    {
+        return FILE_NOT_OPENED;
+    }
     if(pages.count(pid))
     {
         DBPage* re = pages[pid];
@@ -146,6 +171,10 @@ DBDataPage* DBDataFile::openDataPage(int pid)
 
 DBUsagePage* DBDataFile::openUsagePage(int pid)
 {
+    if(!open)
+    {
+        return FILE_NOT_OPENED;
+    }
     if(pages.count(pid))
     {
         DBPage* re = pages[pid];
@@ -168,6 +197,11 @@ DBUsagePage* DBDataFile::openUsagePage(int pid)
 
 int DBDataFile::createFile(const char* name)
 {
+    if(open)
+    {
+        DBLogLine("ERROR");
+        return A_FILE_ALREADY_OPENED;
+    }
     if(fm->createFile(name) != SUCCEED)
     {
         DBLogLine("ERROR");
@@ -191,6 +225,11 @@ int DBDataFile::createFile(const char* name)
 
 int DBDataFile::deleteFile(const char* name)
 {
+    if(open)
+    {
+        DBLogLine("ERROR");
+        return A_FILE_ALREADY_OPENED;
+    }
     if(fm->deleteFile(name) != SUCCEED)
     {
         DBLogLine("ERROR");
@@ -201,6 +240,10 @@ int DBDataFile::deleteFile(const char* name)
 
 int DBDataFile::closeFile()
 {
+    if(!open)
+    {
+        return FILE_NOT_OPENED;
+    }
     fm->flush(dfdp->getIndex());
     for(std::map<int, DBPage*>::iterator iter = pages.begin(); iter != pages.end(); iter++)
     {
@@ -217,11 +260,19 @@ int DBDataFile::closeFile()
 
 void DBDataFile::printFileDescription()
 {
+    if(!open)
+    {
+        return;
+    }
     dfdp->print();
 }
 
 int DBDataFile::addField(const char* name, int type, bool nullable)
 {
+    if(!open)
+    {
+        return FILE_NOT_OPENED;
+    }
     int re = dfdp->addField(name, type, nullable);
     //TODO: might need to rewrite the whole file. But this is not included in the requirements seemingly, so leave it here for now.
     switch(re)
@@ -243,6 +294,10 @@ void DBDataFile::processWriteValue(std::map<std::string, void*>& data,
                                     std::vector<void*>& processed,
                                     std::map<std::string, int>& errors)
 {
+    if(!open)
+    {
+        return FILE_NOT_OPENED;
+    }
     int n = ri->getFieldCount();
     std::vector<bool> included;
     included.assign(n, false);
@@ -282,6 +337,10 @@ void DBDataFile::processKeyValue(std::map<std::string, void*>& data,
                                 std::map<int, void*>& processed,
                                 std::vector<std::string>& errors)
 {
+    if(!open)
+    {
+        return FILE_NOT_OPENED;
+    }
     errors.clear();
     std::map<std::string, void*>::iterator iter;
     for(iter = data.begin(); iter != data.end(); iter++)
@@ -298,6 +357,10 @@ void DBDataFile::processKeyValue(std::map<std::string, void*>& data,
 
 int DBDataFile::remove(std::map<std::string, void*>& data)
 {
+    if(!open)
+    {
+        return FILE_NOT_OPENED;
+    }
     std::map<int, void*> processed;
     std::vector<std::string> errors;
     processKeyValue(data, processed, errors);
@@ -327,6 +390,10 @@ int DBDataFile::remove(std::map<std::string, void*>& data)
 
 int DBDataFile::update(std::map<std::string, void*>& key_value, std::map<std::string, void*>& update_value)
 {
+    if(!open)
+    {
+        return FILE_NOT_OPENED;
+    }
     std::map<int, void*> processed;
     std::vector<std::string> errors;
     processKeyValue(key_value, processed, errors);
@@ -370,6 +437,10 @@ int DBDataFile::update(std::map<std::string, void*>& key_value, std::map<std::st
 
 int DBDataFile::findEqual(std::map<std::string, void*>& data, std::set<std::map<std::string, void*>*>& result)
 {
+    if(!open)
+    {
+        return FILE_NOT_OPENED;
+    }
     std::map<int, void*> processed;
     std::vector<std::string> errors;
     processKeyValue(data, processed, errors);
@@ -430,12 +501,20 @@ int DBDataFile::findEqual(std::map<std::string, void*>& data, std::set<std::map<
 
 int DBDataFile::insertRecordToPage(int page, std::vector<void*>& processed)
 {
+    if(!open)
+    {
+        return FILE_NOT_OPENED;
+    }
     DBDataPage* dp = (DBDataPage*)(pages[page]);
     return dp->insert(processed);
 }
 
 int DBDataFile::insertRecord(std::map<std::string, void*>& fields)
 {
+    if(!open)
+    {
+        return FILE_NOT_OPENED;
+    }
     std::vector<void*> processed;
     std::map<std::string, int> errors;
     processWriteValue(fields, processed, errors);
@@ -476,6 +555,10 @@ int DBDataFile::insertRecord(std::map<std::string, void*>& fields)
 
 int DBDataFile::setPrimaryKey(const char* name)
 {
+    if(!open)
+    {
+        return FILE_NOT_OPENED;
+    }
     int re = dfdp->setPrimaryKey(name);
     switch(re)
     {
@@ -491,6 +574,11 @@ int DBDataFile::setPrimaryKey(const char* name)
 
 int DBDataFile::openFile(const char* name)
 {
+    if(open)
+    {
+        DBLogLine("ERROR");
+        return A_FILE_ALREADY_OPENED;
+    }
     if(fm->openFile(name, fileID) != SUCCEED)
     {
         DBLogLine("ERROR");

@@ -17,6 +17,8 @@ private:
     DBRecordInfo* ri;
     int lastUsagePage;
     int lastDataPage;
+    const char* name;
+    bool open;
 
     int findFirstAvailableDataPage();
 

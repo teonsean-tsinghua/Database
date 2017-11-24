@@ -2,28 +2,26 @@
 #define DBINDEXFILE_H_INCLUDED
 #include "../DBInclude.h"
 #include "DBIndexDataPage.h"
-#include "DBIndexUsagePage.h"
+#include "DBUsagePage.h"
 
 class DBIndexFile{
 private:
-	DBIndexUsagePage* iup;
-	DBFileIOModel *fm;
-	std::map<int, DBPage*> pages;
-	const char* indexname;
-	int fileID;
-	int dataLen;
-	int lastIndexUsagePage;
-	bool isFileOpen;
+    int fileID;
+    const char* root;
+    DBFileIOModel* fm;
+    DBIndexFileDescriptionPage* ifdp;
+    std::map<int, DBPage*> pages;
+    const char* name;
+    bool open;
+
 public:
-	DBIndexFile(const char* name, int _dataLen);
+	DBIndexFile(const char* root, const char* name, int _dataLen);
 
 	int allocateNewIndexPage();
 
 	int allocateNewUsagePage();
 
 	int copyToNewPage(int pageID);
-
-	DBIndexUsagePage* openIndexUsagePage(int pid);
 
 	DBIndexDataPage* openIndexDataPage(int pid);
 
