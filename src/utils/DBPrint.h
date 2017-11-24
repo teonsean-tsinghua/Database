@@ -10,7 +10,7 @@ void DBPrint_ID(char* data);
 template<typename T>
 void DBLog(const T& msg)
 {
-    std::cout << msg;
+     std::cout << msg;
 }
 
 template<typename T>
