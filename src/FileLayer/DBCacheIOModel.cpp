@@ -5,9 +5,17 @@ void readInt(BufType cache, int* n)
     *n = *(int*)cache;
 }
 
+void readUnsignedInt(BufType cache, unsigned int* n){
+    *n = *(unsigned int*) cache;
+}
+
 void writeInt(BufType cache, int n)
 {
     *(int*)cache = n;
+}
+
+void writeUnsignedInt(BufType cache, unsigned int n){
+    *(unsigned int*) cache = n;
 }
 
 void readString(char* cache, std::string& str, int len)
