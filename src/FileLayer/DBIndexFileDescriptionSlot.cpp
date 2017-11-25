@@ -23,7 +23,7 @@ void DBIndexFileDescriptionSlot::print()
     DBPrint("Root page is at ");
     DBPrintLine(getRootPage());
     DBPrint("Keys are of type ");
-    DBPrintLine(DBType::pageName(getKeyType()));
+    DBPrintLine(DBType::typeName(getKeyType()));
 }
 
 int DBIndexFileDescriptionSlot::getFirstLeafPage()

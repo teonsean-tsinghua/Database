@@ -1,12 +1,13 @@
 #ifndef DBINDEXFILE_H_INCLUDED
 #define DBINDEXFILE_H_INCLUDED
 #include "../DBInclude.h"
-#include "DBIndexDataPage.h"
+#include "DBIndexFileDescriptionPage.h"
 #include "DBUsagePage.h"
 
 class DBIndexFile{
 private:
     int fileID;
+    int keyType;
     const char* root;
     DBFileIOModel* fm;
     DBIndexFileDescriptionPage* ifdp;
@@ -15,23 +16,19 @@ private:
     bool open;
 
 public:
-	DBIndexFile(const char* root, const char* name, int _dataLen);
+	DBIndexFile(const char* root);
 
 	int allocateNewIndexPage();
 
-	int allocateNewUsagePage();
-
 	int copyToNewPage(int pageID);
 
-	DBIndexDataPage* openIndexDataPage(int pid);
+//	DBIndexDataPage* openIndexDataPage(int pid);
 
-	int setAvailableOfIndexPage(int ipid, bool available);
+	int createFile(const char* name, int keyType);
 
-	int createFile();
+	int openFile(const char* name);
 
-	int openFile();
-
-	int deleteFile();
+	int deleteFile(const char* name);
 
 	int closeFile();
 };

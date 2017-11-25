@@ -1,7 +1,7 @@
 #include"DBIndexFileDescriptionPage.h"
 
 DBIndexFileDescriptionPage::DBIndexFileDescriptionPage(BufType cache, int index, int pageID, int mode, int type):
-    DBPage(cache, index, pageID, DBType::DATA_FILE_DESCRIPTION_PAGE, mode)
+    DBPage(cache, index, pageID, DBType::INDEX_FILE_DESCRIPTION_PAGE, mode)
 {
     ifds = new DBIndexFileDescriptionSlot((*this)[PAGE_INFO_SLOT_OFFSET + pis->size()], mode);
     if(mode == MODE_CREATE)
@@ -30,6 +30,11 @@ void DBIndexFileDescriptionPage::setFirstLeafPage(int pid)
 void DBIndexFileDescriptionPage::setRootPage(int pid)
 {
     ifds->setRootPage(pid);
+}
+
+int DBIndexFileDescriptionPage::getKeyType()
+{
+    return ifds->getKeyType();
 }
 
 int DBIndexFileDescriptionPage::getFirstLeafPage()

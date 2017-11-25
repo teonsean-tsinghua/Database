@@ -147,7 +147,7 @@ DBDataPage* DBDataFile::openDataPage(int pid)
 {
     if(!open)
     {
-        return FILE_NOT_OPENED;
+        return NULL;
     }
     if(pages.count(pid))
     {
@@ -173,7 +173,7 @@ DBUsagePage* DBDataFile::openUsagePage(int pid)
 {
     if(!open)
     {
-        return FILE_NOT_OPENED;
+        return NULL;
     }
     if(pages.count(pid))
     {
@@ -296,7 +296,7 @@ void DBDataFile::processWriteValue(std::map<std::string, void*>& data,
 {
     if(!open)
     {
-        return FILE_NOT_OPENED;
+        return;
     }
     int n = ri->getFieldCount();
     std::vector<bool> included;
@@ -339,7 +339,7 @@ void DBDataFile::processKeyValue(std::map<std::string, void*>& data,
 {
     if(!open)
     {
-        return FILE_NOT_OPENED;
+        return;
     }
     errors.clear();
     std::map<std::string, void*>::iterator iter;

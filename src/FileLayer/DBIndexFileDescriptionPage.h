@@ -20,6 +20,8 @@ public:
 
     int getPageNumber();
 
+    int getKeyType();
+
     int getFirstLeafPage();
 
     int getRootPage();
