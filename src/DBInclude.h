@@ -29,6 +29,7 @@ const static int EQUAL_RECORD = DATA_PAGE_FULL - 1;
 const static int NON_EQUAL_RECORD = EQUAL_RECORD - 1;
 const static int A_FILE_ALREADY_OPENED = NON_EQUAL_RECORD - 1;
 const static int FILE_NOT_OPENED = A_FILE_ALREADY_OPENED - 1;
+const static int LARGEST_KEY = FILE_NOT_OPENED - 1;
 
 const static int MODE_CREATE = 101;
 const static int MODE_PARSE = 202;

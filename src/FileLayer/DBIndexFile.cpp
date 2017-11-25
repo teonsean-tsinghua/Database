@@ -21,7 +21,7 @@ int DBIndexFile::allocateNewLeafNode()
     }
     int index;
     BufType cache = fm->getPage(fileID, cnt, index);
-    DBIndexLeafPage* ifp = new DBIndexLeafPage(cache, index, cnt, MODE_CREATE, keyLength);
+    DBIndexLeafPage* ifp = new DBIndexLeafPage(cache, index, cnt, MODE_CREATE, keyType);
     pages[cnt] = ifp;
     DBLog("Allocated new leaf page ");
     DBLogLine(cnt);
@@ -42,7 +42,7 @@ int DBIndexFile::allocateNewInternalNode()
     }
     int index;
     BufType cache = fm->getPage(fileID, cnt, index);
-    DBIndexInternalPage* ifp = new DBIndexInternalPage(cache, index, cnt, MODE_CREATE, keyLength);
+    DBIndexInternalPage* ifp = new DBIndexInternalPage(cache, index, cnt, MODE_CREATE, keyType);
     pages[cnt] = ifp;
     DBLog("Allocated new internal page ");
     DBLogLine(cnt);
@@ -82,13 +82,13 @@ DBIndexNodePage* DBIndexFile::openNode(int pid)
 	int pageType = DBPageInfoSlot::getPageType(cache);
     if(pageType == DBType::INDEX_INTERNAL_PAGE)
     {
-        DBIndexInternalPage* re = new DBIndexInternalPage(cache, index, pid, MODE_PARSE, keyLength);
+        DBIndexInternalPage* re = new DBIndexInternalPage(cache, index, pid, MODE_PARSE, keyType);
         pages[pid] = re;
         return re;
     }
     else if(pageType == DBType::INDEX_LEAF_PAGE)
     {
-        DBIndexLeafPage* re = new DBIndexLeafPage(cache, index, pid, MODE_PARSE, keyLength);
+        DBIndexLeafPage* re = new DBIndexLeafPage(cache, index, pid, MODE_PARSE, keyType);
         pages[pid] = re;
         return re;
     }
@@ -96,6 +96,41 @@ DBIndexNodePage* DBIndexFile::openNode(int pid)
     {
         return NULL;
     }
+}
+
+int DBIndexFile::insert(void* key, int pid)
+{
+    DBIndexNodePage* curNode = openNode(rootNode);
+    if(curNode == NULL)
+    {
+        return ERROR;
+    }
+    void* maxKey = curNode->getMaxKey();
+    if(maxKey == NULL)
+    {
+        curNode->insert(key, pid);
+        return SUCCEED;
+    }
+    if(larger(key, maxKey, keyType))
+    {
+        while(curNode != NULL && !curNode->isLeaf())
+        {
+            curNode = openNode(curNode->getMaxPage());
+        }
+    }
+    else
+    {
+        while(curNode != NULL && !curNode->isLeaf())
+        {
+            curNode = openNode(curNode->search(key));
+        }
+    }
+    if(curNode == NULL)
+    {
+        return ERROR;
+    }
+    curNode->insert(key, pid);
+    return SUCCEED;
 }
 
 int DBIndexFile::createFile(const char* name, int keyType)
@@ -115,6 +150,7 @@ int DBIndexFile::createFile(const char* name, int keyType)
         DBLogLine("ERROR");
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
     }
+    this->keyType = keyType;
     open = true;
     keyLength = DBType::typeSize(keyType);
     int index;
@@ -191,13 +227,18 @@ void DBIndexFile::test()
     createFile("test.idx", DBType::INT);
     closeFile();
     openFile("test.idx");
-    allocateNewLeafNode();
-    allocateNewInternalNode();
-    allocateNewInternalNode();
-    printFileDescription();
-    openNode(1)->print();
-    openNode(2)->print();
-    openNode(3)->print();
-    openNode(4)->print();
+    openNode(rootNode)->print();
+    int k = 1;
+    insert(&k, 10);
+    int k2 = -2;
+    insert(&k2, 20);
+    int k3 = -5;
+    insert(&k3, 1);
+    int k4 = 5;
+    insert(&k4, 980);
+    DBPrintLine(openNode(rootNode)->search(&k));
+    DBPrintLine(openNode(rootNode)->search(&k2));
+    DBPrintLine(openNode(rootNode)->search(&k3));
+    DBPrintLine(openNode(rootNode)->search(&k4));
     closeFile();
 }
