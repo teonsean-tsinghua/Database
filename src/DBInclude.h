@@ -4,6 +4,7 @@
 #include"utils/DBPrint.h"
 #include"utils/DBType.h"
 #include"utils/DBRecordInfo.h"
+#include"utils/DBCompare.h"
 #include<ctime>
 #include<unistd.h>
 #include<string>
