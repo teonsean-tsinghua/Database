@@ -179,3 +179,19 @@ int DBIndexFile::openFile(const char* name)
     open = true;
     return SUCCEED;
 }
+
+void DBIndexFile::test()
+{
+    createFile("test.idx", DBType::INT);
+    closeFile();
+    openFile("test.idx");
+    allocateNewLeafNode();
+    allocateNewInternalNode();
+    allocateNewInternalNode();
+    printFileDescription();
+    openNode(1)->print();
+    openNode(2)->print();
+    openNode(3)->print();
+    openNode(4)->print();
+    closeFile();
+}

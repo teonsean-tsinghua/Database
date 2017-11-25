@@ -16,6 +16,8 @@ public:
     void setParent(int pid);
 
     void print();
+
+    bool isLeaf();
 };
 
 #endif // DBINDEXNODEPAGE_H_INCLUDED

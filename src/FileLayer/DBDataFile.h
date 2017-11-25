@@ -69,6 +69,8 @@ public:
     void printFileDescription();
 
     void printAllRecords();
+
+    void test();
 };
 
 #endif // DBDATAFILE_H_INCLUDED

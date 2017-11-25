@@ -15,6 +15,11 @@ DBIndexNodePage::DBIndexNodePage(BufType cache, int index, int pageID, int type,
     }
 }
 
+bool DBIndexNodePage::isLeaf()
+{
+    return pis->getPageType() == DBType::INDEX_LEAF_PAGE;
+}
+
 void DBIndexNodePage::setParent(int pid)
 {
     ins->setParentNode(pid);

@@ -35,7 +35,11 @@ public:
 
 	int closeFile();
 
+	int insert(void* key, int pid);
+
     void printFileDescription();
+
+    void test();
 };
 
 #endif

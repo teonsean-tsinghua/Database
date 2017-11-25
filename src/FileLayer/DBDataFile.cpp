@@ -595,4 +595,42 @@ int DBDataFile::openFile(const char* name)
     return SUCCEED;
 }
 
-
+void DBDataFile::test()
+{
+    createFile("test.db");
+    openFile("test.db");
+//    setPrimaryKey("_id");
+//    setPrimaryKey("test1");
+    int data = 1;
+    int data2 = 99999;
+    int data3 = -99999;
+    int data4 = 10;
+//    int i = 0;
+//    do
+//    {
+//        printFileDescription();
+//        DBLogLine("=========================================");
+//        sprintf(name, "test%d", i++);
+//    }while(addField(name, DBType::INT, true) == SUCCEED);
+    addField("test1", DBType::INT, false);
+    addField("test2", DBType::INT, false);
+    addField("test3", DBType::INT, true);
+    map<string, void*> f, f2, f3;
+    f["test1"] = &data;
+    f["test2"] = &data2;
+    f["test3"] = &data3;
+    for(int i = 0; i < 1000000; i++)
+        insertRecord(f);
+//    f2["test2"] = &data4;
+//    update(f, f2);
+//    f3["test2"] = &data4;
+//    printAllRecords();
+//    closeFile();
+//    openFile("test.db");
+//    printFileDescription();
+//    printAllRecords();
+//    set<map<string, void*>*> re;
+//    findEqual(f, re);
+//    remove(f);
+//    printAllRecords();
+}
