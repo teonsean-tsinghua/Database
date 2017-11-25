@@ -26,11 +26,13 @@ void DBIndexNodePage::split(DBIndexNodePage* src, DBIndexNodePage* dest)
 {
     int cnt = src->getChildrenCount();
     int mid = cnt / 2;
-    for(int i = mid; i < cnt; i++)
-    {
-        dest->ins->setKeyOfIndex(i - mid, src->ins->getKeyOfIndex(i));
-        dest->ins->setPageOfIndex(i - mid, src->ins->getPageOfIndex(i));
-    }
+    int len = (cnt - mid) * (sizeof(int) + src->keyLength);
+    copyData(src->ins->getKeyOfIndex(mid), dest->ins->getKeyOfIndex(0), len);
+//    for(int i = mid; i < cnt; i++)
+//    {
+//        dest->ins->setKeyOfIndex(i - mid, src->ins->getKeyOfIndex(i));
+//        dest->ins->setPageOfIndex(i - mid, src->ins->getPageOfIndex(i));
+//    }
     src->ins->setChildrenCount(mid);
     src->pis->setFirstAvailableByte(src->pis->size() + src->ins->size());
     dest->ins->setChildrenCount(cnt - mid);

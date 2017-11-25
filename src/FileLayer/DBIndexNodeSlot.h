@@ -6,6 +6,7 @@
 class DBIndexNodeSlot: public DBSlot
 {
 private:
+    static BufType buffer;
 	int keyLength;
 	int keyType;
 	int maxSize;

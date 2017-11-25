@@ -1,5 +1,7 @@
 #include "DBIndexNodeSlot.h"
 
+BufType DBIndexNodeSlot::buffer = (BufType)(new char[PAGE_SIZE]);
+
 DBIndexNodeSlot::DBIndexNodeSlot(BufType cache, int keyType):
     DBSlot(cache), keyType(keyType)
 {
@@ -134,11 +136,14 @@ int DBIndexNodeSlot::insert(void* key, int pid)
             break;
         }
     }
-    for(int j = cnt - 1; j >= i; j--)
-    {
-        setKeyOfIndex(j + 1, getKeyOfIndex(j));
-        setPageOfIndex(j + 1, getPageOfIndex(j));
-    }
+    int len = (cnt - i) * (sizeof(int) + keyLength);
+    copyData(getKeyOfIndex(i), buffer, len);
+    copyData(buffer, getKeyOfIndex(i + 1), len);
+//    for(int j = cnt - 1; j >= i; j--)
+//    {
+//        setKeyOfIndex(j + 1, getKeyOfIndex(j));
+//        setPageOfIndex(j + 1, getPageOfIndex(j));
+//    }
     setKeyOfIndex(i, key);
     setPageOfIndex(i, pid);
     setChildrenCount(cnt + 1);

@@ -43,17 +43,17 @@ void writeBoolToChar(BufType cache, bool b)
 
 void readData(BufType cache, char* data, int len)
 {
-    strncpy(data, (char*)cache, len);
+    memcpy(data, (char*)cache, len);
 }
 
 void writeData(BufType cache, char* data, int len)
 {
-    strncpy((char*)cache, data, len);
+    memcpy((char*)cache, data, len);
 }
 
 void copyData(BufType src, BufType dest, int len)
 {
-    strncpy((char*)dest, (char*)src, len);
+    memcpy((char*)dest, (char*)src, len);
 }
 
 void read_id(BufType cache, char* data)

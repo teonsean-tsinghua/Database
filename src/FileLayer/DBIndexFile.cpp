@@ -117,17 +117,18 @@ int DBIndexFile::split(DBIndexNodePage* cur)
         }
         DBIndexNodePage* new_page = openNode(new_pid);
         DBIndexNodePage::split(cur, new_page);
-        if(cur->isLeaf())
-        {
-            new_page->setNextSameType(cur->getNextSameType());
-            cur->setNextSameType(new_page->getPageID());
-        }
-        else
+        new_page->setNextSameType(cur->getNextSameType());
+        cur->setNextSameType(new_page->getPageID());
+        if(!cur->isLeaf())
         {
             int curPage = new_page->getMinPage();
             while(curPage != new_page->getMaxPage())
             {
                 DBIndexNodePage* tmp = openNode(curPage);
+                if(tmp == NULL)
+                {
+                    DBLogLine(new_pid);
+                }
                 tmp->setParent(new_pid);
                 curPage = tmp->getNextSameType();
             }
@@ -314,7 +315,7 @@ int DBIndexFile::openFile(const char* name)
 
 void DBIndexFile::test()
 {
-    createFile("test.idx", DBType::INT);
+    createFile("test.idx", DBType::TEST_DATA_TYPE);
     closeFile();
     openFile("test.idx");
     for(int i = 0; i < 1000000; i++)
@@ -329,5 +330,9 @@ void DBIndexFile::test()
     {
         DBPrintLine(search(&i));
     }
+//    for(int i = 1; i < ifdp->getPageNumber(); i++)
+//    {
+//        openNode(i)->print();
+//    }
     closeFile();
 }
