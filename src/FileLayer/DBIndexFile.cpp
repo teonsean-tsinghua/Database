@@ -162,13 +162,14 @@ int DBIndexFile::split(DBIndexNodePage* cur)
     return SUCCEED;
 }
 
+int DBIndexFile::merge(DBIndexNodePage* cur)
+{
+    //TODO:
+}
+
 int DBIndexFile::insert(void* key, int pid)
 {
     DBIndexNodePage* curNode = openNode(rootNode);
-    if(curNode == NULL)
-    {
-        return ERROR;
-    }
     void* maxKey = curNode->getMaxKey();
     if(maxKey == NULL)
     {
@@ -201,12 +202,26 @@ int DBIndexFile::insert(void* key, int pid)
     {
         return re;
     }
-    re = split(curNode);
+    return split(curNode);
+}
+
+int DBIndexFile::remove(void* key)
+{
+    DBIndexNodePage* curNode = openNode(rootNode);
+    while(curNode != NULL && !curNode->isLeaf())
+    {
+        curNode = openNode(curNode->search(key));
+    }
+    if(curNode == NULL)
+    {
+        return ERROR;
+    }
+    int re = curNode->remove(key);
     if(re != SUCCEED)
     {
         return re;
     }
-    return SUCCEED;
+    return merge(curNode);
 }
 
 int DBIndexFile::search(void* key)
@@ -329,8 +344,7 @@ int DBIndexFile::openFile(const char* name)
 
 void DBIndexFile::test()
 {
-    createFile("test.idx", DBType::TEST_DATA_TYPE);
-    closeFile();
+//    createFile("test.idx", DBType::INT);
     openFile("test.idx");
 //    for(int i = 0; i < 1000000; i++)
 //    {
@@ -344,10 +358,21 @@ void DBIndexFile::test()
 //    {
 //        DBPrintLine(search(&i));
 //    }
-//    for(int i = 1; i < ifdp->getPageNumber(); i++)
+    int k = 827046620;
+    remove(&k);
+    for(int i = 1; i < ifdp->getPageNumber(); i++)
+    {
+        openNode(i)->print();
+    }
+//    std::map<int, int> m;
+//    for(int i = 0; i < 5000; i++)
 //    {
-//        openNode(i)->print();
+//        int k = rand();
+//        if(!m.count(k))
+//        {
+//            int p = rand();
+//            insert(&k, p);
+//        }
 //    }
-
     closeFile();
 }

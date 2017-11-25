@@ -48,6 +48,8 @@ public:
 
 	int update(void* key, int pid);
 
+	int remove(void* key);
+
     void printFileDescription();
 
     void test();

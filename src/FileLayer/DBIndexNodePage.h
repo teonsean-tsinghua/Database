@@ -30,6 +30,8 @@ public:
 
     int insert(void* key, int pid);
 
+    int remove(void* key);
+
     void* getMaxKey();
 
     void setMaxKey(void* key);

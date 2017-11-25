@@ -64,6 +64,16 @@ int DBIndexNodePage::insert(void* key, int pid)
     return re;
 }
 
+int DBIndexNodePage::remove(void* key)
+{
+    int re = ins->remove(key);
+    if(re == SUCCEED)
+    {
+        pis->setFirstAvailableByte(pis->getFirstAvailableByte() - keyLength - sizeof(int));
+    }
+    return re;
+}
+
 void DBIndexNodePage::changeKeyOfPage(int page, void* key)
 {
     int cnt = ins->getChildrenCount();

@@ -116,6 +116,10 @@ int DBIndexNodeSlot::searchEqual(void* key)
 
 int DBIndexNodeSlot::insert(void* key, int pid)
 {
+    if(searchEqual(key) > 0)
+    {
+        return ERROR;
+    }
     int cnt = getChildrenCount();
     if(cnt < 0)
     {
@@ -143,6 +147,27 @@ int DBIndexNodeSlot::insert(void* key, int pid)
     setPageOfIndex(i, pid);
     setChildrenCount(cnt + 1);
     return SUCCEED;
+}
+
+int DBIndexNodeSlot::remove(void* key)
+{
+    if(getChildrenCount() <= 0)
+    {
+        return ERROR;
+    }
+    int cnt = getChildrenCount();
+    for(int i = 0; i < cnt; i++)
+    {
+        if(equal(key, getKeyOfIndex(i), keyType))
+        {
+            int len = (cnt - i - 1) * (sizeof(int) + keyLength);
+            copyData(getKeyOfIndex(i + 1), buffer, len);
+            copyData(buffer, getKeyOfIndex(i), len);
+            setChildrenCount(cnt - 1);
+            return SUCCEED;
+        }
+    }
+    return NO_EQUAL_KEY;
 }
 
 int DBIndexNodeSlot::update(void* key, int pid)
