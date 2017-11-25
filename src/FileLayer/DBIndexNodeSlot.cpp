@@ -1,7 +1,5 @@
 #include "DBIndexNodeSlot.h"
 
-char* DBIndexNodeSlot::buffer = new char[PAGE_SIZE];
-
 DBIndexNodeSlot::DBIndexNodeSlot(BufType cache, int keyType):
     DBSlot(cache), keyType(keyType)
 {
