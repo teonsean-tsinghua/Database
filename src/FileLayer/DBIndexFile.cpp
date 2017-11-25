@@ -98,6 +98,69 @@ DBIndexNodePage* DBIndexFile::openNode(int pid)
     }
 }
 
+int DBIndexFile::split(DBIndexNodePage* cur)
+{
+    if(cur->getChildrenCount() >= maxDgr)
+    {
+        int new_pid;
+        if(cur->isLeaf())
+        {
+            new_pid = allocateNewLeafNode();
+        }
+        else
+        {
+            new_pid = allocateNewInternalNode();
+        }
+        if(new_pid <= 0)
+        {
+            return ERROR;
+        }
+        DBIndexNodePage* new_page = openNode(new_pid);
+        DBIndexNodePage::split(cur, new_page);
+        if(cur->isLeaf())
+        {
+            new_page->setNextSameType(cur->getNextSameType());
+            cur->setNextSameType(new_page->getPageID());
+        }
+        else
+        {
+            int curPage = new_page->getMinPage();
+            while(curPage != new_page->getMaxPage())
+            {
+                DBIndexNodePage* tmp = openNode(curPage);
+                tmp->setParent(new_pid);
+                curPage = tmp->getNextSameType();
+            }
+            openNode(curPage)->setParent(new_pid);
+        }
+        if(cur->getParent() <= 0)
+        {
+            int new_root = allocateNewInternalNode();
+            if(new_root <= 0)
+            {
+                return ERROR;
+            }
+            rootNode = new_root;
+            ifdp->setRootPage(rootNode);
+            DBIndexNodePage* new_root_node = openNode(new_root);
+            new_root_node->insert(cur->getMaxKey(), cur->getPageID());
+            new_root_node->insert(new_page->getMaxKey(), new_page->getPageID());
+            cur->setParent(new_root);
+            new_page->setParent(new_root);
+            return SUCCEED;
+        }
+        else
+        {
+            DBIndexNodePage* parent = openNode(cur->getParent());
+            new_page->setParent(cur->getParent());
+            parent->changeKeyOfPage(cur->getPageID(), cur->getMaxKey());
+            parent->insert(new_page->getMaxKey(), new_page->getPageID());
+            return split(parent);
+        }
+    }
+    return SUCCEED;
+}
+
 int DBIndexFile::insert(void* key, int pid)
 {
     DBIndexNodePage* curNode = openNode(rootNode);
@@ -111,26 +174,52 @@ int DBIndexFile::insert(void* key, int pid)
         curNode->insert(key, pid);
         return SUCCEED;
     }
-    if(larger(key, maxKey, keyType))
+    while(true)
     {
-        while(curNode != NULL && !curNode->isLeaf())
+        if(curNode == NULL || curNode->isLeaf())
         {
-            curNode = openNode(curNode->getMaxPage());
+            break;
         }
-    }
-    else
-    {
-        while(curNode != NULL && !curNode->isLeaf())
+        if(larger(key, curNode->getMaxKey(), keyType))
         {
-            curNode = openNode(curNode->search(key));
+            while(curNode != NULL && !curNode->isLeaf())
+            {
+                curNode->setMaxKey(key);
+                curNode = openNode(curNode->getMaxPage());
+            }
+            break;
         }
+        curNode = openNode(curNode->search(key));
     }
     if(curNode == NULL)
     {
         return ERROR;
     }
-    curNode->insert(key, pid);
+    int re = curNode->insert(key, pid);
+    if(re != SUCCEED)
+    {
+        return re;
+    }
+    re = split(curNode);
+    if(re != SUCCEED)
+    {
+        return re;
+    }
     return SUCCEED;
+}
+
+int DBIndexFile::search(void* key)
+{
+    DBIndexNodePage* curNode = openNode(rootNode);
+    while(curNode != NULL && !curNode->isLeaf())
+    {
+        curNode = openNode(curNode->search(key));
+    }
+    if(curNode == NULL)
+    {
+        return ERROR;
+    }
+    return curNode->searchEqual(key);
 }
 
 int DBIndexFile::createFile(const char* name, int keyType)
@@ -185,6 +274,7 @@ int DBIndexFile::closeFile()
     {
         return FILE_NOT_OPENED;
     }
+    fm->flush(ifdp->getIndex());
     for(std::map<int, DBIndexNodePage*>::iterator iter = pages.begin(); iter != pages.end(); iter++)
     {
         fm->flush(iter->second->getIndex());
@@ -227,18 +317,17 @@ void DBIndexFile::test()
     createFile("test.idx", DBType::INT);
     closeFile();
     openFile("test.idx");
-    openNode(rootNode)->print();
-    int k = 1;
-    insert(&k, 10);
-    int k2 = -2;
-    insert(&k2, 20);
-    int k3 = -5;
-    insert(&k3, 1);
-    int k4 = 5;
-    insert(&k4, 980);
-    DBPrintLine(openNode(rootNode)->search(&k));
-    DBPrintLine(openNode(rootNode)->search(&k2));
-    DBPrintLine(openNode(rootNode)->search(&k3));
-    DBPrintLine(openNode(rootNode)->search(&k4));
+    for(int i = 0; i < 1000000; i++)
+    {
+        insert(&i, i);
+    }
+    closeFile();
+
+    openFile("test.idx");
+    printFileDescription();
+    for(int i = 0; i < 1000000; i++)
+    {
+        DBPrintLine(search(&i));
+    }
     closeFile();
 }

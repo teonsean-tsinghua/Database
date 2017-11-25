@@ -5,6 +5,7 @@ int compare(void* a, void* b, int type)
     int re;
     switch(type)
     {
+    case DBType::TEST_DATA_TYPE:
     case DBType::INT:
         {
             int aa = *(int*)a;

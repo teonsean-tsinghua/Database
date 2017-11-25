@@ -14,15 +14,29 @@ protected:
 public:
     DBIndexNodePage(BufType cache, int index, int pageID, int type, int mode, int keyType = -1);
 
+    static void split(DBIndexNodePage* src, DBIndexNodePage* dest);
+
     void calcDegree(int& minDgr, int& maxDgr);
 
     void setParent(int pid);
 
+    int getParent();
+
+    void changeKeyOfPage(int page, void* key);
+
     int search(void* key);
+
+    int searchEqual(void* key);
 
     int insert(void* key, int pid);
 
     void* getMaxKey();
+
+    void setMaxKey(void* key);
+
+    int getChildrenCount();
+
+    int getMinPage();
 
     int getMaxPage();
 

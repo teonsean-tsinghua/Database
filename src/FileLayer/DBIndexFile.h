@@ -21,6 +21,10 @@ private:
     const char* name;
     bool open;
 
+    int split(DBIndexNodePage* cur);
+
+    int merge(DBIndexNodePage* cur);
+
 public:
 	DBIndexFile(const char* root);
 
@@ -39,6 +43,8 @@ public:
 	int closeFile();
 
 	int insert(void* key, int pid);
+
+	int search(void* key);
 
     void printFileDescription();
 

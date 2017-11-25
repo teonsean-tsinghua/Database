@@ -10,8 +10,9 @@ class DBType
 public:
     const static int _ID = 0;   // _id: time stamp for first 8 bytes, a random number for next 4 bytes, cache address for next 4 bytes, pid for next 2 bytes, a rand number for last 2 bytes;
     const static int INT = _ID + 1;
+    const static int TEST_DATA_TYPE = INT + 1;
     const static int FIRST_TYPE = _ID;
-    const static int LAST_TYPE = INT;
+    const static int LAST_TYPE = TEST_DATA_TYPE;
 
     const static int DATA_FILE_DESCRIPTION_PAGE = 0;
     const static int DATA_PAGE = DATA_FILE_DESCRIPTION_PAGE + 1;

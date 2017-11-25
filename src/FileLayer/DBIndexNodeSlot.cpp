@@ -60,11 +60,7 @@ int DBIndexNodeSlot::getPageOfIndex(int index)
 
 void DBIndexNodeSlot::setPageOfIndex(int index, int pid)
 {
-//    DBLogLine("Before");
-//    DBLogLine(*(int*)(*this)[DATA_OFFSET + index * (keyLength + sizeof(int)) + keyLength]);
     writeInt((*this)[DATA_OFFSET + index * (keyLength + sizeof(int)) + keyLength], pid);
-//    DBLogLine("After");
-//    DBLogLine(*(int*)(*this)[DATA_OFFSET + index * (keyLength + sizeof(int)) + keyLength]);
 }
 
 BufType DBIndexNodeSlot::getKeyOfIndex(int index)
@@ -92,10 +88,28 @@ int DBIndexNodeSlot::search(void* key)
     {
         if(!larger(key, getKeyOfIndex(i), keyType))
         {
+
             break;
         }
     }
     return getPageOfIndex(i);
+}
+
+int DBIndexNodeSlot::searchEqual(void* key)
+{
+    if(getChildrenCount() <= 0)
+    {
+        return ERROR;
+    }
+    int cnt = getChildrenCount();
+    for(int i = 0; i < cnt; i++)
+    {
+        if(equal(key, getKeyOfIndex(i), keyType))
+        {
+            return getPageOfIndex(i);
+        }
+    }
+    return NO_EQUAL_KEY;
 }
 
 int DBIndexNodeSlot::insert(void* key, int pid)
@@ -141,44 +155,3 @@ BufType DBIndexNodeSlot::getMaxKey()
     return (*this)[DATA_OFFSET + (sizeof(int) + keyLength) * (getChildrenCount() - 1)];
 }
 
-//void DBIndexNodeSlot::writeData(int idx, char* data, int len){
-//	char* dataIterator = (char*)(cache) + idx * (dataLen + 2 * sizeof(unsigned int)) + 2 * sizeof(unsigned int) + size();
-//	for(int i = 0; i < len; i++){
-//		dataIterator[i] = data[i];
-//	}
-//}
-//
-//void DBIndexNodeSlot::writePointer(int idx, unsigned int pagenum){
-//	writeUnsignedInt((BufType)((char*)cache + size() + idx * (dataLen + 2 * sizeof(unsigned int))), pagenum);
-//}
-//
-//void DBIndexNodeSlot::writeOffset(int idx, int offset){
-//	writeInt((BufType)((char*)cache + size() + idx * (dataLen + 2 * sizeof(unsigned int)) + sizeof(unsigned int)), offset);
-//}
-//
-//char* DBIndexNodeSlot::getDataByIdx(int idx){
-//	char* re;
-//	re = (char*)cache + size() + idx * (dataLen + 2 * sizeof(unsigned int)) + 2 * sizeof(unsigned int);
-//	return re;
-//}
-//
-//unsigned int DBIndexNodeSlot::getPointerByIdx(int idx){
-//	unsigned int re;
-//	readUnsignedInt((*this)[size() + idx * (dataLen + 2 * sizeof(unsigned int))], &re);
-//	return re;
-//}
-//
-//int DBIndexNodeSlot::getOffsetByIdx(int idx){
-//	int re;
-//	readInt((*this)[size() + idx * (dataLen + 2 * sizeof(unsigned int)) + sizeof(unsigned int)], &re);
-//	return re;
-//}
-//
-//void DBIndexNodeSlot::appendData(char* data, int size){
-//	int totsize = getDataSize() + this -> size();
-//	char* byteCache = (char*) cache;
-//	for(int i = 0; i < size + 2 * sizeof(unsigned int); i++){
-//		byteCache[totsize + i] = data[i];
-//	}
-//	writeInt(dataCnt, getDataCnt() + 1);
-//}

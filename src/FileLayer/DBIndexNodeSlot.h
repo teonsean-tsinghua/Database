@@ -42,21 +42,9 @@ public:
 
     int search(void* key);
 
-    int insert(void* key, int pid);
+    int searchEqual(void* key);
 
-//    void writeData(int idx, char* data, int len);
-//
-//    void writePointer(int idx, unsigned int pagenum);
-//
-//    void writeOffset(int idx, int offset);
-//
-//    void appendData(char* data, int size);
-//
-//    char* getDataByIdx(int idx);
-//
-//    unsigned int getPointerByIdx(int idx);
-//
-//    int getOffsetByIdx(int idx);
+    int insert(void* key, int pid);
 
     const static int PARENT_NODE_OFFSET = 0;
     const static int CHILDREN_COUNT_OFFSET = PARENT_NODE_OFFSET + sizeof(int);

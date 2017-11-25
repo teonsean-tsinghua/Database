@@ -22,9 +22,34 @@ void DBIndexNodePage::calcDegree(int& minDgr, int& maxDgr)
     minDgr = maxDgr / 2;
 }
 
+void DBIndexNodePage::split(DBIndexNodePage* src, DBIndexNodePage* dest)
+{
+    int cnt = src->getChildrenCount();
+    int mid = cnt / 2;
+    for(int i = mid; i < cnt; i++)
+    {
+        dest->ins->setKeyOfIndex(i - mid, src->ins->getKeyOfIndex(i));
+        dest->ins->setPageOfIndex(i - mid, src->ins->getPageOfIndex(i));
+    }
+    src->ins->setChildrenCount(mid);
+    src->pis->setFirstAvailableByte(src->pis->size() + src->ins->size());
+    dest->ins->setChildrenCount(cnt - mid);
+    dest->pis->setFirstAvailableByte(dest->pis->size() + dest->ins->size());
+}
+
 int DBIndexNodePage::search(void* key)
 {
     return ins->search(key);
+}
+
+int DBIndexNodePage::searchEqual(void* key)
+{
+    return ins->searchEqual(key);
+}
+
+void DBIndexNodePage::setMaxKey(void* key)
+{
+    ins->setKeyOfIndex(ins->getChildrenCount() - 1, key);
 }
 
 int DBIndexNodePage::insert(void* key, int pid)
@@ -37,6 +62,24 @@ int DBIndexNodePage::insert(void* key, int pid)
     return re;
 }
 
+void DBIndexNodePage::changeKeyOfPage(int page, void* key)
+{
+    int cnt = ins->getChildrenCount();
+    for(int i = 0; i < cnt; i++)
+    {
+        if(ins->getPageOfIndex(i) == page)
+        {
+            ins->setKeyOfIndex(i, key);
+            return;
+        }
+    }
+}
+
+int DBIndexNodePage::getChildrenCount()
+{
+    return ins->getChildrenCount();
+}
+
 void* DBIndexNodePage::getMaxKey()
 {
     if(ins->getChildrenCount() <= 0)
@@ -44,6 +87,15 @@ void* DBIndexNodePage::getMaxKey()
         return NULL;
     }
     return (void*)(ins->getMaxKey());
+}
+
+int DBIndexNodePage::getMinPage()
+{
+    if(ins->getChildrenCount() <= 0)
+    {
+        return -1;
+    }
+    return ins->getPageOfIndex(0);
 }
 
 int DBIndexNodePage::getMaxPage()
@@ -63,6 +115,11 @@ bool DBIndexNodePage::isLeaf()
 void DBIndexNodePage::setParent(int pid)
 {
     ins->setParentNode(pid);
+}
+
+int DBIndexNodePage::getParent()
+{
+    return ins->getParentNode();
 }
 
 void DBIndexNodePage::print()
