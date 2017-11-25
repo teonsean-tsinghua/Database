@@ -13,6 +13,8 @@ protected:
 public:
     DBIndexNodePage(BufType cache, int index, int pageID, int type, int mode, int keyLength = -1);
 
+    void setParent(int pid);
+
     void print();
 };
 

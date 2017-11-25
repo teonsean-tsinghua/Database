@@ -213,12 +213,14 @@ int DBDataFile::createFile(const char* name)
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
     }
     int index;
+    open = true;
     BufType cache = fm->getPage(fileID, 0, index);
     ri = new DBRecordInfo();
     dfdp = new DBDataFileDescriptionPage(cache, index, 0, MODE_CREATE, ri);
     dfdp->addField("_id", DBType::_ID, false);
     fm->flush(dfdp->getIndex());
     fm->closeFile(fileID);
+    open = false;
     delete ri;
     return SUCCEED;
 }

@@ -50,6 +50,15 @@ int DBIndexFile::allocateNewInternalNode()
     return cnt;
 }
 
+void DBIndexFile::printFileDescription()
+{
+    if(!open)
+    {
+        return;
+    }
+    ifdp->print();
+}
+
 DBIndexNodePage* DBIndexFile::openNode(int pid)
 {
     if(!open)
@@ -102,11 +111,16 @@ int DBIndexFile::createFile(const char* name, int keyType)
         DBLogLine("ERROR");
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
     }
+    open = true;
+    keyLength = DBType::typeSize(keyType);
     int index;
     BufType cache = fm->getPage(fileID, 0, index);
     ifdp = new DBIndexFileDescriptionPage(cache, index, 0, MODE_CREATE, keyType);
+    int root = allocateNewLeafNode();
+    ifdp->setRootPage(root);
     fm->flush(ifdp->getIndex());
     fm->closeFile(fileID);
+    open = false;
     return SUCCEED;
 }
 

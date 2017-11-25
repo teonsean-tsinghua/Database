@@ -34,6 +34,8 @@ public:
 	int deleteFile(const char* name);
 
 	int closeFile();
+
+    void printFileDescription();
 };
 
 #endif

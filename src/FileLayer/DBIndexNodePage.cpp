@@ -15,6 +15,11 @@ DBIndexNodePage::DBIndexNodePage(BufType cache, int index, int pageID, int type,
     }
 }
 
+void DBIndexNodePage::setParent(int pid)
+{
+    ins->setParentNode(pid);
+}
+
 void DBIndexNodePage::print()
 {
     DBPage::print();
