@@ -15,6 +15,13 @@ DBIndexNodePage::DBIndexNodePage(BufType cache, int index, int pageID, int type,
     }
 }
 
+void DBIndexNodePage::calcDegree(int& minDgr, int& maxDgr)
+{
+    int free = PAGE_SIZE - pis->size() - sizeof(int) * 2;
+    maxDgr = free / (keyLength + sizeof(int));
+    minDgr = maxDgr / 2;
+}
+
 bool DBIndexNodePage::isLeaf()
 {
     return pis->getPageType() == DBType::INDEX_LEAF_PAGE;

@@ -15,6 +15,9 @@ private:
     DBFileIOModel* fm;
     DBIndexFileDescriptionPage* ifdp;
     std::map<int, DBIndexNodePage*> pages;
+    int rootNode;
+    int minDgr;
+    int maxDgr;
     const char* name;
     bool open;
 

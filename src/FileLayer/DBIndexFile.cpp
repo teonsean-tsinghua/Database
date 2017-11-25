@@ -57,6 +57,10 @@ void DBIndexFile::printFileDescription()
         return;
     }
     ifdp->print();
+    DBPrint("Max degree of each node is: ");
+    DBPrintLine(maxDgr);
+    DBPrint("Min degree of each node is: ");
+    DBPrintLine(minDgr);
 }
 
 DBIndexNodePage* DBIndexFile::openNode(int pid)
@@ -171,12 +175,14 @@ int DBIndexFile::openFile(const char* name)
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
     }
     int index;
+    open = true;
     this->name = name;
     BufType cache = fm->getPage(fileID, 0, index);
     ifdp = new DBIndexFileDescriptionPage(cache, index, 0, MODE_PARSE);
     keyType = ifdp->getKeyType();
+    rootNode = ifdp->getRootPage();
     keyLength = DBType::typeSize(keyType);
-    open = true;
+    openNode(rootNode)->calcDegree(minDgr, maxDgr);
     return SUCCEED;
 }
 

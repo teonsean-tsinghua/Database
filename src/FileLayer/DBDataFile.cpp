@@ -588,10 +588,10 @@ int DBDataFile::openFile(const char* name)
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
     }
     int index;
+    open = true;
     BufType cache = fm->getPage(fileID, 0, index);
     ri = new DBRecordInfo();
     dfdp = new DBDataFileDescriptionPage(cache, index, 0, MODE_PARSE, ri);
-    open = true;
     return SUCCEED;
 }
 
