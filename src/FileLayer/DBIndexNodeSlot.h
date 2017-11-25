@@ -47,6 +47,8 @@ public:
 
     int insert(void* key, int pid);
 
+    int update(void* key, int pid);
+
     const static int PARENT_NODE_OFFSET = 0;
     const static int CHILDREN_COUNT_OFFSET = PARENT_NODE_OFFSET + sizeof(int);
     const static int DATA_OFFSET = CHILDREN_COUNT_OFFSET + sizeof(int);

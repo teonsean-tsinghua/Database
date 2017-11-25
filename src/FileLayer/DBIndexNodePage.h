@@ -40,6 +40,8 @@ public:
 
     int getMaxPage();
 
+    int update(void* key, int pid);
+
     void print();
 
     bool isLeaf();

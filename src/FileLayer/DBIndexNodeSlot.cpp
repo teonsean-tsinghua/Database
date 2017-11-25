@@ -139,15 +139,28 @@ int DBIndexNodeSlot::insert(void* key, int pid)
     int len = (cnt - i) * (sizeof(int) + keyLength);
     copyData(getKeyOfIndex(i), buffer, len);
     copyData(buffer, getKeyOfIndex(i + 1), len);
-//    for(int j = cnt - 1; j >= i; j--)
-//    {
-//        setKeyOfIndex(j + 1, getKeyOfIndex(j));
-//        setPageOfIndex(j + 1, getPageOfIndex(j));
-//    }
     setKeyOfIndex(i, key);
     setPageOfIndex(i, pid);
     setChildrenCount(cnt + 1);
     return SUCCEED;
+}
+
+int DBIndexNodeSlot::update(void* key, int pid)
+{
+    if(getChildrenCount() <= 0)
+    {
+        return ERROR;
+    }
+    int cnt = getChildrenCount();
+    for(int i = 0; i < cnt; i++)
+    {
+        if(equal(key, getKeyOfIndex(i), keyType))
+        {
+            setPageOfIndex(i, pid);
+            return SUCCEED;
+        }
+    }
+    return NO_EQUAL_KEY;
 }
 
 BufType DBIndexNodeSlot::getMinKey()

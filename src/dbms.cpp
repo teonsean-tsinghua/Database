@@ -6,7 +6,7 @@ using namespace std;
 int main()
 {
     srand((unsigned)time(NULL));
-    freopen("test.out", "w", stdout);
+//    freopen("test.out", "w", stdout);
 //    DBDataFile df("");
 //    df.test();
     DBIndexFile inf("");

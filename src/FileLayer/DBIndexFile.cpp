@@ -223,6 +223,20 @@ int DBIndexFile::search(void* key)
     return curNode->searchEqual(key);
 }
 
+int DBIndexFile::update(void* key, int pid)
+{
+    DBIndexNodePage* curNode = openNode(rootNode);
+    while(curNode != NULL && !curNode->isLeaf())
+    {
+        curNode = openNode(curNode->search(key));
+    }
+    if(curNode == NULL)
+    {
+        return ERROR;
+    }
+    return curNode->update(key, pid);
+}
+
 int DBIndexFile::createFile(const char* name, int keyType)
 {
     if(open)
@@ -318,21 +332,22 @@ void DBIndexFile::test()
     createFile("test.idx", DBType::TEST_DATA_TYPE);
     closeFile();
     openFile("test.idx");
-    for(int i = 0; i < 1000000; i++)
-    {
-        insert(&i, i);
-    }
-    closeFile();
-
-    openFile("test.idx");
-    printFileDescription();
-    for(int i = 0; i < 1000000; i++)
-    {
-        DBPrintLine(search(&i));
-    }
+//    for(int i = 0; i < 1000000; i++)
+//    {
+//        insert(&i, i);
+//    }
+//    closeFile();
+//
+//    openFile("test.idx");
+//    printFileDescription();
+//    for(int i = 0; i < 1000000; i++)
+//    {
+//        DBPrintLine(search(&i));
+//    }
 //    for(int i = 1; i < ifdp->getPageNumber(); i++)
 //    {
 //        openNode(i)->print();
 //    }
+
     closeFile();
 }

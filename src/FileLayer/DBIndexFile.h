@@ -46,6 +46,8 @@ public:
 
 	int search(void* key);
 
+	int update(void* key, int pid);
+
     void printFileDescription();
 
     void test();
