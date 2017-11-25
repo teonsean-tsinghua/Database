@@ -249,12 +249,13 @@ int DBDataFile::closeFile()
     {
         fm->flush(iter->second->getIndex());
     }
-    pages.clear();
     if(fm->closeFile(fileID) != SUCCEED)
     {
         DBLogLine("ERROR");
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
     }
+    pages.clear();
+    open = false;
     return SUCCEED;
 }
 
@@ -588,6 +589,7 @@ int DBDataFile::openFile(const char* name)
     BufType cache = fm->getPage(fileID, 0, index);
     ri = new DBRecordInfo();
     dfdp = new DBDataFileDescriptionPage(cache, index, 0, MODE_PARSE, ri);
+    open = true;
     return SUCCEED;
 }
 

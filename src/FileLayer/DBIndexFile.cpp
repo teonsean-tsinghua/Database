@@ -8,68 +8,82 @@ DBIndexFile::DBIndexFile(const char* root):
     open = false;
 }
 
-int DBIndexFile::allocateNewIndexPage()
+int DBIndexFile::allocateNewLeafNode()
 {
-//    if(!open)
-//    {
-//        return FILE_NOT_OPENED;
-//    }
-//	iup = openIndexUsagePage(lastIndexUsagePage);
-//	int ret = 0;
-//	while(true){
-//		ret = iup->findFirstAvailable();
-//		if (ret > 0){
-//            iup->setAvailable(ret, false);
-//			break;
-//        }
-//        if (iup->getNextSameType() != -1)
-//		    iup = openIndexUsagePage(iup->getNextSameType());
-//        else{
-//            allocateNewUsagePage();
-//            iup = openIndexUsagePage(lastIndexUsagePage);
-//        }
-//	}
-//    BufType _cache = new unsigned int[PAGE_SIZE >> 2];
-//    DBIndexDataPage* re = new DBIndexDataPage(_cache, ret, ret, MODE_CREATE, dataLen);
-//    pages[ret] = re;
-//    std::cout << "allocate new index page at " << ret << endl;
-//	return ret;
+    if(!open)
+    {
+        return FILE_NOT_OPENED;
+    }
+    int cnt = ifdp->getPageNumber();
+    if(cnt <= 0)
+    {
+        return ERROR;
+    }
+    int index;
+    BufType cache = fm->getPage(fileID, cnt, index);
+    DBIndexLeafPage* ifp = new DBIndexLeafPage(cache, index, cnt, MODE_CREATE, keyLength);
+    pages[cnt] = ifp;
+    DBLog("Allocated new leaf page ");
+    DBLogLine(cnt);
+    ifdp->incrementPageNumber();
+    return cnt;
 }
 
-int DBIndexFile::copyToNewPage(int pageID)
+int DBIndexFile::allocateNewInternalNode()
 {
-//    if(!open)
-//    {
-//        return FILE_NOT_OPENED;
-//    }
-//	int newPageID = allocateNewIndexPage();
-//    DBIndexDataPage* newPage = (DBIndexDataPage*) pages[newPageID];
-//    DBIndexDataPage* curpage = (DBIndexDataPage*)pages[pageID];
-//	newPage->setCache(curpage->getCache());
-//    this->setAvailableOfIndexPage(newPageID, false);
-//    return newPageID;
+    if(!open)
+    {
+        return FILE_NOT_OPENED;
+    }
+    int cnt = ifdp->getPageNumber();
+    if(cnt <= 0)
+    {
+        return ERROR;
+    }
+    int index;
+    BufType cache = fm->getPage(fileID, cnt, index);
+    DBIndexInternalPage* ifp = new DBIndexInternalPage(cache, index, cnt, MODE_CREATE, keyLength);
+    pages[cnt] = ifp;
+    DBLog("Allocated new internal page ");
+    DBLogLine(cnt);
+    ifdp->incrementPageNumber();
+    return cnt;
 }
 
-//DBIndexDataPage* DBIndexFile::openIndexDataPage(int pid)
-//{
-//    if(!open)
-//    {
-//        return FILE_NOT_OPENED;
-//    }
-//    if (isFileOpen == false)
-//        openFile();
-//	if (pages.count(pid)){
-//		DBPage* re = pages[pid];
-//		return re->getPageType() == DBType::INDEX_DATA_PAGE ? (DBIndexDataPage*) re : NULL;
-//	}
-//	int index;
-//	BufType cache = fm->getPage(fileID, pid, index);
-//	DBIndexDataPage* re = new DBIndexDataPage(cache, index, pid, MODE_PARSE, dataLen);
-//    re->print();
-//	pages[pid] = re;
-//    std::cout << "allocate new index data page at " << pid << endl;
-//	return re;
-//}
+DBIndexNodePage* DBIndexFile::openNode(int pid)
+{
+    if(!open)
+    {
+        return NULL;
+    }
+	if(pages.count(pid))
+    {
+		return pages[pid];
+	}
+    if(pid <= 0 || pid >= ifdp->getPageNumber())
+    {
+        return NULL;
+    }
+	int index;
+	BufType cache = fm->getPage(fileID, pid, index);
+	int pageType = DBPageInfoSlot::getPageType(cache);
+    if(pageType == DBType::INDEX_INTERNAL_PAGE)
+    {
+        DBIndexInternalPage* re = new DBIndexInternalPage(cache, index, pid, MODE_PARSE, keyLength);
+        pages[pid] = re;
+        return re;
+    }
+    else if(pageType == DBType::INDEX_LEAF_PAGE)
+    {
+        DBIndexLeafPage* re = new DBIndexLeafPage(cache, index, pid, MODE_PARSE, keyLength);
+        pages[pid] = re;
+        return re;
+    }
+    else
+    {
+        return NULL;
+    }
+}
 
 int DBIndexFile::createFile(const char* name, int keyType)
 {
@@ -96,7 +110,8 @@ int DBIndexFile::createFile(const char* name, int keyType)
     return SUCCEED;
 }
 
-int DBIndexFile::deleteFile(const char* name){
+int DBIndexFile::deleteFile(const char* name)
+{
     if(open)
     {
         DBLogLine("ERROR");
@@ -116,20 +131,22 @@ int DBIndexFile::closeFile()
     {
         return FILE_NOT_OPENED;
     }
-    for(std::map<int, DBPage*>::iterator iter = pages.begin(); iter != pages.end(); iter++)
+    for(std::map<int, DBIndexNodePage*>::iterator iter = pages.begin(); iter != pages.end(); iter++)
     {
         fm->flush(iter->second->getIndex());
     }
-    pages.clear();
     if(fm->closeFile(fileID) != SUCCEED)
     {
         DBLogLine("ERROR");
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
     }
+    pages.clear();
+    open = false;
     return SUCCEED;
 }
 
-int DBIndexFile::openFile(const char* name){
+int DBIndexFile::openFile(const char* name)
+{
     if(open)
     {
         DBLogLine("ERROR");
@@ -144,6 +161,7 @@ int DBIndexFile::openFile(const char* name){
     BufType cache = fm->getPage(fileID, 0, index);
     ifdp = new DBIndexFileDescriptionPage(cache, index, 0, MODE_PARSE);
     keyType = ifdp->getKeyType();
-    ifdp->print();
+    keyLength = DBType::typeSize(keyType);
+    open = true;
     return SUCCEED;
 }

@@ -14,7 +14,7 @@ protected:
     int pageID;
 
     const static char* const name_[];
-;
+
 public:
     DBPage(BufType cache, int index, int pageID, int type, int mode);
 

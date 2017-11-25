@@ -2,27 +2,30 @@
 #define DBINDEXFILE_H_INCLUDED
 #include "../DBInclude.h"
 #include "DBIndexFileDescriptionPage.h"
+#include "DBIndexLeafPage.h"
+#include "DBIndexInternalPage.h"
 #include "DBUsagePage.h"
 
 class DBIndexFile{
 private:
     int fileID;
     int keyType;
+    int keyLength;
     const char* root;
     DBFileIOModel* fm;
     DBIndexFileDescriptionPage* ifdp;
-    std::map<int, DBPage*> pages;
+    std::map<int, DBIndexNodePage*> pages;
     const char* name;
     bool open;
 
 public:
 	DBIndexFile(const char* root);
 
-	int allocateNewIndexPage();
+	int allocateNewLeafNode();
 
-	int copyToNewPage(int pageID);
+	int allocateNewInternalNode();
 
-//	DBIndexDataPage* openIndexDataPage(int pid);
+	DBIndexNodePage* openNode(int pid);
 
 	int createFile(const char* name, int keyType);
 
