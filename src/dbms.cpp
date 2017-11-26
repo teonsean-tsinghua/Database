@@ -7,7 +7,6 @@ int main()
 {
     srand((unsigned)time(NULL));
 //    freopen("test.out", "w", stdout);
-
     const char* sFile="test.sql";
     FILE* fp=fopen(sFile, "r");
     if(fp==NULL)
