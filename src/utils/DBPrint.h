@@ -1,9 +1,9 @@
 #ifndef DBPRINT_H_INCLUDED
 #define DBPRINT_H_INCLUDED
 
-#include<string>
-#include<iostream>
-#include<cstdio>
+#include <iostream>
+#include <cstdio>
+#include "pagedef.h"
 
 void DBPrint_ID(char* data);
 
@@ -30,5 +30,4 @@ void DBPrintLine(const T& msg)
 {
     std::cout << msg << std::endl;
 }
-
 #endif // DBPRINT_H_INCLUDED

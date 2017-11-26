@@ -17,6 +17,8 @@ private:
     DBRecordInfo* ri;
     int lastUsagePage;
     int lastDataPage;
+    const char* name;
+    bool open;
 
     int findFirstAvailableDataPage();
 
@@ -67,6 +69,8 @@ public:
     void printFileDescription();
 
     void printAllRecords();
+
+    void test();
 };
 
 #endif // DBDATAFILE_H_INCLUDED

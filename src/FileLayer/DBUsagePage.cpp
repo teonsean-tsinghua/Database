@@ -44,3 +44,7 @@ void DBUsagePage::setAvailable(int pid, bool available)
 {
     us->setAvailable(pid - this->pageID - 1, available);
 }
+
+int DBUsagePage::visibleSize(){
+    return PAGE_SIZE - pis -> size();
+}

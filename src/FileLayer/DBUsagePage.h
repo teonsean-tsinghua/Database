@@ -20,6 +20,8 @@ public:
     bool withinRange(int pageID);
 
     int findFirstAvailable();
+
+    int visibleSize();
 };
 
 #endif // DBUSAGEPAGE_H_INCLUDED

@@ -9,6 +9,7 @@ application
 */.DS_Store
 *.db
 *.idx
-*/*.db
-*/*.idx
 test.out
+dbms
+*/file.txt
+*/clean
