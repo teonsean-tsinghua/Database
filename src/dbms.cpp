@@ -27,6 +27,5 @@ int main()
     puts("-----end parsing");
 
     fclose(fp);
-
     return 0;
 }
