@@ -65,6 +65,9 @@
 #line 1 "parser.y" /* yacc.c:339  */
 
 #include "DBBase.h"
+#include "DBDatabase.h"
+
+DBDataBase* instance = DBDataBase::getInstance();
 
 extern "C"
 {
@@ -73,7 +76,7 @@ extern "C"
 }
 
 
-#line 77 "y.tab.c" /* yacc.c:339  */
+#line 80 "y.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -197,7 +200,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 201 "y.tab.c" /* yacc.c:358  */
+#line 204 "y.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -498,7 +501,7 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    28,    28,    29,    32,    33,    34,    35,    38,    41,
+       0,    31,    31,    32,    35,    36,    37,    38,    41,    44,
       45,    46,    47,    50,    51,    52,    53,    54,    55,    56,
       59,    60,    63,    64,    67,    68,    69,    70,    73,    74,
       75,    76,    79,    80,    83,    84,    87,    88,    89,    92,
@@ -1370,33 +1373,31 @@ yyreduce:
   switch (yyn)
     {
         case 9:
-#line 42 "parser.y" /* yacc.c:1646  */
-    {
-            printf("%s", (yyvsp[0].m_sId).c_str());
-      	  }
-#line 1378 "y.tab.c" /* yacc.c:1646  */
+#line 44 "parser.y" /* yacc.c:1646  */
+    { instance->createDatabase((yyvsp[0].m_sId).c_str()); }
+#line 1379 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 63:
 #line 134 "parser.y" /* yacc.c:1646  */
     { (yyval.m_sId) = (yyvsp[0].m_sId); }
-#line 1384 "y.tab.c" /* yacc.c:1646  */
+#line 1385 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 64:
 #line 137 "parser.y" /* yacc.c:1646  */
     { (yyval.m_sId) = (yyvsp[0].m_sId); }
-#line 1390 "y.tab.c" /* yacc.c:1646  */
+#line 1391 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 65:
 #line 140 "parser.y" /* yacc.c:1646  */
     { (yyval.m_sId) = (yyvsp[0].m_sId); }
-#line 1396 "y.tab.c" /* yacc.c:1646  */
+#line 1397 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1400 "y.tab.c" /* yacc.c:1646  */
+#line 1401 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires

@@ -1,5 +1,8 @@
 %{
 #include "DBBase.h"
+#include "DBDatabase.h"
+
+DBDataBase* instance = DBDataBase::getInstance();
 
 extern "C"
 {
@@ -38,10 +41,7 @@ stmt	: sysStmt ';'
 sysStmt	: SHOW DATABASES
 	;
 
-dbStmt	: CREATE DATABASE dbName
-	  {
-            printf("%s", $3.c_str());
-      	  }
+dbStmt	: CREATE DATABASE dbName { instance->createDatabase($3.c_str()); }
 	| DROP DATABASE dbName
 	| USE dbName
 	| SHOW TABLES

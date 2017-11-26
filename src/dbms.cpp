@@ -12,7 +12,7 @@ int main()
 //    DBIndexFile inf("");
 //    inf.test();
 //
-    const char* sFile="file.txt";
+    const char* sFile="test.sql";
     FILE* fp=fopen(sFile, "r");
     if(fp==NULL)
     {
