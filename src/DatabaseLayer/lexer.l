@@ -6,6 +6,7 @@ extern "C"
 {
 int yywrap(void);
 int yylex(void);
+}
 %}
 
 IDENTIFIER [A-Za-z][_0-9A-Za-z]*

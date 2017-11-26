@@ -17,10 +17,14 @@ private:
 
     DBDataBase(const char* root = "/home/teon/Documents/Database");
 
+    void delete_path(const char* path);
+
 public:
     static DBDataBase* getInstance();
 
     void createDatabase(const char* name);
+
+    void dropDatabase(const char* name);
 };
 
 #endif // DBDATABASE_H_INCLUDED

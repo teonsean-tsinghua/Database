@@ -42,7 +42,7 @@ sysStmt	: SHOW DATABASES
 	;
 
 dbStmt	: CREATE DATABASE dbName { instance->createDatabase($3.c_str()); }
-	| DROP DATABASE dbName
+	| DROP DATABASE dbName { instance->dropDatabase($3.c_str()); }
 	| USE dbName
 	| SHOW TABLES
 	;
