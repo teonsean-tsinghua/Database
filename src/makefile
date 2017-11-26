@@ -1,5 +1,11 @@
 SHELL=/bin/sh
 
+ifeq ($(VERBOSE),)
+SILENCE=@echo "building: "$@ ;
+else
+SILENCE=
+endif
+
 CC = $(CROSS_COMPILE)g++
 CXX = $(CROSS_COMPILE)g++
 LD = $(CROSS_COMPILE)ld
@@ -28,13 +34,13 @@ execobjs = $(COBJS) $(CPPOBJS)
 .PHONY: all
 
 all: $(execobjs)
-	$(CXX) -lstdc++ -o application $(execobjs) $(LDFLAGS)
+	$(SILENCE) $(CXX) -lstdc++ -o application $(execobjs) $(LDFLAGS)
 
 $(COBJS):%.o:%.c
-	$(CC) -c -lstdc $< -o $@ $(CFLAGS)
+	$(SILENCE) $(CC) -c -lstdc $< -o $@ $(CFLAGS)
 
 $(CPPOBJS):%.o:%.cpp
-	$(CC) -c $< -o $@ $(CXXFLAGS)
+	$(SILENCE) $(CC) -c $< -o $@ $(CXXFLAGS)
 #the scripts for clean
 .PHONY: clean
 
