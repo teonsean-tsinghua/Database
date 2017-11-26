@@ -1,6 +1,6 @@
 SHELL=/bin/sh
 
-CC = $(CROSS_COMPILE)gcc
+CC = $(CROSS_COMPILE)g++
 CXX = $(CROSS_COMPILE)g++
 LD = $(CROSS_COMPILE)ld
 

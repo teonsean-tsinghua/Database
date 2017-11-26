@@ -6,7 +6,11 @@
 
 void readInt(BufType cache, int *n);
 
+void readUnsignedInt(BufType cache, unsigned int* n);
+
 void writeInt(BufType cache, int n);
+
+void writeUnsignedInt(BufType cache, unsigned int n);
 
 void readString(char* cache, std::string& str, int len);
 

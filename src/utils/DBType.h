@@ -10,15 +10,18 @@ class DBType
 public:
     const static int _ID = 0;   // _id: time stamp for first 8 bytes, a random number for next 4 bytes, cache address for next 4 bytes, pid for next 2 bytes, a rand number for last 2 bytes;
     const static int INT = _ID + 1;
+    const static int TEST_DATA_TYPE = INT + 1;
     const static int FIRST_TYPE = _ID;
-    const static int LAST_TYPE = INT;
+    const static int LAST_TYPE = TEST_DATA_TYPE;
 
     const static int DATA_FILE_DESCRIPTION_PAGE = 0;
     const static int DATA_PAGE = DATA_FILE_DESCRIPTION_PAGE + 1;
-    const static int INDEX_PAGE = DATA_PAGE + 1;
-    const static int USAGE_PAGE = INDEX_PAGE + 1;
+    const static int USAGE_PAGE = DATA_PAGE + 1;
+    const static int INDEX_FILE_DESCRIPTION_PAGE = USAGE_PAGE + 1;
+    const static int INDEX_INTERNAL_PAGE = INDEX_FILE_DESCRIPTION_PAGE + 1;
+    const static int INDEX_LEAF_PAGE = INDEX_INTERNAL_PAGE + 1;
     const static int FIRST_PAGE_TYPE = DATA_FILE_DESCRIPTION_PAGE;
-    const static int LAST_PAGE_TYPE = USAGE_PAGE;
+    const static int LAST_PAGE_TYPE = INDEX_LEAF_PAGE;
 
     static int typeSize(int type);
 

@@ -12,3 +12,5 @@ application
 */*.db
 */*.idx
 test.out
+dbms
+*/file.txt

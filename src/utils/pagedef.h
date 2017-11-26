@@ -25,11 +25,11 @@
 /*
  * 缓存中页面个数上限
  */
-#define CAP 60000
+#define CAP 120000
 /*
  * hash算法的模
  */
-#define MOD 60000
+#define MOD 120000
 #define IN_DEBUG 0
 #define DEBUG_DELETE 0
 #define DEBUG_ERASE 1

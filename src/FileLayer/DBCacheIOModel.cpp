@@ -5,9 +5,17 @@ void readInt(BufType cache, int* n)
     *n = *(int*)cache;
 }
 
+void readUnsignedInt(BufType cache, unsigned int* n){
+    *n = *(unsigned int*) cache;
+}
+
 void writeInt(BufType cache, int n)
 {
     *(int*)cache = n;
+}
+
+void writeUnsignedInt(BufType cache, unsigned int n){
+    *(unsigned int*) cache = n;
 }
 
 void readString(char* cache, std::string& str, int len)
@@ -35,17 +43,17 @@ void writeBoolToChar(BufType cache, bool b)
 
 void readData(BufType cache, char* data, int len)
 {
-    strncpy(data, (char*)cache, len);
+    memcpy(data, (char*)cache, len);
 }
 
 void writeData(BufType cache, char* data, int len)
 {
-    strncpy((char*)cache, data, len);
+    memcpy((char*)cache, data, len);
 }
 
 void copyData(BufType src, BufType dest, int len)
 {
-    strncpy((char*)dest, (char*)src, len);
+    memcpy((char*)dest, (char*)src, len);
 }
 
 void read_id(BufType cache, char* data)
