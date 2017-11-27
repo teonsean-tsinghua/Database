@@ -1384,26 +1384,32 @@ yyreduce:
 #line 1385 "y.tab.c" /* yacc.c:1646  */
     break;
 
+  case 11:
+#line 46 "parser.y" /* yacc.c:1646  */
+    { instance->useDatabase((yyvsp[0].m_sId).c_str()); }
+#line 1391 "y.tab.c" /* yacc.c:1646  */
+    break;
+
   case 63:
 #line 134 "parser.y" /* yacc.c:1646  */
     { (yyval.m_sId) = (yyvsp[0].m_sId); }
-#line 1391 "y.tab.c" /* yacc.c:1646  */
+#line 1397 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 64:
 #line 137 "parser.y" /* yacc.c:1646  */
     { (yyval.m_sId) = (yyvsp[0].m_sId); }
-#line 1397 "y.tab.c" /* yacc.c:1646  */
+#line 1403 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 65:
 #line 140 "parser.y" /* yacc.c:1646  */
     { (yyval.m_sId) = (yyvsp[0].m_sId); }
-#line 1403 "y.tab.c" /* yacc.c:1646  */
+#line 1409 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1407 "y.tab.c" /* yacc.c:1646  */
+#line 1413 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires

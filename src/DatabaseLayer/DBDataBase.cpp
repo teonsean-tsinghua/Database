@@ -7,7 +7,7 @@ DBDataBase::DBDataBase(const char* root):
 {
     if(access(root, F_OK) != 0)
     {
-        DBPrintLine("Cannot open root directory.");
+        DBPrint::printLine("Cannot open root directory.");
         exit(0);
     }
 }
@@ -20,17 +20,15 @@ void DBDataBase::createDatabase(const char* name_)
     strcat(path, name_);
     if(access(path, F_OK) == 0)
     {
-        DBPrintLine("File or directory already exists.");
+        DBPrint::printLine("File or directory already exists.");
         return;
     }
     mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-    DBLog("Created directory ");
-    DBLogLine(path);
+    DBPrint::log("Created directory ").logLine(path);
 }
 
-void DBDataBase::delete_path(const char* path){
-
-
+void DBDataBase::delete_path(const char* path)
+{
     DIR *pDir = NULL;
     struct dirent *dmsg;
     char szFileName[128];
@@ -58,6 +56,26 @@ void DBDataBase::delete_path(const char* path){
     }
 }
 
+void DBDataBase::useDatabase(const char* name_)
+{
+    char* path = new char[256];
+    strcpy(path, root);
+    strcat(path, "/");
+    strcat(path, name_);
+    if(access(path, F_OK) != 0)
+    {
+        DBPrint::printLine("Database does not exist.");
+        return;
+    }
+    if (opendir(path) == NULL)
+    {
+        DBPrint::print(name_).printLine(" is not a Database.");
+        return;
+    }
+    name = name_;
+    DBPrint::log("Using database ").logLine(name);
+}
+
 void DBDataBase::dropDatabase(const char* name_)
 {
     char* path = new char[256];
@@ -66,13 +84,12 @@ void DBDataBase::dropDatabase(const char* name_)
     strcat(path, name_);
     if(access(path, F_OK) != 0)
     {
-        DBPrintLine("Database does not exist.");
+        DBPrint::printLine("Database does not exist.");
         return;
     }
     delete_path(path);
     rmdir(path);
-    DBLog("Removed directory ");
-    DBLogLine(path);
+    DBPrint::log("Removed directory ").logLine(path);
 }
 
 DBDataBase* DBDataBase::getInstance()
