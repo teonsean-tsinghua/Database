@@ -38,13 +38,13 @@ stmt	: sysStmt ';'
 	| idxStmt ';'
 	;
 
-sysStmt	: SHOW DATABASES
+sysStmt	: SHOW DATABASES { instance->showDatabases(); }
 	;
 
 dbStmt	: CREATE DATABASE dbName { instance->createDatabase($3.c_str()); }
 	| DROP DATABASE dbName { instance->dropDatabase($3.c_str()); }
 	| USE dbName { instance->useDatabase($2.c_str()); }
-	| SHOW TABLES
+	| SHOW TABLES { instance->showTables(); }
 	;
 
 tbStmt	: CREATE TABLE tbName '(' fieldList ')'

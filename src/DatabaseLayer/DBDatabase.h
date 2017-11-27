@@ -27,6 +27,10 @@ public:
     void dropDatabase(const char* name);
 
     void useDatabase(const char* name);
+
+    void showDatabases();
+
+    void showTables();
 };
 
 #endif // DBDATABASE_H_INCLUDED

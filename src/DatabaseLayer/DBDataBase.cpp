@@ -3,7 +3,7 @@
 DBDataBase* DBDataBase::instance = new DBDataBase();
 
 DBDataBase::DBDataBase(const char* root):
-    root(root)
+    root(root), name(NULL)
 {
     if(access(root, F_OK) != 0)
     {
@@ -35,22 +35,92 @@ void DBDataBase::delete_path(const char* path)
     char szFolderName[128];
     strcpy(szFolderName, path);
     strcat(szFolderName, "/%s");
-    if ((pDir = opendir(path)) != NULL)
+    if((pDir = opendir(path)) != NULL)
     {
-        while ((dmsg = readdir(pDir)) != NULL)
+        while((dmsg = readdir(pDir)) != NULL)
         {
-            if (strcmp(dmsg->d_name, ".") != 0 && strcmp(dmsg->d_name, "..") != 0)
+            if(strcmp(dmsg->d_name, ".") != 0 && strcmp(dmsg->d_name, "..") != 0)
             {
                 sprintf(szFileName, szFolderName, dmsg->d_name);
                 string tmp = szFileName;
-                if (tmp.find(".") == -1){
+                if(tmp.find(".") == -1){
                     delete_path(szFileName);
                 }
                 remove(szFileName);
             }
         }
     }
-    if (pDir != NULL)
+    if(pDir != NULL)
+    {
+        closedir(pDir);
+    }
+}
+
+void DBDataBase::showTables()
+{
+    DIR *pDir = NULL;
+    struct dirent *dmsg;
+    char szFileName[128];
+    char szFolderName[128];
+    strcpy(szFolderName, root);
+    strcat(szFolderName, "/");
+    strcat(szFolderName, name);
+    if(name != NULL && (pDir = opendir(szFolderName)) != NULL)
+    {
+        strcat(szFolderName, "/%s");
+        DBPrint::printLine("====================");
+        DBPrint::print("All tables of ").print(name).printLine(" are listed as below:");
+        while((dmsg = readdir(pDir)) != NULL)
+        {
+            if(strcmp(dmsg->d_name, ".") != 0 && strcmp(dmsg->d_name, "..") != 0)
+            {
+                sprintf(szFileName, szFolderName, dmsg->d_name);
+                string tmp = szFileName;
+                if(opendir(szFileName) == NULL && tmp.substr(tmp.size() - 4, 4).compare(".dat") == 0){
+                    string filename = std::string(dmsg->d_name);
+                    DBPrint::printLine(filename.substr(0, filename.size() - 4));
+                }
+            }
+        }
+        DBPrint::printLine("====================");
+    }
+    else
+    {
+        DBPrint::printLine("Current database is not available.");
+    }
+    if(pDir != NULL)
+    {
+        closedir(pDir);
+    }
+}
+
+void DBDataBase::showDatabases()
+{
+    DBPrint::printLine("====================");
+    DBPrint::printLine("All databases are listed as below:");
+    DIR *pDir = NULL;
+    struct dirent *dmsg;
+    char szFileName[128];
+    char szFolderName[128];
+    strcpy(szFolderName, root);
+    strcat(szFolderName, "/%s");
+    if((pDir = opendir(root)) != NULL)
+    {
+        while((dmsg = readdir(pDir)) != NULL)
+        {
+            if(strcmp(dmsg->d_name, ".") != 0 && strcmp(dmsg->d_name, "..") != 0)
+            {
+                sprintf(szFileName, szFolderName, dmsg->d_name);
+                string tmp = szFileName;
+                if(opendir(szFileName) != NULL)
+                {
+                    DBPrint::printLine(dmsg->d_name);
+                }
+            }
+        }
+    }
+    DBPrint::printLine("====================");
+    if(pDir != NULL)
     {
         closedir(pDir);
     }

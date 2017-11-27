@@ -24,7 +24,7 @@ void DBDataFile::printAllRecords()
         }
         dp->print();
         dp->printAllRecords();
-        DBPrint::printLine("=================");
+        DBPrint::printLine("====================");
         dp = openDataPage(dp->getNextSameType());
     }
 }
