@@ -41,21 +41,20 @@ void DBRecordSlot::print()
     for(int idx = 0; idx < data.size(); idx++)
     {
         void* ptr = data[idx];
-        DBPrint(ri->names[idx] + ": ");
+        DBPrint::print(ri->names[idx] + ": ");
         if(ptr == NULL)
         {
-            DBPrintLine("NULL");
+            DBPrint::printLine("NULL");
         }
         else
         {
             switch(ri->types[idx])
             {
             case DBType::_ID:
-                DBPrint_ID((char*)ptr);
-                DBPrintLine("");
+                DBPrint::print_ID((char*)ptr).printLine("");
                 break;
             case DBType::INT:
-                DBPrintLine(*(int*)ptr);
+                DBPrint::printLine(*(int*)ptr);
                 break;
             }
         }

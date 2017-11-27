@@ -5,29 +5,58 @@
 #include <cstdio>
 #include "pagedef.h"
 
-void DBPrint_ID(char* data);
-
-template<typename T>
-void DBLog(const T& msg)
+class DBPrint
 {
-     std::cout << msg;
-}
+private:
 
-template<typename T>
-void DBLogLine(const T& msg)
-{
-    std::cout << msg << std::endl;
-}
+    static DBPrint* instance;
 
-template<typename T>
-void DBPrint(const T& msg)
-{
-    std::cout << msg;
-}
+    DBPrint();
 
-template<typename T>
-void DBPrintLine(const T& msg)
-{
-    std::cout << msg << std::endl;
-}
+public:
+
+    template<typename T>
+    static DBPrint& print(const T& msg)
+    {
+        std::cout << msg;
+        return *instance;
+    }
+
+    template<typename T>
+    static DBPrint& printLine(const T& msg)
+    {
+        std::cout << msg << std::endl;
+        return *instance;
+    }
+
+    static DBPrint& printLine()
+    {
+        std::cout << std::endl;
+        return *instance;
+    }
+
+    template<typename T>
+    static DBPrint& log(const T& msg)
+    {
+        std::cout << msg;
+        return *instance;
+    }
+
+    template<typename T>
+    static DBPrint& logLine(const T& msg)
+    {
+        std::cout << msg << std::endl;
+        return *instance;
+    }
+
+    static DBPrint& logLine()
+    {
+        std::cout << std::endl;
+        return *instance;
+    }
+
+    static DBPrint& print_ID(char* data);
+
+};
+
 #endif // DBPRINT_H_INCLUDED

@@ -24,7 +24,7 @@ void DBDataFile::printAllRecords()
         }
         dp->print();
         dp->printAllRecords();
-        DBPrintLine("=================");
+        DBPrint::printLine("=================");
         dp = openDataPage(dp->getNextSameType());
     }
 }
@@ -89,8 +89,7 @@ int DBDataFile::allocateNewUsagePage()
     BufType cache = fm->getPage(fileID, cnt, index);
     DBUsagePage* up = new DBUsagePage(cache, index, cnt, MODE_CREATE);
     pages[cnt] = up;
-    DBLog("Allocated new usage page ");
-    DBLogLine(cnt);
+    DBPrint::log("Allocated new usage page ").logLine(cnt);
     dfdp->incrementPageNumber(DBType::USAGE_PAGE);
     DBUsagePage* last;
     if((last = openUsagePage(lastUsagePage)) != NULL)
@@ -126,8 +125,7 @@ int DBDataFile::allocateNewDataPage()
     BufType cache = fm->getPage(fileID, cnt, index);
     DBDataPage* dp = new DBDataPage(cache, index, cnt, dfdp->getRecordLength(), MODE_CREATE, ri);
     pages[cnt] = dp;
-    DBLog("Allocated new data page ");
-    DBLogLine(cnt);
+    DBPrint::log("Allocated new data page ").logLine(cnt);
     dfdp->incrementPageNumber(DBType::DATA_PAGE);
     DBDataPage* last;
     if((last = openDataPage(lastDataPage)) != NULL)
@@ -199,17 +197,17 @@ int DBDataFile::createFile(const char* name)
 {
     if(open)
     {
-        DBLogLine("ERROR");
+        DBPrint::logLine("ERROR");
         return A_FILE_ALREADY_OPENED;
     }
     if(fm->createFile(name) != SUCCEED)
     {
-        DBLogLine("ERROR");
+        DBPrint::logLine("ERROR");
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
     }
     if(fm->openFile(name, fileID) != SUCCEED)
     {
-        DBLogLine("ERROR");
+        DBPrint::logLine("ERROR");
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
     }
     int index;
@@ -229,12 +227,12 @@ int DBDataFile::deleteFile(const char* name)
 {
     if(open)
     {
-        DBLogLine("ERROR");
+        DBPrint::logLine("ERROR");
         return A_FILE_ALREADY_OPENED;
     }
     if(fm->deleteFile(name) != SUCCEED)
     {
-        DBLogLine("ERROR");
+        DBPrint::logLine("ERROR");
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
     }
     return SUCCEED;
@@ -253,7 +251,7 @@ int DBDataFile::closeFile()
     }
     if(fm->closeFile(fileID) != SUCCEED)
     {
-        DBLogLine("ERROR");
+        DBPrint::logLine("ERROR");
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
     }
     pages.clear();
@@ -281,13 +279,13 @@ int DBDataFile::addField(const char* name, int type, bool nullable)
     switch(re)
     {
     case EMPTY_FIELD_NAME:
-        DBPrintLine("Field name cannot be empty.");
+        DBPrint::printLine("Field name cannot be empty.");
         break;
     case FIELD_ALREADY_EXIST:
-        DBPrintLine("Field " + std::string(name) + " already exists.");
+        DBPrint::printLine("Field " + std::string(name) + " already exists.");
         break;
     case EXCEED_PAGE_LIMIT:
-        DBPrintLine("You cannot add any more fields to this table.");
+        DBPrint::printLine("You cannot add any more fields to this table.");
         break;
     }
     return re;
@@ -385,7 +383,7 @@ int DBDataFile::remove(std::map<std::string, void*>& data)
     {
         for(int i = 0; i < errors.size(); i++)
         {
-            DBPrintLine("This table does not contain field " + errors[i]);
+            DBPrint::printLine("This table does not contain field " + errors[i]);
         }
         return ERROR;
     }
@@ -423,7 +421,7 @@ int DBDataFile::update(std::map<std::string, void*>& key_value, std::map<std::st
         {
             for(int i = 0; i < errors.size(); i++)
             {
-                DBPrintLine("This table does not contain field " + errors[i]);
+                DBPrint::printLine("This table does not contain field " + errors[i]);
             }
             return ERROR;
         }
@@ -432,7 +430,7 @@ int DBDataFile::update(std::map<std::string, void*>& key_value, std::map<std::st
     {
         for(int i = 0; i < errors.size(); i++)
         {
-            DBPrintLine("This table does not contain field " + errors[i]);
+            DBPrint::printLine("This table does not contain field " + errors[i]);
         }
         return ERROR;
     }
@@ -459,44 +457,44 @@ int DBDataFile::findEqual(std::map<std::string, void*>& data, std::set<std::map<
             dp->findEqual(processed, result);
             dp = openDataPage(dp->getNextSameType());
         }
-        int i = 0;
-        for(std::set<std::map<std::string, void*>*>::iterator iter = result.begin(); iter != result.end(); iter++)
-        {
-            std::map<std::string, void*>* ele = *iter;
-            DBPrint("Equal record: ");
-            DBPrintLine(i++);
-            for(std::map<std::string, void*>::iterator iter2 = ele->begin(); iter2 != ele->end(); iter2++)
-            {
-                std::string name =iter2->first;
-                int idx = ri->indexes[name];
-                void* ptr = iter2->second;
-                DBPrint(name + ": ");
-                if(ptr == NULL)
-                {
-                    DBPrintLine("NULL");
-                }
-                else
-                {
-                    switch(ri->types[idx])
-                    {
-                    case DBType::_ID:
-                        DBPrint_ID((char*)ptr);
-                        DBPrintLine("");
-                        break;
-                    case DBType::INT:
-                        DBPrintLine(*(int*)ptr);
-                        break;
-                    }
-                }
-            }
-        }
+//        int i = 0;
+//        for(std::set<std::map<std::string, void*>*>::iterator iter = result.begin(); iter != result.end(); iter++)
+//        {
+//            std::map<std::string, void*>* ele = *iter;
+//            DBPrint("Equal record: ");
+//            DBPrintLine(i++);
+//            for(std::map<std::string, void*>::iterator iter2 = ele->begin(); iter2 != ele->end(); iter2++)
+//            {
+//                std::string name =iter2->first;
+//                int idx = ri->indexes[name];
+//                void* ptr = iter2->second;
+//                DBPrint(name + ": ");
+//                if(ptr == NULL)
+//                {
+//                    DBPrintLine("NULL");
+//                }
+//                else
+//                {
+//                    switch(ri->types[idx])
+//                    {
+//                    case DBType::_ID:
+//                        DBPrint_ID((char*)ptr);
+//                        DBPrintLine("");
+//                        break;
+//                    case DBType::INT:
+//                        DBPrintLine(*(int*)ptr);
+//                        break;
+//                    }
+//                }
+//            }
+//        }
         return SUCCEED;
     }
     else
     {
         for(int i = 0; i < errors.size(); i++)
         {
-            DBPrintLine("This table does not contain field " + errors[i]);
+            DBPrint::printLine("This table does not contain field " + errors[i]);
         }
         return ERROR;
     }
@@ -541,13 +539,13 @@ int DBDataFile::insertRecord(std::map<std::string, void*>& fields)
             switch(iter->second)
             {
             case UNNULLABLE:
-                DBPrintLine("Field " + iter->first + " should be assigned.");
+                DBPrint::printLine("Field " + iter->first + " should be assigned.");
                 break;
             case EXTRA_FIELD:
-                DBPrintLine("This table does not contain field " + iter->first);
+                DBPrint::printLine("This table does not contain field " + iter->first);
                 break;
             case EDIT__ID:
-                DBPrintLine("You should not modify _id of any record.");
+                DBPrint::printLine("You should not modify _id of any record.");
                 break;
             }
         }
@@ -566,10 +564,10 @@ int DBDataFile::setPrimaryKey(const char* name)
     switch(re)
     {
     case FIELD_IS_ALREADY_PRIMARY_KEY:
-        DBPrintLine("This field is already the primary key.");
+        DBPrint::printLine("This field is already the primary key.");
         break;
     case FIELD_NOT_EXIST:
-        DBPrintLine("This table does not contain field " + std::string(name));
+        DBPrint::printLine("This table does not contain field " + std::string(name));
         break;
     }
     return re;
@@ -579,12 +577,12 @@ int DBDataFile::openFile(const char* name)
 {
     if(open)
     {
-        DBLogLine("ERROR");
+        DBPrint::logLine("ERROR");
         return A_FILE_ALREADY_OPENED;
     }
     if(fm->openFile(name, fileID) != SUCCEED)
     {
-        DBLogLine("ERROR");
+        DBPrint::logLine("ERROR");
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
     }
     int index;

@@ -23,8 +23,7 @@ int DBIndexFile::allocateNewLeafNode()
     BufType cache = fm->getPage(fileID, cnt, index);
     DBIndexLeafPage* ifp = new DBIndexLeafPage(cache, index, cnt, MODE_CREATE, keyType);
     pages[cnt] = ifp;
-    DBLog("Allocated new leaf page ");
-    DBLogLine(cnt);
+    DBPrint::log("Allocated new leaf page ").logLine(cnt);
     ifdp->incrementPageNumber();
     return cnt;
 }
@@ -44,8 +43,7 @@ int DBIndexFile::allocateNewInternalNode()
     BufType cache = fm->getPage(fileID, cnt, index);
     DBIndexInternalPage* ifp = new DBIndexInternalPage(cache, index, cnt, MODE_CREATE, keyType);
     pages[cnt] = ifp;
-    DBLog("Allocated new internal page ");
-    DBLogLine(cnt);
+    DBPrint::log("Allocated new internal page ").logLine(cnt);
     ifdp->incrementPageNumber();
     return cnt;
 }
@@ -57,10 +55,8 @@ void DBIndexFile::printFileDescription()
         return;
     }
     ifdp->print();
-    DBPrint("Max degree of each node is: ");
-    DBPrintLine(maxDgr);
-    DBPrint("Min degree of each node is: ");
-    DBPrintLine(minDgr);
+    DBPrint::print("Max degree of each node is: ").printLine(maxDgr)
+            .print("Min degree of each node is: ").printLine(minDgr);
 }
 
 DBIndexNodePage* DBIndexFile::openNode(int pid)
@@ -127,7 +123,8 @@ int DBIndexFile::split(DBIndexNodePage* cur)
                 DBIndexNodePage* tmp = openNode(curPage);
                 if(tmp == NULL)
                 {
-                    DBLogLine(new_pid);
+                    DBPrint::log("Failed to open page ").logLine(new_pid);
+                    return ERROR;
                 }
                 tmp->setParent(new_pid);
                 curPage = tmp->getNextSameType();
@@ -256,17 +253,17 @@ int DBIndexFile::createFile(const char* name, int keyType)
 {
     if(open)
     {
-        DBLogLine("ERROR");
+        DBPrint::logLine("ERROR");
         return A_FILE_ALREADY_OPENED;
     }
     if(fm->createFile(name) != SUCCEED)
     {
-        DBLogLine("ERROR");
+        DBPrint::logLine("ERROR");
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
     }
     if(fm->openFile(name, fileID) != SUCCEED)
     {
-        DBLogLine("ERROR");
+        DBPrint::logLine("ERROR");
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
     }
     this->keyType = keyType;
@@ -287,12 +284,12 @@ int DBIndexFile::deleteFile(const char* name)
 {
     if(open)
     {
-        DBLogLine("ERROR");
+        DBPrint::logLine("ERROR");
         return A_FILE_ALREADY_OPENED;
     }
     if(fm->deleteFile(name) != SUCCEED)
     {
-        DBLogLine("ERROR");
+        DBPrint::logLine("ERROR");
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
     }
     return SUCCEED;
@@ -311,7 +308,7 @@ int DBIndexFile::closeFile()
     }
     if(fm->closeFile(fileID) != SUCCEED)
     {
-        DBLogLine("ERROR");
+        DBPrint::logLine("ERROR");
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
     }
     pages.clear();
@@ -323,11 +320,11 @@ int DBIndexFile::openFile(const char* name)
 {
     if(open)
     {
-        DBLogLine("ERROR");
+        DBPrint::logLine("ERROR");
         return A_FILE_ALREADY_OPENED;
     }
     if(fm->openFile(name, fileID) != SUCCEED){
-        DBLogLine("ERROR");
+        DBPrint::logLine("ERROR");
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
     }
     int index;

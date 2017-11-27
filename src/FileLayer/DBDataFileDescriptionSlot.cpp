@@ -93,31 +93,24 @@ int DBDataFileDescriptionSlot::addField(std::string name, int type, bool nullabl
 
 void DBDataFileDescriptionSlot::print()
 {
-    DBPrint("This file has pages of number ");
-    DBPrintLine(getPageNumber());
-    DBPrint("First data page is at ");
-    DBPrintLine(getFirstDataPage());
-    DBPrint("First usage page is at ");
-    DBPrintLine(getFirstUsagePage());
-    DBPrint("Record length is ");
-    DBPrintLine(getRecordLength());
-    DBPrint("Record info length is ");
-    DBPrintLine(getRecordInfoLength());
     int cnt = ri->getFieldCount();
-    DBPrint("Number of fields: ");
-    DBPrintLine(cnt);
-    DBPrint("Primary key is: ");
-    DBPrintLine(getPrimaryKeyIndex());
+    DBPrint::print("This file has pages of number ").printLine(getPageNumber())
+            .print("First data page is at ").printLine(getFirstDataPage())
+            .print("First usage page is at ").printLine(getFirstUsagePage())
+            .print("Record length is ").printLine(getRecordLength())
+            .print("Record info length is ").printLine(getRecordInfoLength())
+            .print("Number of fields: ").printLine(cnt)
+            .print("Primary key is: ").printLine(getPrimaryKeyIndex());
     for(int i = 0; i < cnt; i++)
     {
-        DBPrint("Field " + ri->names[i] + " is of type " + std::string(DBType::typeName(ri->types[i])));
+        DBPrint::print("Field " + ri->names[i] + " is of type " + std::string(DBType::typeName(ri->types[i])));
         if(ri->nullables[i])
         {
-            DBPrintLine(", and can be null.");
+            DBPrint::printLine(", and can be null.");
         }
         else
         {
-            DBPrintLine(", and cannot be null.");
+            DBPrint::printLine(", and cannot be null.");
         }
     }
 }

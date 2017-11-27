@@ -22,20 +22,17 @@ void DBPageInfoSlot::write(int lf, int nsp)
 
 void DBPageInfoSlot::print()
 {
-    DBPrint("Page type: ");
-    DBPrintLine(DBType::pageName(getPageType()));
-    DBPrint("First available byte: ");
-    DBPrintLine(getFirstAvailableByte());
+    DBPrint::print("Page type: ").printLine(DBType::pageName(getPageType()))
+            .print("First available byte: ").printLine(getFirstAvailableByte());
     if(isLengthFixed())
     {
-        DBPrintLine("This page stores slots with fixed length.");
+        DBPrint::printLine("This page stores slots with fixed length.");
     }
     else
     {
-        DBPrintLine("This page stores slots with variable length.");
+        DBPrint::printLine("This page stores slots with variable length.");
     }
-    DBPrint("Next page of this type: ");
-    DBPrintLine(getNextSamePage());
+    DBPrint::print("Next page of this type: ").printLine(getNextSamePage());
 }
 
 int DBPageInfoSlot::getPageType()

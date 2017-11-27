@@ -29,8 +29,7 @@ int DBPage::getIndex()
 
 void DBPage::print()
 {
-    DBPrint("Page ID: ");
-    DBPrintLine(pageID);
+    DBPrint::print("Page ID: ").printLine(pageID);
     pis->print();
 }
 

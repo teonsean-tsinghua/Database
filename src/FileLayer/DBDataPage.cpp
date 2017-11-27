@@ -118,9 +118,7 @@ int DBDataPage::findEqual(std::map<int, void*>& data, std::set<char*>& result)
 void DBDataPage::print()
 {
     DBPage::print();
-    DBLog("This page contains ");
-    DBLog(records.size());
-    DBLogLine(" records.");
+    DBPrint::log("This page contains ").log(records.size()).logLine(" records.");
 }
 
 void DBDataPage::printAllRecords()

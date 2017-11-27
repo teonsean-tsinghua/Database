@@ -36,20 +36,15 @@ void DBIndexNodeSlot::setChildrenCount(int n){
 }
 
 void DBIndexNodeSlot::print(){
-    DBPrint("Parent node is at ");
-    DBPrintLine(getParentNode());
-    DBPrint("This node has children of number ");
-    DBPrintLine(getChildrenCount());
+    DBPrint::print("Parent node is at ").printLine(getParentNode())
+            .print("This node has children of number ").printLine(getChildrenCount());
     for(int i = 0; i < getChildrenCount(); i++)
     {
         BufType key = getKeyOfIndex(i);
         int page = getPageOfIndex(i);
-        DBLog("Key: ");
         int re;
         readInt(key, &re);
-        DBLog(re);
-        DBLog(", page: ");
-        DBLogLine(page);
+        DBPrint::log("Key: ").log(re).log(", page: ").logLine(page);
     }
 }
 

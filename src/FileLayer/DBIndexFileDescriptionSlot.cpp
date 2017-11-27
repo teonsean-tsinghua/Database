@@ -16,14 +16,10 @@ int DBIndexFileDescriptionSlot::size()
 
 void DBIndexFileDescriptionSlot::print()
 {
-    DBPrint("This file has pages of number ");
-    DBPrintLine(getPageNumber());
-    DBPrint("First leaf page is at ");
-    DBPrintLine(getFirstLeafPage());
-    DBPrint("Root page is at ");
-    DBPrintLine(getRootPage());
-    DBPrint("Keys are of type ");
-    DBPrintLine(DBType::typeName(getKeyType()));
+    DBPrint::print("This file has pages of number ").printLine(getPageNumber())
+            .print("First leaf page is at ").printLine(getFirstLeafPage())
+            .print("Root page is at ").printLine(getRootPage())
+            .print("Keys are of type ").printLine(DBType::typeName(getKeyType()));
 }
 
 int DBIndexFileDescriptionSlot::getFirstLeafPage()

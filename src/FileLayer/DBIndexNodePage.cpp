@@ -139,13 +139,12 @@ void DBIndexNodePage::print()
     DBPage::print();
     if(pis->getPageType() == DBType::INDEX_INTERNAL_PAGE)
     {
-        DBPrintLine("This is an internal node.");
+        DBPrint::printLine("This is an internal node.");
     }
     else if(pis->getPageType() == DBType::INDEX_LEAF_PAGE)
     {
-        DBPrintLine("This is a leaf node.");
+        DBPrint::printLine("This is a leaf node.");
     }
-    DBPrint("Keys are of length ");
-    DBPrintLine(keyLength);
+    DBPrint::print("Keys are of length ").printLine(keyLength);
     ins->print();
 }
