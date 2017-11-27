@@ -31,6 +31,8 @@ public:
     void showDatabases();
 
     void showTables();
+
+    void dropTable(const char* name);
 };
 
 #endif // DBDATABASE_H_INCLUDED

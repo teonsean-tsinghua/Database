@@ -48,7 +48,7 @@ dbStmt	: CREATE DATABASE dbName { instance->createDatabase($3.c_str()); }
 	;
 
 tbStmt	: CREATE TABLE tbName '(' fieldList ')'
-	| DROP TABLE tbName
+	| DROP TABLE tbName { instance->dropTable($3.c_str()); }
 	| DESC tbName
 	| INSERT INTO tbName VALUES valueLists
 	| DELETE FROM tbName WHERE whereClause

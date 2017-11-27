@@ -42,8 +42,7 @@ void DBDataBase::delete_path(const char* path)
             if(strcmp(dmsg->d_name, ".") != 0 && strcmp(dmsg->d_name, "..") != 0)
             {
                 sprintf(szFileName, szFolderName, dmsg->d_name);
-                string tmp = szFileName;
-                if(tmp.find(".") == -1){
+                if(opendir(szFileName) != NULL){
                     delete_path(szFileName);
                 }
                 remove(szFileName);
@@ -160,6 +159,46 @@ void DBDataBase::dropDatabase(const char* name_)
     delete_path(path);
     rmdir(path);
     DBPrint::log("Removed directory ").logLine(path);
+}
+
+void DBDataBase::dropTable(const char* name_)
+{
+    DIR *pDir = NULL;
+    struct dirent *dmsg;
+    char szFileName[128];
+    char szFolderName[128];
+    strcpy(szFolderName, root);
+    strcat(szFolderName, "/");
+    strcat(szFolderName, name);
+    if(name != NULL && (pDir = opendir(szFolderName)) != NULL)
+    {
+        strcat(szFolderName, "/");
+        strcpy(szFileName, szFolderName);
+        strcat(szFileName, name_);
+        strcat(szFileName, ".dat");
+        if(access(szFileName, F_OK) != 0)
+        {
+            DBPrint::printLine("Table does not exist.");
+        }
+        else
+        {
+            remove(szFileName);
+            DBPrint::log("Removed file ").logLine(szFileName);
+            strcpy(szFileName, szFolderName);
+            strcat(szFileName, name_);
+            strcat(szFileName, ".idx");
+            delete_path(szFileName);
+            rmdir(szFileName);
+        }
+    }
+    else
+    {
+        DBPrint::printLine("Current database is not available.");
+    }
+    if(pDir != NULL)
+    {
+        closedir(pDir);
+    }
 }
 
 DBDataBase* DBDataBase::getInstance()
