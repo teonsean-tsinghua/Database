@@ -1,9 +1,9 @@
 #include"DBType.h"
 #include<cstdio>
 
-const int DBType::typeSize_[] = {20, sizeof(int), 400};
+const int DBType::typeSize_[] = {20, sizeof(int), sizeof(float), 8, 0};
 
-const char* const DBType::typeName_[] = {"_id", "int", "test type"};
+const char* const DBType::typeName_[] = {"_id", "int", "float", "date", "varchar"};
 
 const char* const DBType::pageName_[] = {"Data file description page",
                                          "Data page",
