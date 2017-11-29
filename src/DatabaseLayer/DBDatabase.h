@@ -13,6 +13,11 @@ private:
     DBDataFile* data;
     std::map<std::string, DBIndexFile*> indexes;
 
+    std::vector<std::string> pNames;
+    std::vector<int> pTypes;
+    std::vector<bool> pNullables;
+    std::vector<int> pExtras;
+
     const char* const root;
     const char* name;
 
@@ -34,6 +39,8 @@ public:
     void showDatabases();
 
     void showTables();
+
+    void addPending(std::string name, int type, bool nullable, int extra);
 
     void dropTable(const char* name);
 

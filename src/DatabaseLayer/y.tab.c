@@ -501,13 +501,13 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    32,    32,    33,    36,    37,    38,    39,    42,    45,
-      46,    47,    48,    51,    52,    53,    54,    55,    56,    57,
-      60,    61,    64,    65,    68,    69,    70,    71,    74,    75,
-      76,    77,    78,    81,    82,    85,    86,    89,    90,    91,
-      94,    95,    96,    97,   100,   101,   104,   105,   106,   107,
-     108,   109,   112,   113,   116,   117,   120,   121,   124,   125,
-     128,   129,   132,   133,   136,   139,   142
+       0,    33,    33,    34,    37,    38,    39,    40,    43,    46,
+      47,    48,    49,    52,    53,    54,    55,    56,    57,    58,
+      61,    62,    65,    66,    69,    70,    71,    72,    75,    76,
+      77,    78,    79,    82,    83,    86,    87,    90,    91,    92,
+      95,    96,    97,    98,   101,   102,   105,   106,   107,   108,
+     109,   110,   113,   114,   117,   118,   121,   122,   125,   126,
+     129,   130,   133,   134,   137,   140,   143
 };
 #endif
 
@@ -1373,97 +1373,115 @@ yyreduce:
   switch (yyn)
     {
         case 8:
-#line 42 "parser.y" /* yacc.c:1646  */
+#line 43 "parser.y" /* yacc.c:1646  */
     { instance->showDatabases(); }
 #line 1379 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 45 "parser.y" /* yacc.c:1646  */
+#line 46 "parser.y" /* yacc.c:1646  */
     { instance->createDatabase((yyvsp[0].m_string).c_str()); }
 #line 1385 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 46 "parser.y" /* yacc.c:1646  */
+#line 47 "parser.y" /* yacc.c:1646  */
     { instance->dropDatabase((yyvsp[0].m_string).c_str()); }
 #line 1391 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 47 "parser.y" /* yacc.c:1646  */
+#line 48 "parser.y" /* yacc.c:1646  */
     { instance->useDatabase((yyvsp[0].m_string).c_str()); }
 #line 1397 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 48 "parser.y" /* yacc.c:1646  */
+#line 49 "parser.y" /* yacc.c:1646  */
     { instance->showTables(); }
 #line 1403 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 52 "parser.y" /* yacc.c:1646  */
+#line 53 "parser.y" /* yacc.c:1646  */
     { instance->dropTable((yyvsp[0].m_string).c_str()); }
 #line 1409 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 24:
-#line 68 "parser.y" /* yacc.c:1646  */
-    { std::cout << (yyvsp[0].m_type).type << " " << (yyvsp[0].m_type).extra << std::endl; }
+  case 22:
+#line 65 "parser.y" /* yacc.c:1646  */
+    { instance->addPending((yyvsp[0].m_field).name, (yyvsp[0].m_field).type, (yyvsp[0].m_field).nullable, (yyvsp[0].m_field).extra); }
 #line 1415 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 28:
-#line 74 "parser.y" /* yacc.c:1646  */
-    { (yyval.m_type).type = DBType::INT; (yyval.m_type).extra = (yyvsp[-1].m_int); }
+  case 23:
+#line 66 "parser.y" /* yacc.c:1646  */
+    { instance->addPending((yyvsp[0].m_field).name, (yyvsp[0].m_field).type, (yyvsp[0].m_field).nullable, (yyvsp[0].m_field).extra); }
 #line 1421 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 29:
-#line 75 "parser.y" /* yacc.c:1646  */
-    { (yyval.m_type).type = DBType::INT; (yyval.m_type).extra = 0; }
+  case 24:
+#line 69 "parser.y" /* yacc.c:1646  */
+    { (yyval.m_field).type = (yyvsp[0].m_type).type; (yyval.m_field).extra = (yyvsp[0].m_type).extra; (yyval.m_field).nullable = true; (yyval.m_field).name = (yyvsp[-1].m_string); }
 #line 1427 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 30:
-#line 76 "parser.y" /* yacc.c:1646  */
-    { (yyval.m_type).type = DBType::VARCHAR; (yyval.m_type).extra = (yyvsp[-1].m_int); }
+  case 25:
+#line 70 "parser.y" /* yacc.c:1646  */
+    { (yyval.m_field).type = (yyvsp[-2].m_type).type; (yyval.m_field).extra = (yyvsp[-2].m_type).extra; (yyval.m_field).nullable = false; (yyval.m_field).name = (yyvsp[-3].m_string); }
 #line 1433 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 31:
-#line 77 "parser.y" /* yacc.c:1646  */
-    { (yyval.m_type).type = DBType::DATE; (yyval.m_type).extra = 0; }
+  case 28:
+#line 75 "parser.y" /* yacc.c:1646  */
+    { (yyval.m_type).type = DBType::INT; (yyval.m_type).extra = (yyvsp[-1].m_int); }
 #line 1439 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 32:
-#line 78 "parser.y" /* yacc.c:1646  */
-    { (yyval.m_type).type = DBType::FLOAT; (yyval.m_type).extra = 0; }
+  case 29:
+#line 76 "parser.y" /* yacc.c:1646  */
+    { (yyval.m_type).type = DBType::INT; (yyval.m_type).extra = 0; }
 #line 1445 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 64:
-#line 136 "parser.y" /* yacc.c:1646  */
-    { (yyval.m_string) = (yyvsp[0].m_string); }
+  case 30:
+#line 77 "parser.y" /* yacc.c:1646  */
+    { (yyval.m_type).type = DBType::VARCHAR; (yyval.m_type).extra = (yyvsp[-1].m_int); }
 #line 1451 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 65:
-#line 139 "parser.y" /* yacc.c:1646  */
-    { (yyval.m_string) = (yyvsp[0].m_string); }
+  case 31:
+#line 78 "parser.y" /* yacc.c:1646  */
+    { (yyval.m_type).type = DBType::DATE; (yyval.m_type).extra = 0; }
 #line 1457 "y.tab.c" /* yacc.c:1646  */
     break;
 
-  case 66:
-#line 142 "parser.y" /* yacc.c:1646  */
-    { (yyval.m_string) = (yyvsp[0].m_string); }
+  case 32:
+#line 79 "parser.y" /* yacc.c:1646  */
+    { (yyval.m_type).type = DBType::FLOAT; (yyval.m_type).extra = 0; }
 #line 1463 "y.tab.c" /* yacc.c:1646  */
     break;
 
+  case 64:
+#line 137 "parser.y" /* yacc.c:1646  */
+    { (yyval.m_string) = (yyvsp[0].m_string); }
+#line 1469 "y.tab.c" /* yacc.c:1646  */
+    break;
 
-#line 1467 "y.tab.c" /* yacc.c:1646  */
+  case 65:
+#line 140 "parser.y" /* yacc.c:1646  */
+    { (yyval.m_string) = (yyvsp[0].m_string); }
+#line 1475 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 66:
+#line 143 "parser.y" /* yacc.c:1646  */
+    { (yyval.m_string) = (yyvsp[0].m_string); }
+#line 1481 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+
+#line 1485 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1691,7 +1709,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 145 "parser.y" /* yacc.c:1906  */
+#line 146 "parser.y" /* yacc.c:1906  */
 
 
 void yyerror(const char *s)

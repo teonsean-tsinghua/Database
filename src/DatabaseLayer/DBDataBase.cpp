@@ -10,6 +10,10 @@ DBDataBase::DBDataBase(const char* root):
         DBPrint::printLine("Cannot open root directory.");
         exit(0);
     }
+    pNames.clear();
+    pTypes.clear();
+    pNullables.clear();
+    pExtras.clear();
 }
 
 void DBDataBase::createDatabase(const char* name_)
@@ -25,6 +29,15 @@ void DBDataBase::createDatabase(const char* name_)
     }
     mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     DBPrint::log("Created directory ").logLine(path);
+}
+
+void DBDataBase::addPending(std::string name, int type, bool nullable, int extra)
+{
+    pNames.push_back(name);
+    pTypes.push_back(type);
+    pNullables.push_back(nullable);
+    pExtras.push_back(extra);
+    printf("This in adding %d.\n", this);
 }
 
 void DBDataBase::delete_path(const char* path)
@@ -237,8 +250,15 @@ void DBDataBase::_test()
     printf("-----begin parsing %s\n", sFile);
     yyparse();
     puts("-----end parsing");
+    printf("This in _test %d.\n", this);
 
     fclose(fp);
+    for(int i = 0; i < pNames.size(); i++)
+    {
+        std::cout << pNames[i] << ": " << DBType::typeName(pTypes[i])
+                  << ", " << (pNullables[i] ? "nullable" : "not nullable")
+                  << ", extra is " << pExtras[i] << std::endl;
+    }
 }
 
 void DBDataBase::test()

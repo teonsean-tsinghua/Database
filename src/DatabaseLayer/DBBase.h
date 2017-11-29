@@ -4,14 +4,14 @@
 #include <iostream>
 #include <string>
 #include <stdio.h>
+#include <vector>
 
-using namespace std;
 struct Field
 {
     int type;
     int extra;
     bool nullable;
-    string name;
+    std::string name;
 };
 struct FieldType
 {
@@ -20,7 +20,7 @@ struct FieldType
 };
 struct Type
 {
-	string m_string;
+	std::string m_string;
 	int m_int;
 	struct Field m_field;
 	struct FieldType m_type;
