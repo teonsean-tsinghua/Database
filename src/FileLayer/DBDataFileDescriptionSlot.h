@@ -13,7 +13,7 @@ protected:
     DBRecordInfo* ri;
 
 public:
-    DBDataFileDescriptionSlot(BufType cache, int mode);
+    DBDataFileDescriptionSlot(BufType cache, int mode, DBRecordInfo* ri);
 
     void write();
 

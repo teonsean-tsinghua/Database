@@ -7,7 +7,7 @@ DBDataFile::DBDataFile(std::string path):
     lastUsagePage = -1;
     lastDataPage = -1;
     open = false;
-    ri = DBRecordInfo::getInstance();
+    ri = new DBRecordInfo();
 }
 
 void DBDataFile::printAllRecords()
@@ -124,7 +124,7 @@ int DBDataFile::allocateNewDataPage()
     cnt = dfdp->getPageNumber();
     int index;
     BufType cache = fm->getPage(fileID, cnt, index);
-    DBDataPage* dp = new DBDataPage(cache, index, cnt, MODE_CREATE);
+    DBDataPage* dp = new DBDataPage(cache, index, cnt, MODE_CREATE, ri);
     pages[cnt] = dp;
     DBPrint::log("Allocated new data page ").logLine(cnt);
     dfdp->incrementPageNumber(DBType::DATA_PAGE);
@@ -163,7 +163,7 @@ DBDataPage* DBDataFile::openDataPage(int pid)
     {
         return NULL;
     }
-    DBDataPage* re = new DBDataPage(cache, index, pid, MODE_PARSE);
+    DBDataPage* re = new DBDataPage(cache, index, pid, MODE_PARSE, ri);
     pages[pid] = re;
     return re;
 }
@@ -215,7 +215,7 @@ int DBDataFile::createFile()
     open = true;
     ri->init();
     BufType cache = fm->getPage(fileID, 0, index);
-    dfdp = new DBDataFileDescriptionPage(cache, index, 0, MODE_CREATE);
+    dfdp = new DBDataFileDescriptionPage(cache, index, 0, MODE_CREATE, ri);
     ri->addField("_id", DBType::_ID, false, 0);
     dfdp->writeFields();
     fm->flush(dfdp->getIndex());
@@ -614,7 +614,7 @@ int DBDataFile::openFile()
     open = true;
     ri->init();
     BufType cache = fm->getPage(fileID, 0, index);
-    dfdp = new DBDataFileDescriptionPage(cache, index, 0, MODE_PARSE);
+    dfdp = new DBDataFileDescriptionPage(cache, index, 0, MODE_PARSE, ri);
     return SUCCEED;
 }
 
@@ -643,8 +643,8 @@ void DBDataFile::_test()
     names.push_back("test2");
     names.push_back("test3");
     types.push_back(1);
-    types.push_back(2);
-    types.push_back(4);
+    types.push_back(1);
+    types.push_back(1);
     nullables.push_back(false);
     nullables.push_back(false);
     nullables.push_back(false);

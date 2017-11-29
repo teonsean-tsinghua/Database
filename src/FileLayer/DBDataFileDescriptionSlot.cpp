@@ -1,9 +1,8 @@
 #include"DBDataFileDescriptionSlot.h"
 
-DBDataFileDescriptionSlot::DBDataFileDescriptionSlot(BufType cache, int mode):
-    DBSlot(cache)
+DBDataFileDescriptionSlot::DBDataFileDescriptionSlot(BufType cache, int mode, DBRecordInfo* ri):
+    DBSlot(cache), ri(ri)
 {
-    ri = DBRecordInfo::getInstance();
     if(mode == MODE_PARSE)
     {
         char* cache = (char*)(*this)[RECORD_INFO_OFFSET];

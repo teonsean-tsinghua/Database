@@ -1,10 +1,9 @@
 #include"DBDataFileDescriptionPage.h"
 
-DBDataFileDescriptionPage::DBDataFileDescriptionPage(BufType cache, int index, int pageID, int mode):
+DBDataFileDescriptionPage::DBDataFileDescriptionPage(BufType cache, int index, int pageID, int mode, DBRecordInfo* ri):
     DBPage(cache, index, pageID, DBType::DATA_FILE_DESCRIPTION_PAGE, mode)
 {
-    dfds = new DBDataFileDescriptionSlot((*this)[PAGE_INFO_SLOT_OFFSET + pis->size()], mode);
-    ri = DBRecordInfo::getInstance();
+    dfds = new DBDataFileDescriptionSlot((*this)[PAGE_INFO_SLOT_OFFSET + pis->size()], mode, ri);
     if(mode == MODE_CREATE)
     {
         pis->setPageType(DBType::DATA_FILE_DESCRIPTION_PAGE);

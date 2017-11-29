@@ -13,17 +13,27 @@ struct Field
     bool nullable;
     std::string name;
 };
+
 struct FieldType
 {
     int type;
     int extra;
 };
+
+struct Value
+{
+    bool isNull;
+    std::string v_str;
+    int v_int;
+};
+
 struct Type
 {
 	std::string m_string;
 	int m_int;
 	struct Field m_field;
 	struct FieldType m_type;
+	struct Value m_value;
 };
 
 #define YYSTYPE Type

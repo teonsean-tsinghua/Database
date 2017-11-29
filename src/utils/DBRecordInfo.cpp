@@ -2,20 +2,26 @@
 #include"../DBInclude.h"
 #include"../FileLayer/DBDataFileDescriptionPage.h"
 
-DBRecordInfo* DBRecordInfo::instance;
-
 DBRecordInfo::DBRecordInfo()
 {
-
+    indexes.clear();
+    names.clear();
+    types.clear();
+    offsets.clear();
+    nullables.clear();
+    extras.clear();
+    recordLength = recordInfoLength = 0;
 }
 
-DBRecordInfo* DBRecordInfo::getInstance()
+void DBRecordInfo::init()
 {
-    if(instance == NULL)
-    {
-        instance = new DBRecordInfo();
-    }
-    return instance;
+    indexes.clear();
+    names.clear();
+    types.clear();
+    offsets.clear();
+    nullables.clear();
+    extras.clear();
+    recordLength = recordInfoLength = 0;
 }
 
 int DBRecordInfo::index(std::string name)
@@ -88,20 +94,6 @@ int DBRecordInfo::length(std::string name)
         return extra(name);
     }
     return DBType::typeSize(type(name));
-}
-
-void DBRecordInfo::init()
-{
-    if(indexes.size() > 0)
-    {
-        indexes.clear();
-    }
-    names.clear();
-    types.clear();
-    offsets.clear();
-    nullables.clear();
-    extras.clear();
-    recordLength = recordInfoLength = 0;
 }
 
 int DBRecordInfo::addField(std::string name, int type, bool nullable, int extra)

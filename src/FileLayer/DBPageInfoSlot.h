@@ -6,7 +6,6 @@
 class DBPageInfoSlot: public DBSlot
 {
 public:
-
     DBPageInfoSlot(BufType cache);
 
     static int size();

@@ -1,9 +1,8 @@
 #include"DBDataPage.h"
 
-DBDataPage::DBDataPage(BufType cache, int index, int pageID, int mode):
-    DBPage(cache, index, pageID, DBType::DATA_PAGE, mode)
+DBDataPage::DBDataPage(BufType cache, int index, int pageID, int mode, DBRecordInfo* ri):
+    DBPage(cache, index, pageID, DBType::DATA_PAGE, mode), ri(ri)
 {
-    ri = DBRecordInfo::getInstance();
     if(mode == MODE_CREATE)
     {
         pis->setPageType(DBType::DATA_PAGE);
@@ -17,7 +16,7 @@ DBDataPage::DBDataPage(BufType cache, int index, int pageID, int mode):
         int cur = pis->size(), end = pis->getFirstAvailableByte();
         while(cur < end)
         {
-            records.push_back(new DBRecordSlot((*this)[cur]));
+            records.push_back(new DBRecordSlot((*this)[cur], ri));
             cur += ri->getRecordLength();
         }
     }
@@ -80,7 +79,7 @@ int DBDataPage::remove(std::map<int, void*>& data)
     records.clear();
     while(cur < end)
     {
-        records.push_back(new DBRecordSlot((*this)[cur]));
+        records.push_back(new DBRecordSlot((*this)[cur], ri));
         cur += ri->getRecordLength();
     }
     return SUCCEED;
@@ -133,7 +132,7 @@ void DBDataPage::printAllRecords()
 int DBDataPage::insert(std::vector<void*>& data)
 {
     int cur = pis->getFirstAvailableByte();
-    DBRecordSlot* slot = new DBRecordSlot((*this)[cur]);
+    DBRecordSlot* slot = new DBRecordSlot((*this)[cur], ri);
     int re = slot->write(data);
     if(re != SUCCEED)
     {

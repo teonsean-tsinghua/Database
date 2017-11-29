@@ -12,7 +12,7 @@ protected:
     DBRecordInfo* ri;
 
 public:
-    DBDataPage(BufType cache, int index, int pageID, int mode);
+    DBDataPage(BufType cache, int index, int pageID, int mode, DBRecordInfo* ri);
 
     int insert(std::vector<void*>& data);
 

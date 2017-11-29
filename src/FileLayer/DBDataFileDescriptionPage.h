@@ -11,7 +11,7 @@ protected:
     DBRecordInfo* ri;
 
 public:
-    DBDataFileDescriptionPage(BufType cache, int index, int pageID, int mode);
+    DBDataFileDescriptionPage(BufType cache, int index, int pageID, int mode, DBRecordInfo* ri);
 
     void incrementPageNumber(int type);
 

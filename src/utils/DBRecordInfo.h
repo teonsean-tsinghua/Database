@@ -8,10 +8,6 @@
 class DBRecordInfo
 {
 private:
-    static DBRecordInfo* instance;
-
-    DBRecordInfo();
-
     std::map<std::string, int> indexes;
     std::vector<std::string> names;
     std::vector<bool> nullables;
@@ -22,6 +18,10 @@ private:
     int recordInfoLength;
 
 public:
+    DBRecordInfo();
+
+    void init();
+
     int index(std::string name);
 
     std::string name(int index);
@@ -53,10 +53,6 @@ public:
     void setRecordInfoLength(int n);
 
     int getFieldCount();
-
-    static DBRecordInfo* getInstance();
-
-    void init();
 
     int addField(std::string name, int type, bool nullable, int extra);
 

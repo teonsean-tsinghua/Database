@@ -9,7 +9,7 @@ protected:
     DBRecordInfo* ri;
 
 public:
-    DBRecordSlot(BufType cache);
+    DBRecordSlot(BufType cache, DBRecordInfo* ri);
 
     int write(std::vector<void*>& data);
 

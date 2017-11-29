@@ -1,9 +1,9 @@
 #include"DBRecordSlot.h"
 
-DBRecordSlot::DBRecordSlot(BufType cache):
-    DBSlot(cache)
+DBRecordSlot::DBRecordSlot(BufType cache, DBRecordInfo* ri):
+    DBSlot(cache), ri(ri)
 {
-    ri = DBRecordInfo::getInstance();
+
 }
 
 int DBRecordSlot::write(std::vector<void*>& data)

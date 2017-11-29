@@ -25,6 +25,7 @@ extern "C"
 %type<m_string> dbName tbName colName
 %type<m_type> type
 %type<m_field> field
+%type<m_value> value
 
 %nonassoc ';'
 %left AND
@@ -83,13 +84,13 @@ valueLists : '(' valueList ')'
 	| valueLists ',' '(' valueList ')'
 	;
 
-valueList : value
-	| valueList ',' value
+valueList : value { std::cout << $1.v_int << " "; }
+	| valueList ',' value { std::cout << $3.v_int << " "; }
 	;
 
-value	: VALUE_INT
-	| VALUE_STRING
-	| NULL_
+value	: VALUE_INT { $$.isNull = false; $$.v_int = $1; }
+	| VALUE_STRING { $$.isNull = false; $$.v_str = $1; }
+	| NULL_ { $$.isNull = true; }
 	;
 
 whereClause : col op expr
