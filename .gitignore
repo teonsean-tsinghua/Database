@@ -8,6 +8,7 @@ application
 .DS_Store
 */.DS_Store
 *.db
+*.dat
 *.idx
 test.out
 dbms
