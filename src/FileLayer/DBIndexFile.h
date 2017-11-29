@@ -11,15 +11,14 @@ private:
     int fileID;
     int keyLength;
     int keyType;
-    const char* root;
     DBFileIOModel* fm;
     DBIndexFileDescriptionPage* ifdp;
     std::map<int, DBIndexNodePage*> pages;
     int rootNode;
     int minDgr;
     int maxDgr;
-    const char* name;
     bool open;
+    const char* path;
 
     int split(DBIndexNodePage* cur);
 
@@ -28,7 +27,7 @@ private:
     void _test();
 
 public:
-	DBIndexFile(const char* root);
+	DBIndexFile(const char* path);
 
 	int allocateNewLeafNode();
 
@@ -36,11 +35,11 @@ public:
 
 	DBIndexNodePage* openNode(int pid);
 
-	int createFile(const char* name, int keyType, int keyLength);
+	int createFile(int keyType, int keyLength);
 
-	int openFile(const char* name);
+	int openFile();
 
-	int deleteFile(const char* name);
+	int deleteFile();
 
 	int closeFile();
 

@@ -49,7 +49,7 @@ dbStmt	: CREATE DATABASE dbName { instance->createDatabase($3.c_str()); }
 	| SHOW TABLES { instance->showTables(); }
 	;
 
-tbStmt	: CREATE TABLE tbName '(' fieldList ')'
+tbStmt	: CREATE TABLE tbName '(' fieldList ')' { instance->createTable($3.c_str()); }
 	| DROP TABLE tbName { instance->dropTable($3.c_str()); }
 	| DESC tbName
 	| INSERT INTO tbName VALUES valueLists

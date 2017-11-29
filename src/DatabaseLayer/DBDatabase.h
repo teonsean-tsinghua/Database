@@ -10,8 +10,8 @@ class DBDataBase
 {
 private:
     static DBDataBase* instance;
-    DBDataFile* data;
-    std::map<std::string, DBIndexFile*> indexes;
+    std::map<std::string, DBDataFile*> data;
+    std::map<std::string, std::map<std::string, DBIndexFile*> > indexes;
 
     std::vector<std::string> pNames;
     std::vector<int> pTypes;
@@ -38,11 +38,13 @@ public:
 
     void showDatabases();
 
+    void createTable(const char* name);
+
+    void dropTable(const char* name);
+
     void showTables();
 
     void addPending(std::string name, int type, bool nullable, int extra);
-
-    void dropTable(const char* name);
 
     static void test();
 };

@@ -181,10 +181,44 @@ void DBDataBase::dropDatabase(const char* name_)
     DBPrint::log("Removed directory ").logLine(path);
 }
 
+void DBDataBase::createTable(const char* name_)
+{
+    if(name == NULL)
+    {
+        DBPrint::printLine("No database being used.");
+        return;
+    }
+    char* path = new char[256];
+    strcpy(path, root);
+    strcat(path, "/");
+    strcat(path, name);
+    strcat(path, "/");
+    if(access(path, F_OK) != 0)
+    {
+        DBPrint::printLine("Current database is not available.");
+        return;
+    }
+    strcat(path, name_);
+    strcat(path, ".dat");
+    if(access(path, F_OK) == 0)
+    {
+        DBPrint::printLine("Table already exists.");
+        return;
+    }
+    DBDataFile* df = new DBDataFile(path);
+    data[std::string(name_)] = df;
+    df->createFile();
+    df->openFile();
+    df->addFields(pNames, pTypes, pNullables, pExtras);
+    df->closeFile();
+    DBPrint::log("Created file ").logLine(path);
+}
+
 void DBDataBase::dropTable(const char* name_)
 {
     if(name == NULL)
     {
+        DBPrint::printLine("No database being used.");
         return;
     }
     DIR *pDir = NULL;

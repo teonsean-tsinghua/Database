@@ -1,7 +1,7 @@
 #include "DBIndexFile.h"
 
-DBIndexFile::DBIndexFile(const char* root):
-    root(root)
+DBIndexFile::DBIndexFile(const char* path):
+    path(path)
 {
 	fm = DBFileIOModel::getInstance();
     fileID = -1;
@@ -249,19 +249,19 @@ int DBIndexFile::update(void* key, int pid)
     return curNode->update(key, pid);
 }
 
-int DBIndexFile::createFile(const char* name, int keyType, int keyLength)
+int DBIndexFile::createFile(int keyType, int keyLength)
 {
     if(open)
     {
         DBPrint::logLine("ERROR");
         return A_FILE_ALREADY_OPENED;
     }
-    if(fm->createFile(name) != SUCCEED)
+    if(fm->createFile(path) != SUCCEED)
     {
         DBPrint::logLine("ERROR");
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
     }
-    if(fm->openFile(name, fileID) != SUCCEED)
+    if(fm->openFile(path, fileID) != SUCCEED)
     {
         DBPrint::logLine("ERROR");
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
@@ -280,14 +280,14 @@ int DBIndexFile::createFile(const char* name, int keyType, int keyLength)
     return SUCCEED;
 }
 
-int DBIndexFile::deleteFile(const char* name)
+int DBIndexFile::deleteFile()
 {
     if(open)
     {
         DBPrint::logLine("ERROR");
         return A_FILE_ALREADY_OPENED;
     }
-    if(fm->deleteFile(name) != SUCCEED)
+    if(fm->deleteFile(path) != SUCCEED)
     {
         DBPrint::logLine("ERROR");
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
@@ -316,20 +316,19 @@ int DBIndexFile::closeFile()
     return SUCCEED;
 }
 
-int DBIndexFile::openFile(const char* name)
+int DBIndexFile::openFile()
 {
     if(open)
     {
         DBPrint::logLine("ERROR");
         return A_FILE_ALREADY_OPENED;
     }
-    if(fm->openFile(name, fileID) != SUCCEED){
+    if(fm->openFile(path, fileID) != SUCCEED){
         DBPrint::logLine("ERROR");
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
     }
     int index;
     open = true;
-    this->name = name;
     BufType cache = fm->getPage(fileID, 0, index);
     ifdp = new DBIndexFileDescriptionPage(cache, index, 0, MODE_PARSE);
     keyType = ifdp->getKeyType();
@@ -341,8 +340,8 @@ int DBIndexFile::openFile(const char* name)
 
 void DBIndexFile::_test()
 {
-    createFile("test.idx", DBType::INT, DBType::typeSize(DBType::INT));
-    openFile("test.idx");
+    createFile(DBType::INT, DBType::typeSize(DBType::INT));
+    openFile();
 //    for(int i = 0; i < 1000000; i++)
 //    {
 //        insert(&i, i);
@@ -376,6 +375,6 @@ void DBIndexFile::_test()
 
 void DBIndexFile::test()
 {
-    DBIndexFile id("");
+    DBIndexFile id("test.idx");
     id._test();
 }

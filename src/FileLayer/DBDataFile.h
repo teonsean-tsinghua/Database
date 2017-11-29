@@ -10,14 +10,13 @@ class DBDataFile
 {
 private:
     int fileID;
-    const char* root;
+    const char* path;
     DBFileIOModel* fm;
     DBDataFileDescriptionPage* dfdp;
     std::map<int, DBPage*> pages;
     DBRecordInfo* ri;
     int lastUsagePage;
     int lastDataPage;
-    const char* name;
     bool open;
 
     int findFirstAvailableDataPage();
@@ -45,15 +44,15 @@ private:
     void _test();
 
 public:
-    DBDataFile(const char* root);
+    DBDataFile(const char* path);
 
-    int createFile(const char* name);
+    int createFile();
 
-    int openFile(const char* name);
+    int openFile();
 
     int closeFile();
 
-    int deleteFile(const char* name);
+    int deleteFile();
 
     int addFields(std::vector<std::string>& name, std::vector<int>& type,
                   std::vector<bool>& nullable, std::vector<int>& extra);

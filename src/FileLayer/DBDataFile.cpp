@@ -1,7 +1,7 @@
 #include"DBDataFile.h"
 
-DBDataFile::DBDataFile(const char* root):
-    root(root)
+DBDataFile::DBDataFile(const char* path):
+    path(path)
 {
     fm = DBFileIOModel::getInstance();
     lastUsagePage = -1;
@@ -194,19 +194,19 @@ DBUsagePage* DBDataFile::openUsagePage(int pid)
     return re;
 }
 
-int DBDataFile::createFile(const char* name)
+int DBDataFile::createFile()
 {
     if(open)
     {
         DBPrint::logLine("ERROR");
         return A_FILE_ALREADY_OPENED;
     }
-    if(fm->createFile(name) != SUCCEED)
+    if(fm->createFile(path) != SUCCEED)
     {
         DBPrint::logLine("ERROR");
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
     }
-    if(fm->openFile(name, fileID) != SUCCEED)
+    if(fm->openFile(path, fileID) != SUCCEED)
     {
         DBPrint::logLine("ERROR");
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
@@ -224,14 +224,14 @@ int DBDataFile::createFile(const char* name)
     return SUCCEED;
 }
 
-int DBDataFile::deleteFile(const char* name)
+int DBDataFile::deleteFile()
 {
     if(open)
     {
         DBPrint::logLine("ERROR");
         return A_FILE_ALREADY_OPENED;
     }
-    if(fm->deleteFile(name) != SUCCEED)
+    if(fm->deleteFile(path) != SUCCEED)
     {
         DBPrint::logLine("ERROR");
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
@@ -303,6 +303,7 @@ int DBDataFile::addFields(std::vector<std::string>& name, std::vector<int>& type
         }
     }
     dfdp->writeFields();
+    printFileDescription();
     return SUCCEED;
 }
 
@@ -588,14 +589,14 @@ int DBDataFile::setPrimaryKey(const char* name)
     return re;
 }
 
-int DBDataFile::openFile(const char* name)
+int DBDataFile::openFile()
 {
     if(open)
     {
         DBPrint::logLine("ERROR");
         return A_FILE_ALREADY_OPENED;
     }
-    if(fm->openFile(name, fileID) != SUCCEED)
+    if(fm->openFile(path, fileID) != SUCCEED)
     {
         DBPrint::logLine("ERROR");
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
@@ -610,8 +611,8 @@ int DBDataFile::openFile(const char* name)
 
 void DBDataFile::_test()
 {
-    createFile("test.db");
-    openFile("test.db");
+    createFile();
+    openFile();
 //    setPrimaryKey("_id");
 //    setPrimaryKey("test1");
     int data = 1;
@@ -654,7 +655,7 @@ void DBDataFile::_test()
 //    f3["test2"] = &data4;
 //    printAllRecords();
     closeFile();
-    openFile("test.db");
+    openFile();
     printFileDescription();
     printAllRecords();
 //    set<map<string, void*>*> re;
@@ -665,6 +666,6 @@ void DBDataFile::_test()
 
 void DBDataFile::test()
 {
-    DBDataFile df("");
+    DBDataFile df("test.dat");
     df._test();
 }
