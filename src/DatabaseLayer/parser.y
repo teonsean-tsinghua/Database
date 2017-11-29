@@ -14,8 +14,8 @@ extern "C"
 %token	DATABASE	DATABASES	TABLE	TABLES	SHOW	CREATE
 %token	DROP	USE	PRIMARY	KEY	NOT	NULL_
 %token  INSERT	INTO	VALUES	DELETE	FROM	WHERE
-%token  UPDATE	SET	SELECT	IS	INT_	VARCHAR
-%token  DESC	INDEX 	AND	DATE	FLOAT	FOREIGN	REFERENCES
+%token  UPDATE	SET	SELECT	IS	INT_	VARCHAR_
+%token  DESC	INDEX 	AND	DATE_	FLOAT_	FOREIGN	REFERENCES
 %token  <m_sId>IDENTIFIER
 %token  <m_sId>VALUE_STRING
 %token	<m_nInt>VALUE_INT
@@ -71,9 +71,9 @@ field	: colName type
 	;
 
 type	: INT_ '(' VALUE_INT ')'
-	| VARCHAR '(' VALUE_INT ')'
-	| DATE
-	| FLOAT
+	| VARCHAR_ '(' VALUE_INT ')'
+	| DATE_
+	| FLOAT_
 	;
 
 valueLists : '(' valueList ')'

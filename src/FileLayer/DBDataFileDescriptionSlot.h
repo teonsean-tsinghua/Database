@@ -16,16 +16,12 @@ protected:
     BufType primaryKeyIndex;   // int
     BufType recordInfoLength;  // int
     BufType recordInfo;
-    int recordLength;
-    int currentRecordInfoLength;
     DBRecordInfo* ri;
 
 public:
-    DBDataFileDescriptionSlot(BufType cache, int mode, DBRecordInfo* ri);
+    DBDataFileDescriptionSlot(BufType cache, int mode);
 
     void write();
-
-    int addField(std::string name, int type, bool nullable, char* boundary);
 
     int getFirstDataPage();
 
@@ -47,11 +43,11 @@ public:
 
     void setPrimaryKeyIndex(int n);
 
-    int getRecordLength();
-
     void print();
 
     int size();
+
+    static int minSize();
 
     const static int FIRST_DATA_PAGE_OFFSET = 0;
     const static int FIRST_USAGE_PAGE_OFFSET = FIRST_DATA_PAGE_OFFSET + sizeof(int);
@@ -62,7 +58,8 @@ public:
 
     const static int RECORD_INFO_TYPE_OFFSET = 0;
     const static int RECORD_INFO_NULLABLE_OFFSET = RECORD_INFO_TYPE_OFFSET + sizeof(int);
-    const static int RECORD_INFO_NAME_LENGTH_OFFSET = RECORD_INFO_NULLABLE_OFFSET + sizeof(int);
+    const static int RECORD_INFO_EXTRA_OFFSET = RECORD_INFO_NULLABLE_OFFSET + sizeof(int);
+    const static int RECORD_INFO_NAME_LENGTH_OFFSET = RECORD_INFO_EXTRA_OFFSET + sizeof(int);
     const static int RECORD_INFO_NAME_OFFSET = RECORD_INFO_NAME_LENGTH_OFFSET + sizeof(int);
 };
 

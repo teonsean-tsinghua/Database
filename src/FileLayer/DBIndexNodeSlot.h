@@ -10,12 +10,9 @@ private:
 	int keyLength;
 	int keyType;
 	int maxSize;
-	BufType parentNode;
-	BufType childrenCount;
-	BufType data;
 
 public:
-    DBIndexNodeSlot(BufType cache, int keyType);
+    DBIndexNodeSlot(BufType cache, int keyType, int keyLength);
 
     int size();
 

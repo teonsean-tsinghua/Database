@@ -42,6 +42,8 @@ private:
                             std::vector<void*>& processed,
                             std::map<std::string, int>& errors);
 
+    void _test();
+
 public:
     DBDataFile(const char* root);
 
@@ -53,7 +55,8 @@ public:
 
     int deleteFile(const char* name);
 
-    int addField(const char* name, int type, bool nullable);
+    int addFields(std::vector<std::string>& name, std::vector<int>& type,
+                  std::vector<bool>& nullable, std::vector<int>& extra);
 
     //If a nullable field is set to null, then don't include it in fields.
     int insertRecord(std::map<std::string, void*>& fields);
@@ -70,7 +73,7 @@ public:
 
     void printAllRecords();
 
-    void test();
+    static void test();
 };
 
 #endif // DBDATAFILE_H_INCLUDED

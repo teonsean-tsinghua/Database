@@ -13,7 +13,7 @@ protected:
 public:
     DBSlot(BufType cache);
 
-    virtual int size();
+    int size();
 
     virtual void print();
 

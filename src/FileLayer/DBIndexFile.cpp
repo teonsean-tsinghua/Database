@@ -21,7 +21,7 @@ int DBIndexFile::allocateNewLeafNode()
     }
     int index;
     BufType cache = fm->getPage(fileID, cnt, index);
-    DBIndexLeafPage* ifp = new DBIndexLeafPage(cache, index, cnt, MODE_CREATE, keyType);
+    DBIndexLeafPage* ifp = new DBIndexLeafPage(cache, index, cnt, MODE_CREATE, keyType, keyLength);
     pages[cnt] = ifp;
     DBPrint::log("Allocated new leaf page ").logLine(cnt);
     ifdp->incrementPageNumber();
@@ -41,7 +41,7 @@ int DBIndexFile::allocateNewInternalNode()
     }
     int index;
     BufType cache = fm->getPage(fileID, cnt, index);
-    DBIndexInternalPage* ifp = new DBIndexInternalPage(cache, index, cnt, MODE_CREATE, keyType);
+    DBIndexInternalPage* ifp = new DBIndexInternalPage(cache, index, cnt, MODE_CREATE, keyType, keyLength);
     pages[cnt] = ifp;
     DBPrint::log("Allocated new internal page ").logLine(cnt);
     ifdp->incrementPageNumber();
@@ -78,13 +78,13 @@ DBIndexNodePage* DBIndexFile::openNode(int pid)
 	int pageType = DBPageInfoSlot::getPageType(cache);
     if(pageType == DBType::INDEX_INTERNAL_PAGE)
     {
-        DBIndexInternalPage* re = new DBIndexInternalPage(cache, index, pid, MODE_PARSE, keyType);
+        DBIndexInternalPage* re = new DBIndexInternalPage(cache, index, pid, MODE_PARSE, keyType, keyLength);
         pages[pid] = re;
         return re;
     }
     else if(pageType == DBType::INDEX_LEAF_PAGE)
     {
-        DBIndexLeafPage* re = new DBIndexLeafPage(cache, index, pid, MODE_PARSE, keyType);
+        DBIndexLeafPage* re = new DBIndexLeafPage(cache, index, pid, MODE_PARSE, keyType, keyLength);
         pages[pid] = re;
         return re;
     }
@@ -179,7 +179,7 @@ int DBIndexFile::insert(void* key, int pid)
         {
             break;
         }
-        if(larger(key, curNode->getMaxKey(), keyType))
+        if(larger(key, curNode->getMaxKey(), keyType, keyLength))
         {
             while(curNode != NULL && !curNode->isLeaf())
             {
@@ -249,7 +249,7 @@ int DBIndexFile::update(void* key, int pid)
     return curNode->update(key, pid);
 }
 
-int DBIndexFile::createFile(const char* name, int keyType)
+int DBIndexFile::createFile(const char* name, int keyType, int keyLength)
 {
     if(open)
     {
@@ -267,11 +267,11 @@ int DBIndexFile::createFile(const char* name, int keyType)
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
     }
     this->keyType = keyType;
+    this->keyLength = keyLength;
     open = true;
-    keyLength = DBType::typeSize(keyType);
     int index;
     BufType cache = fm->getPage(fileID, 0, index);
-    ifdp = new DBIndexFileDescriptionPage(cache, index, 0, MODE_CREATE, keyType);
+    ifdp = new DBIndexFileDescriptionPage(cache, index, 0, MODE_CREATE, keyType, keyLength);
     int root = allocateNewLeafNode();
     ifdp->setRootPage(root);
     fm->flush(ifdp->getIndex());
@@ -334,14 +334,14 @@ int DBIndexFile::openFile(const char* name)
     ifdp = new DBIndexFileDescriptionPage(cache, index, 0, MODE_PARSE);
     keyType = ifdp->getKeyType();
     rootNode = ifdp->getRootPage();
-    keyLength = DBType::typeSize(keyType);
+    keyLength = ifdp->getKeyLength();
     openNode(rootNode)->calcDegree(minDgr, maxDgr);
     return SUCCEED;
 }
 
-void DBIndexFile::test()
+void DBIndexFile::_test()
 {
-//    createFile("test.idx", DBType::INT);
+    createFile("test.idx", DBType::INT, DBType::typeSize(DBType::INT));
     openFile("test.idx");
 //    for(int i = 0; i < 1000000; i++)
 //    {
@@ -355,21 +355,27 @@ void DBIndexFile::test()
 //    {
 //        DBPrintLine(search(&i));
 //    }
-    int k = 827046620;
-    remove(&k);
+//    int k = 827046620;
+//    remove(&k);
+    std::map<int, int> m;
+    for(int i = 0; i < 5000; i++)
+    {
+        int k = rand();
+        if(!m.count(k))
+        {
+            int p = rand();
+            insert(&k, p);
+        }
+    }
     for(int i = 1; i < ifdp->getPageNumber(); i++)
     {
         openNode(i)->print();
     }
-//    std::map<int, int> m;
-//    for(int i = 0; i < 5000; i++)
-//    {
-//        int k = rand();
-//        if(!m.count(k))
-//        {
-//            int p = rand();
-//            insert(&k, p);
-//        }
-//    }
     closeFile();
+}
+
+void DBIndexFile::test()
+{
+    DBIndexFile id("");
+    id._test();
 }

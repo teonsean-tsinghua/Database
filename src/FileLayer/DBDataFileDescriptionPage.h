@@ -11,23 +11,23 @@ protected:
     DBRecordInfo* ri;
 
 public:
-    DBDataFileDescriptionPage(BufType cache, int index, int pageID, int mode, DBRecordInfo* ri);
+    DBDataFileDescriptionPage(BufType cache, int index, int pageID, int mode);
 
     void incrementPageNumber(int type);
 
     int getPageNumber();
 
-    int getRecordLength();
-
     int getFirstDataPage();
 
     int getFirstUsagePage();
 
-    int addField(std::string name, int type, bool nullable);
+    void writeFields();
 
     int setPrimaryKey(std::string name);
 
     void print();
+
+    static int maxRecordInfoLength();
 };
 
 #endif // DBDATAFILEDESCRIPTIONPAGE_H_INCLUDED

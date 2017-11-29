@@ -7,6 +7,7 @@ DBDataFile::DBDataFile(const char* root):
     lastUsagePage = -1;
     lastDataPage = -1;
     open = false;
+    ri = DBRecordInfo::getInstance();
 }
 
 void DBDataFile::printAllRecords()
@@ -123,7 +124,7 @@ int DBDataFile::allocateNewDataPage()
     cnt = dfdp->getPageNumber();
     int index;
     BufType cache = fm->getPage(fileID, cnt, index);
-    DBDataPage* dp = new DBDataPage(cache, index, cnt, dfdp->getRecordLength(), MODE_CREATE, ri);
+    DBDataPage* dp = new DBDataPage(cache, index, cnt, MODE_CREATE);
     pages[cnt] = dp;
     DBPrint::log("Allocated new data page ").logLine(cnt);
     dfdp->incrementPageNumber(DBType::DATA_PAGE);
@@ -162,7 +163,7 @@ DBDataPage* DBDataFile::openDataPage(int pid)
     {
         return NULL;
     }
-    DBDataPage* re = new DBDataPage(cache, index, pid, dfdp->getRecordLength(), MODE_PARSE, ri);
+    DBDataPage* re = new DBDataPage(cache, index, pid, MODE_PARSE);
     pages[pid] = re;
     return re;
 }
@@ -212,14 +213,14 @@ int DBDataFile::createFile(const char* name)
     }
     int index;
     open = true;
+    ri->init();
     BufType cache = fm->getPage(fileID, 0, index);
-    ri = new DBRecordInfo();
-    dfdp = new DBDataFileDescriptionPage(cache, index, 0, MODE_CREATE, ri);
-    dfdp->addField("_id", DBType::_ID, false);
+    dfdp = new DBDataFileDescriptionPage(cache, index, 0, MODE_CREATE);
+    ri->addField("_id", DBType::_ID, false, 0);
+    dfdp->writeFields();
     fm->flush(dfdp->getIndex());
     fm->closeFile(fileID);
     open = false;
-    delete ri;
     return SUCCEED;
 }
 
@@ -268,27 +269,41 @@ void DBDataFile::printFileDescription()
     dfdp->print();
 }
 
-int DBDataFile::addField(const char* name, int type, bool nullable)
+int DBDataFile::addFields(std::vector<std::string>& name, std::vector<int>& type,
+                          std::vector<bool>& nullable, std::vector<int>& extra)
 {
     if(!open)
     {
         return FILE_NOT_OPENED;
     }
-    int re = dfdp->addField(name, type, nullable);
-    //TODO: might need to rewrite the whole file. But this is not included in the requirements seemingly, so leave it here for now.
-    switch(re)
+    if(name.size() != type.size() ||
+       type.size() != nullable.size() ||
+       nullable.size() != extra.size())
     {
-    case EMPTY_FIELD_NAME:
-        DBPrint::printLine("Field name cannot be empty.");
-        break;
-    case FIELD_ALREADY_EXIST:
-        DBPrint::printLine("Field " + std::string(name) + " already exists.");
-        break;
-    case EXCEED_PAGE_LIMIT:
-        DBPrint::printLine("You cannot add any more fields to this table.");
-        break;
+        return ERROR;
     }
-    return re;
+    for(int i = 0; i < name.size(); i++)
+    {
+        int re = ri->addField(name[i], type[i], nullable[i], extra[i]);
+        //TODO: might need to rewrite the whole file. But this is not included in the requirements seemingly, so leave it here for now.
+        switch(re)
+        {
+        case EMPTY_FIELD_NAME:
+            DBPrint::printLine("Field name cannot be empty.");
+            ri->reset(i);
+            return re;
+        case FIELD_ALREADY_EXIST:
+            DBPrint::printLine("Field " + name[i] + " already exists.");
+            ri->reset(i);
+            return re;
+        case EXCEED_PAGE_LIMIT:
+            DBPrint::printLine("You cannot add any more fields to this table.");
+            ri->reset(i);
+            return re;
+        }
+    }
+    dfdp->writeFields();
+    return SUCCEED;
 }
 
 void DBDataFile::processWriteValue(std::map<std::string, void*>& data,
@@ -307,18 +322,18 @@ void DBDataFile::processWriteValue(std::map<std::string, void*>& data,
     std::map<std::string, void*>::iterator iter;
     for(iter = data.begin(); iter != data.end(); iter++)
     {
-        if(!ri->indexes.count(iter->first))
+        int idx = ri->index(iter->first);
+        if(idx < 0)
         {
             errors[iter->first] = EXTRA_FIELD;
             continue;
         }
-        int idx = ri->indexes[iter->first];
         if(idx == 0)
         {
             errors[iter->first] = EDIT__ID;
             continue;
         }
-        if(!ri->nullables[idx] && iter->second == NULL)
+        if(!ri->nullable(idx) && iter->second == NULL)
         {
             errors[iter->first] = UNNULLABLE;
         }
@@ -327,9 +342,9 @@ void DBDataFile::processWriteValue(std::map<std::string, void*>& data,
     }
     for(int i = 1; i < included.size(); i++)
     {
-        if(!included[i] && !ri->nullables[i])
+        if(!included[i] && !ri->nullable(i))
         {
-            errors[ri->names[i]] = UNNULLABLE;
+            errors[ri->name(i)] = UNNULLABLE;
         }
     }
 }
@@ -346,12 +361,12 @@ void DBDataFile::processKeyValue(std::map<std::string, void*>& data,
     std::map<std::string, void*>::iterator iter;
     for(iter = data.begin(); iter != data.end(); iter++)
     {
-        if(!ri->indexes.count(iter->first))
+        int idx = ri->index(iter->first);
+        if(idx < 0)
         {
             errors.push_back(iter->first);
             continue;
         }
-        int idx = ri->indexes[iter->first];
         processed[idx] = iter->second;
     }
 }
@@ -587,13 +602,13 @@ int DBDataFile::openFile(const char* name)
     }
     int index;
     open = true;
+    ri->init();
     BufType cache = fm->getPage(fileID, 0, index);
-    ri = new DBRecordInfo();
-    dfdp = new DBDataFileDescriptionPage(cache, index, 0, MODE_PARSE, ri);
+    dfdp = new DBDataFileDescriptionPage(cache, index, 0, MODE_PARSE);
     return SUCCEED;
 }
 
-void DBDataFile::test()
+void DBDataFile::_test()
 {
     createFile("test.db");
     openFile("test.db");
@@ -610,25 +625,46 @@ void DBDataFile::test()
 //        DBLogLine("=========================================");
 //        sprintf(name, "test%d", i++);
 //    }while(addField(name, DBType::INT, true) == SUCCEED);
-    addField("test1", DBType::INT, false);
-    addField("test2", DBType::INT, false);
-    addField("test3", DBType::INT, true);
+    std::vector<std::string> names;
+    std::vector<int> types;
+    std::vector<bool> nullables;
+    std::vector<int> extras;
+    names.push_back("test1");
+    names.push_back("test2");
+    names.push_back("test3");
+    types.push_back(1);
+    types.push_back(2);
+    types.push_back(4);
+    nullables.push_back(false);
+    nullables.push_back(false);
+    nullables.push_back(false);
+    extras.push_back(0);
+    extras.push_back(5);
+    extras.push_back(30);
+    addFields(names, types, nullables, extras);
+    printFileDescription();
     map<string, void*> f, f2, f3;
     f["test1"] = &data;
     f["test2"] = &data2;
     f["test3"] = &data3;
-    for(int i = 0; i < 1000000; i++)
+    for(int i = 0; i < 1000; i++)
         insertRecord(f);
 //    f2["test2"] = &data4;
 //    update(f, f2);
 //    f3["test2"] = &data4;
 //    printAllRecords();
-//    closeFile();
-//    openFile("test.db");
-//    printFileDescription();
-//    printAllRecords();
+    closeFile();
+    openFile("test.db");
+    printFileDescription();
+    printAllRecords();
 //    set<map<string, void*>*> re;
 //    findEqual(f, re);
 //    remove(f);
 //    printAllRecords();
+}
+
+void DBDataFile::test()
+{
+    DBDataFile df("");
+    df._test();
 }

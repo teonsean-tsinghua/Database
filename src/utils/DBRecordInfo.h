@@ -18,6 +18,8 @@ private:
     std::vector<int> types;
     std::vector<int> offsets;
     std::vector<int> extras;
+    int recordLength;
+    int recordInfoLength;
 
 public:
     int index(std::string name);
@@ -34,11 +36,31 @@ public:
 
     int extra(std::string name);
 
+    bool nullable(int i);
+
+    int type(int i);
+
+    int length(int i);
+
+    int offset(int i);
+
+    int extra(int i);
+
+    int getRecordLength();
+
+    int getRecordInfoLength();
+
+    void setRecordInfoLength(int n);
+
     int getFieldCount();
 
-    DBRecordInfo* getInstance();
+    static DBRecordInfo* getInstance();
 
     void init();
+
+    int addField(std::string name, int type, bool nullable, int extra);
+
+    void reset(int n);
 };
 
 #endif // DBRECORDINFO_H_INCLUDED

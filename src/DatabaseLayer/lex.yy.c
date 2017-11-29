@@ -951,7 +951,7 @@ YY_RULE_SETUP
 case 24:
 YY_RULE_SETUP
 #line 42 "lexer.l"
-{ return VARCHAR; }
+{ return VARCHAR_; }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
@@ -971,12 +971,12 @@ YY_RULE_SETUP
 case 28:
 YY_RULE_SETUP
 #line 46 "lexer.l"
-{ return DATE; }
+{ return DATE_; }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
 #line 47 "lexer.l"
-{ return FLOAT; }
+{ return FLOAT_; }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP

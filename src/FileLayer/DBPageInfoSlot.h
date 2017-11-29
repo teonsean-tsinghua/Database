@@ -16,7 +16,7 @@ public:
 
     DBPageInfoSlot(BufType cache);
 
-    int size();
+    static int size();
 
     void print();
 

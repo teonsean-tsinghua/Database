@@ -68,12 +68,12 @@ extern int yydebug;
     SELECT = 278,
     IS = 279,
     INT_ = 280,
-    VARCHAR = 281,
+    VARCHAR_ = 281,
     DESC = 282,
     INDEX = 283,
     AND = 284,
-    DATE = 285,
-    FLOAT = 286,
+    DATE_ = 285,
+    FLOAT_ = 286,
     FOREIGN = 287,
     REFERENCES = 288,
     IDENTIFIER = 289,
@@ -108,12 +108,12 @@ extern int yydebug;
 #define SELECT 278
 #define IS 279
 #define INT_ 280
-#define VARCHAR 281
+#define VARCHAR_ 281
 #define DESC 282
 #define INDEX 283
 #define AND 284
-#define DATE 285
-#define FLOAT 286
+#define DATE_ 285
+#define FLOAT_ 286
 #define FOREIGN 287
 #define REFERENCES 288
 #define IDENTIFIER 289

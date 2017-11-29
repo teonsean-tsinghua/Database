@@ -12,7 +12,7 @@ protected:
     int keyType;
 
 public:
-    DBIndexNodePage(BufType cache, int index, int pageID, int type, int mode, int keyType = -1);
+    DBIndexNodePage(BufType cache, int index, int pageID, int type, int mode, int keyType = -1, int keyLength = -1);
 
     static void split(DBIndexNodePage* src, DBIndexNodePage* dest);
 

@@ -7,20 +7,8 @@ int main()
 {
     srand((unsigned)time(NULL));
 //    freopen("test.out", "w", stdout);
-    const char* sFile="test.sql";
-    FILE* fp=fopen(sFile, "r");
-    if(fp==NULL)
-    {
-        printf("cannot open %s\n", sFile);
-        return -1;
-    }
-    extern FILE* yyin;
-    yyin=fp;
-
-    printf("-----begin parsing %s\n", sFile);
-    yyparse();
-    puts("-----end parsing");
-
-    fclose(fp);
+    DBDataFile::test();
+    DBIndexFile::test();
+    DBDataBase::test();
     return 0;
 }

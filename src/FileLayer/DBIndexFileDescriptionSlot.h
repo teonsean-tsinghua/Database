@@ -9,12 +9,6 @@
 
 class DBIndexFileDescriptionSlot: public DBSlot
 {
-protected:
-    BufType firstLeafPage;     // int
-    BufType pageNumber;     // int
-    BufType rootPage;   // int
-    BufType keyType;    // int
-
 public:
     DBIndexFileDescriptionSlot(BufType cache, int mode);
 
@@ -24,6 +18,8 @@ public:
 
     int getRootPage();
 
+    int getKeyLength();
+
     int getKeyType();
 
     void setFirstLeafPage(int n);
@@ -31,6 +27,8 @@ public:
     void setPageNumber(int n);
 
     void setRootPage(int n);
+
+    void setKeyLength(int n);
 
     void setKeyType(int n);
 
@@ -42,6 +40,7 @@ public:
     const static int PAGE_NUMBER_OFFSET = FIRST_LEAF_PAGE_OFFSET + sizeof(int);
     const static int ROOT_PAGE_OFFSET = PAGE_NUMBER_OFFSET + sizeof(int);
     const static int KEY_TYPE_OFFSET = ROOT_PAGE_OFFSET + sizeof(int);
+    const static int KEY_LENGTH_OFFSET = KEY_TYPE_OFFSET + sizeof(int);
 };
 
 #endif // DBINDEXFILEDESCRIPTIONSLOT_H_INCLUDED

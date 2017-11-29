@@ -8,12 +8,11 @@
 class DBDataPage: public DBPage
 {
 protected:
-    int recordLength;
     std::vector<DBRecordSlot*> records;
     DBRecordInfo* ri;
 
 public:
-    DBDataPage(BufType cache, int index, int pageID, int recordLength, int mode, DBRecordInfo* ri);
+    DBDataPage(BufType cache, int index, int pageID, int mode);
 
     int insert(std::vector<void*>& data);
 

@@ -39,12 +39,12 @@ BLANK_CHARS ([ \f\r\t\v]+)
 "SELECT"		{ return SELECT; }
 "IS"			{ return IS; }
 "INT"			{ return INT_; }
-"VARCHAR"		{ return VARCHAR; }
+"VARCHAR"		{ return VARCHAR_; }
 "DESC"			{ return DESC; }
 "INDEX"			{ return INDEX; }
 "AND" 			{ return AND; }
-"DATE"			{ return DATE; }
-"FLOAT"			{ return FLOAT; }
+"DATE"			{ return DATE_; }
+"FLOAT"			{ return FLOAT_; }
 "FOREIGN"		{ return FOREIGN; }
 "REFERENCES"		{ return REFERENCES; }
 "<>"			{ return NOT_EQUAL; }

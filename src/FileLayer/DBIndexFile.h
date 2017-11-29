@@ -9,8 +9,8 @@
 class DBIndexFile{
 private:
     int fileID;
-    int keyType;
     int keyLength;
+    int keyType;
     const char* root;
     DBFileIOModel* fm;
     DBIndexFileDescriptionPage* ifdp;
@@ -25,6 +25,8 @@ private:
 
     int merge(DBIndexNodePage* cur);
 
+    void _test();
+
 public:
 	DBIndexFile(const char* root);
 
@@ -34,7 +36,7 @@ public:
 
 	DBIndexNodePage* openNode(int pid);
 
-	int createFile(const char* name, int keyType);
+	int createFile(const char* name, int keyType, int keyLength);
 
 	int openFile(const char* name);
 
@@ -52,7 +54,7 @@ public:
 
     void printFileDescription();
 
-    void test();
+    static void test();
 };
 
 #endif

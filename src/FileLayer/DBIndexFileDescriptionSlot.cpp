@@ -3,10 +3,7 @@
 DBIndexFileDescriptionSlot::DBIndexFileDescriptionSlot(BufType cache, int mode):
     DBSlot(cache)
 {
-    firstLeafPage = (*this)[FIRST_LEAF_PAGE_OFFSET];
-    pageNumber = (*this)[PAGE_NUMBER_OFFSET];
-    rootPage = (*this)[ROOT_PAGE_OFFSET];
-    keyType = (*this)[KEY_TYPE_OFFSET];
+
 }
 
 int DBIndexFileDescriptionSlot::size()
@@ -25,47 +22,59 @@ void DBIndexFileDescriptionSlot::print()
 int DBIndexFileDescriptionSlot::getFirstLeafPage()
 {
     int re;
-    readInt(firstLeafPage, &re);
+    readInt((*this)[FIRST_LEAF_PAGE_OFFSET], &re);
     return re;
 }
 
 int DBIndexFileDescriptionSlot::getPageNumber()
 {
     int re;
-    readInt(pageNumber, &re);
+    readInt((*this)[PAGE_NUMBER_OFFSET], &re);
     return re;
 }
 
 int DBIndexFileDescriptionSlot::getRootPage()
 {
     int re;
-    readInt(rootPage, &re);
+    readInt((*this)[ROOT_PAGE_OFFSET], &re);
     return re;
 }
 
 int DBIndexFileDescriptionSlot::getKeyType()
 {
     int re;
-    readInt(keyType, &re);
+    readInt((*this)[KEY_TYPE_OFFSET], &re);
+    return re;
+}
+
+int DBIndexFileDescriptionSlot::getKeyLength()
+{
+    int re;
+    readInt((*this)[KEY_LENGTH_OFFSET], &re);
     return re;
 }
 
 void DBIndexFileDescriptionSlot::setFirstLeafPage(int n)
 {
-    writeInt(firstLeafPage, n);
+    writeInt((*this)[FIRST_LEAF_PAGE_OFFSET], n);
 }
 
 void DBIndexFileDescriptionSlot::setPageNumber(int n)
 {
-    writeInt(pageNumber, n);
+    writeInt((*this)[PAGE_NUMBER_OFFSET], n);
 }
 
 void DBIndexFileDescriptionSlot::setRootPage(int n)
 {
-    writeInt(rootPage, n);
+    writeInt((*this)[ROOT_PAGE_OFFSET], n);
 }
 
 void DBIndexFileDescriptionSlot::setKeyType(int n)
 {
-    writeInt(keyType, n);
+    writeInt((*this)[KEY_TYPE_OFFSET], n);
+}
+
+void DBIndexFileDescriptionSlot::setKeyLength(int n)
+{
+    writeInt((*this)[KEY_LENGTH_OFFSET], n);
 }

@@ -2,13 +2,9 @@
 
 BufType DBIndexNodeSlot::buffer = (BufType)(new char[PAGE_SIZE]);
 
-DBIndexNodeSlot::DBIndexNodeSlot(BufType cache, int keyType):
-    DBSlot(cache), keyType(keyType)
+DBIndexNodeSlot::DBIndexNodeSlot(BufType cache, int keyType, int keyLength):
+    DBSlot(cache), keyType(keyType), keyLength(keyLength)
 {
-	parentNode = (*this)[PARENT_NODE_OFFSET];
-	childrenCount = (*this)[CHILDREN_COUNT_OFFSET];
-	data = (*this)[DATA_OFFSET];
-	keyLength = DBType::typeSize(keyType);
 };
 
 int DBIndexNodeSlot::size(){
@@ -17,22 +13,22 @@ int DBIndexNodeSlot::size(){
 
 int DBIndexNodeSlot::getParentNode(){
 	int re;
-	readInt(parentNode, &re);
+	readInt((*this)[PARENT_NODE_OFFSET], &re);
 	return re;
 }
 
 void DBIndexNodeSlot::setParentNode(int pid){
-	writeInt(parentNode, pid);
+	writeInt((*this)[PARENT_NODE_OFFSET], pid);
 }
 
 int DBIndexNodeSlot::getChildrenCount(){
 	int re;
-	readInt(childrenCount, &re);
+	readInt((*this)[CHILDREN_COUNT_OFFSET], &re);
 	return re;
 }
 
 void DBIndexNodeSlot::setChildrenCount(int n){
-	writeInt(childrenCount, n);
+	writeInt((*this)[CHILDREN_COUNT_OFFSET], n);
 }
 
 void DBIndexNodeSlot::print(){
@@ -76,14 +72,14 @@ int DBIndexNodeSlot::search(void* key)
     {
         return ERROR;
     }
-    if(larger(key, getMaxKey(), keyType))
+    if(larger(key, getMaxKey(), keyType, keyLength))
     {
         return LARGEST_KEY;
     }
     int cnt = getChildrenCount(), i;
     for(i = 0; i < cnt; i++)
     {
-        if(!larger(key, getKeyOfIndex(i), keyType))
+        if(!larger(key, getKeyOfIndex(i), keyType, keyLength))
         {
 
             break;
@@ -101,7 +97,7 @@ int DBIndexNodeSlot::searchEqual(void* key)
     int cnt = getChildrenCount();
     for(int i = 0; i < cnt; i++)
     {
-        if(equal(key, getKeyOfIndex(i), keyType))
+        if(equal(key, getKeyOfIndex(i), keyType, keyLength))
         {
             return getPageOfIndex(i);
         }
@@ -120,7 +116,7 @@ int DBIndexNodeSlot::insert(void* key, int pid)
     {
         return ERROR;
     }
-    if(cnt == 0 || larger(key, getMaxKey(), keyType))
+    if(cnt == 0 || larger(key, getMaxKey(), keyType, keyLength))
     {
         setPageOfIndex(cnt, pid);
         setKeyOfIndex(cnt, key);
@@ -130,7 +126,7 @@ int DBIndexNodeSlot::insert(void* key, int pid)
     int i;
     for(i = 0; i < cnt; i++)
     {
-        if(!larger(key, getKeyOfIndex(i), keyType))
+        if(!larger(key, getKeyOfIndex(i), keyType, keyLength))
         {
             break;
         }
@@ -153,7 +149,7 @@ int DBIndexNodeSlot::remove(void* key)
     int cnt = getChildrenCount();
     for(int i = 0; i < cnt; i++)
     {
-        if(equal(key, getKeyOfIndex(i), keyType))
+        if(equal(key, getKeyOfIndex(i), keyType, keyLength))
         {
             int len = (cnt - i - 1) * (sizeof(int) + keyLength);
             copyData(getKeyOfIndex(i + 1), buffer, len);
@@ -174,7 +170,7 @@ int DBIndexNodeSlot::update(void* key, int pid)
     int cnt = getChildrenCount();
     for(int i = 0; i < cnt; i++)
     {
-        if(equal(key, getKeyOfIndex(i), keyType))
+        if(equal(key, getKeyOfIndex(i), keyType, keyLength))
         {
             setPageOfIndex(i, pid);
             return SUCCEED;

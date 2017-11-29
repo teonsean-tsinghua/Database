@@ -1,9 +1,9 @@
 #include"DBRecordSlot.h"
 
-DBRecordSlot::DBRecordSlot(BufType cache, DBRecordInfo* ri):
-    DBSlot(cache), ri(ri)
+DBRecordSlot::DBRecordSlot(BufType cache):
+    DBSlot(cache)
 {
-
+    ri = DBRecordInfo::getInstance();
 }
 
 int DBRecordSlot::write(std::vector<void*>& data)
@@ -16,7 +16,7 @@ int DBRecordSlot::write(std::vector<void*>& data)
     write_id((*this)[1]);
     for(int i = 1; i < cnt; i++)
     {
-        int offset = ri->offsets[i];
+        int offset = ri->offset(i);
         char* ptr = (char*)(data[i]);
         if(ptr == NULL)
         {
@@ -25,7 +25,7 @@ int DBRecordSlot::write(std::vector<void*>& data)
         else
         {
             writeBoolToChar((*this)[offset], false);
-            writeData((*this)[offset + 1], ptr, DBType::typeSize(ri->types[i]));
+            writeData((*this)[offset + 1], ptr, ri->length(i));
         }
     }
     return SUCCEED;
@@ -41,14 +41,14 @@ void DBRecordSlot::print()
     for(int idx = 0; idx < data.size(); idx++)
     {
         void* ptr = data[idx];
-        DBPrint::print(ri->names[idx] + ": ");
+        DBPrint::print(ri->name(idx) + ": ");
         if(ptr == NULL)
         {
             DBPrint::printLine("NULL");
         }
         else
         {
-            switch(ri->types[idx])
+            switch(ri->type(idx))
             {
             case DBType::_ID:
                 DBPrint::print_ID((char*)ptr).printLine("");
@@ -56,9 +56,19 @@ void DBRecordSlot::print()
             case DBType::INT:
                 DBPrint::printLine(*(int*)ptr);
                 break;
+            case DBType::FLOAT:
+                DBPrint::printLine(*(float*)ptr);
+                break;
+            case DBType::DATE:
+                DBPrint::printLine(*(const char*)ptr);
+                break;
+            case DBType::VARCHAR:
+                DBPrint::printLine("");
+                break;
             }
         }
     }
+    DBPrint::printLine("");
 }
 
 void DBRecordSlot::copy(DBRecordSlot* src, DBRecordSlot* dest, int length)
@@ -75,11 +85,11 @@ int DBRecordSlot::update(std::map<int, void*>& data)
         char* ptr = (char*)iter->second;
         if(ptr == NULL)
         {
-            writeBoolToChar((*this)[ri->offsets[idx]], true);
+            writeBoolToChar((*this)[ri->offset(idx)], true);
         }
         else
         {
-            writeData((*this)[ri->offsets[idx] + 1], ptr, DBType::typeSize(ri->types[idx]));
+            writeData((*this)[ri->offset(idx) + 1], ptr, ri->length(idx));
         }
     }
     return SUCCEED;
@@ -95,13 +105,13 @@ int DBRecordSlot::equal(std::map<int, void*>& data)
         if(ptr == NULL)
         {
             bool isNull;
-            readCharToBool((*this)[ri->offsets[idx]], &isNull);
+            readCharToBool((*this)[ri->offset(idx)], &isNull);
             if(!isNull)
             {
                 return NON_EQUAL_RECORD;
             }
         }
-        else if(strncmp(ptr, (char*)(*this)[ri->offsets[idx] + 1], DBType::typeSize(ri->types[idx])) != 0)
+        else if(strncmp(ptr, (char*)(*this)[ri->offset(idx) + 1], ri->length(idx)) != 0)
         {
             return NON_EQUAL_RECORD;
         }
@@ -122,19 +132,19 @@ int DBRecordSlot::read(std::map<std::string, void*>& data)
     data["_id"] = (void*)_id;
     for(int i = 1; i < cnt; i++)
     {
-        int offset = ri->offsets[i];
+        int offset = ri->offset(i);
         bool isNull;
         readCharToBool((*this)[offset], &isNull);
-        if(ri->nullables[i] && isNull)
+        if(ri->nullable(i) && isNull)
         {
-            data[ri->names[i]] = NULL;
+            data[ri->name(i)] = NULL;
         }
         else
         {
-            int len = DBType::typeSize(ri->types[i]);
+            int len = ri->length(i);
             char* tmp = new char[len];
             readData((*this)[offset + 1], tmp, len);
-            data[ri->names[i]] = (void*)tmp;
+            data[ri->name(i)] = (void*)tmp;
         }
     }
     return SUCCEED;
@@ -167,16 +177,16 @@ int DBRecordSlot::read(std::vector<void*>& data)
     data[0] = (void*)((*this)[1]);
     for(int i = 1; i < cnt; i++)
     {
-        int offset = ri->offsets[i];
+        int offset = ri->offset(i);
         bool isNull;
         readCharToBool((*this)[offset], &isNull);
-        if(ri->nullables[i] && isNull)
+        if(ri->nullable(i) && isNull)
         {
             data[i] = NULL;
         }
         else
         {
-            int len = DBType::typeSize(ri->types[i]);
+            int len = ri->length(i);
             char* tmp = new char[len];
             readData((*this)[offset + 1], tmp, len);
             data[i] = (void*)tmp;

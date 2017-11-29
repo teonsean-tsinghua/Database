@@ -1,7 +1,7 @@
 #include"DBDataFileDescriptionSlot.h"
 
-DBDataFileDescriptionSlot::DBDataFileDescriptionSlot(BufType cache, int mode, DBRecordInfo* ri):
-    DBSlot(cache), ri(ri)
+DBDataFileDescriptionSlot::DBDataFileDescriptionSlot(BufType cache, int mode):
+    DBSlot(cache)
 {
     firstDataPage = (*this)[FIRST_DATA_PAGE_OFFSET];
     firstUsagePage = (*this)[FIRST_USAGE_PAGE_OFFSET];
@@ -9,86 +9,40 @@ DBDataFileDescriptionSlot::DBDataFileDescriptionSlot(BufType cache, int mode, DB
     primaryKeyIndex = (*this)[PRIMARY_KEY_INDEX_OFFSET];
     recordInfoLength = (*this)[RECORD_INFO_LENGTH_OFFSET];
     recordInfo = (*this)[RECORD_INFO_OFFSET];
-    recordLength = 0;
+    ri = DBRecordInfo::getInstance();
     if(mode == MODE_PARSE)
     {
         char* cache = (char*)recordInfo;
         char* end = cache + getRecordInfoLength();
-        int index = 0, offset = 0, type = 0, name_length = 0, nullable = 0;
-        if(!ri->indexes.empty() ||
-           !ri->names.empty() ||
-           !ri->types.empty() ||
-           !ri->nullables.empty() ||
-           !ri->offsets.empty())
-        {
-            ri->indexes.clear();
-            ri->names.clear();
-            ri->types.clear();
-            ri->nullables.clear();
-            ri->offsets.clear();
-        }
+        int offset = 0, type = 0, name_length = 0, nullable = 0, extra = 0;
         while(cache < end)
         {
             readInt((BufType)(cache + RECORD_INFO_TYPE_OFFSET), &type);
             readInt((BufType)(cache + RECORD_INFO_NULLABLE_OFFSET), &nullable);
             readInt((BufType)(cache + RECORD_INFO_NAME_LENGTH_OFFSET), &name_length);
+            readInt((BufType)(cache + RECORD_INFO_EXTRA_OFFSET), &extra);
             cache += RECORD_INFO_NAME_OFFSET;
             std::string name;
             readString(cache, name, name_length);
-            ri->indexes[name] = index;
-            ri->names.push_back(name);
-            ri->types.push_back(type);
-            ri->offsets.push_back(offset);
-            ri->nullables.push_back(nullable == 1 ? true : false);
-            offset += (DBType::typeSize(type) + 1);
+            ri->addField(name, type, nullable, extra);
             cache += name_length;
-            index++;
         }
-        recordLength = ri->indexes.size() ? offset : 0;
-        currentRecordInfoLength = getRecordInfoLength();
     }
     else if(mode == MODE_CREATE)
     {
-        currentRecordInfoLength = 0;
         setRecordInfoLength(0);
         setPrimaryKeyIndex(0);
-        recordLength = 0;
-        ri->indexes.clear();
-        ri->names.clear();
-        ri->types.clear();
-        ri->offsets.clear();
-        ri->nullables.clear();
     }
 }
 
 int DBDataFileDescriptionSlot::size()
 {
-    return sizeof(int) * 5 + currentRecordInfoLength;
+    return sizeof(int) * 5 + ri->getRecordInfoLength();
 }
 
-int DBDataFileDescriptionSlot::addField(std::string name, int type, bool nullable, char* boundary)
+int DBDataFileDescriptionSlot::minSize()
 {
-    if(ri->indexes.count(name))
-    {
-        return FIELD_ALREADY_EXIST;
-    }
-    if(name.empty())
-    {
-        return EMPTY_FIELD_NAME;
-    }
-    currentRecordInfoLength += (sizeof(int) * 3 + name.size());
-    if((char*)recordInfo + currentRecordInfoLength >= boundary)
-    {
-        currentRecordInfoLength -= (sizeof(int) * 3 + name.size());
-        return EXCEED_PAGE_LIMIT;
-    }
-    ri->names.push_back(name);
-    ri->types.push_back(type);
-    ri->offsets.push_back(recordLength);
-    ri->nullables.push_back(nullable);
-    recordLength += (DBType::typeSize(type) + 1);
-    ri->indexes[name] = ri->names.size() - 1;
-    return SUCCEED;
+    return sizeof(int) * 5;
 }
 
 void DBDataFileDescriptionSlot::print()
@@ -97,14 +51,14 @@ void DBDataFileDescriptionSlot::print()
     DBPrint::print("This file has pages of number ").printLine(getPageNumber())
             .print("First data page is at ").printLine(getFirstDataPage())
             .print("First usage page is at ").printLine(getFirstUsagePage())
-            .print("Record length is ").printLine(getRecordLength())
-            .print("Record info length is ").printLine(getRecordInfoLength())
+            .print("Record length is ").printLine(ri->getRecordLength())
+            .print("Record info length is ").printLine(ri->getRecordInfoLength())
             .print("Number of fields: ").printLine(cnt)
             .print("Primary key is: ").printLine(getPrimaryKeyIndex());
     for(int i = 0; i < cnt; i++)
     {
-        DBPrint::print("Field " + ri->names[i] + " is of type " + std::string(DBType::typeName(ri->types[i])));
-        if(ri->nullables[i])
+        DBPrint::print("Field " + ri->name(i) + " is of type " + std::string(DBType::typeName(ri->type(i))));
+        if(ri->nullable(i))
         {
             DBPrint::printLine(", and can be null.");
         }
@@ -113,11 +67,6 @@ void DBDataFileDescriptionSlot::print()
             DBPrint::printLine(", and cannot be null.");
         }
     }
-}
-
-int DBDataFileDescriptionSlot::getRecordLength()
-{
-    return recordLength;
 }
 
 int DBDataFileDescriptionSlot::getFirstDataPage()
@@ -182,20 +131,19 @@ void DBDataFileDescriptionSlot::setPrimaryKeyIndex(int n)
 
 void DBDataFileDescriptionSlot::write()
 {
-    setRecordInfoLength(currentRecordInfoLength);
+    setRecordInfoLength(ri->getRecordInfoLength());
     char* cache = (char*)recordInfo;
-    if(ri->names.size() != ri->types.size())
-    {
-        throw ERROR;
-    }
-    for(int i = 0; i < ri->names.size(); i++)
-    {
-        int name_length = ri->names[i].size();
-        writeInt((BufType)(cache + RECORD_INFO_TYPE_OFFSET), ri->types[i]);
-        writeInt((BufType)(cache + RECORD_INFO_NULLABLE_OFFSET), ri->nullables[i] ? 1 : 0);
+    int cnt = ri->getFieldCount();
+    for(int i = 0; i < cnt; i++)
+    {;
+        std::string name = ri->name(i);
+        int name_length = name.size();
+        writeInt((BufType)(cache + RECORD_INFO_TYPE_OFFSET), ri->type(i));
+        writeInt((BufType)(cache + RECORD_INFO_NULLABLE_OFFSET), ri->nullable(i) ? 1 : 0);
+        writeInt((BufType)(cache + RECORD_INFO_EXTRA_OFFSET), ri->extra(i));
         writeInt((BufType)(cache + RECORD_INFO_NAME_LENGTH_OFFSET), name_length);
         cache += RECORD_INFO_NAME_OFFSET;
-        writeString(cache, ri->names[i], name_length);
+        writeString(cache, name, name_length);
         cache += name_length;
     }
 }

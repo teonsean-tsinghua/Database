@@ -134,12 +134,12 @@ extern int yydebug;
     SELECT = 278,
     IS = 279,
     INT_ = 280,
-    VARCHAR = 281,
+    VARCHAR_ = 281,
     DESC = 282,
     INDEX = 283,
     AND = 284,
-    DATE = 285,
-    FLOAT = 286,
+    DATE_ = 285,
+    FLOAT_ = 286,
     FOREIGN = 287,
     REFERENCES = 288,
     IDENTIFIER = 289,
@@ -174,12 +174,12 @@ extern int yydebug;
 #define SELECT 278
 #define IS 279
 #define INT_ 280
-#define VARCHAR 281
+#define VARCHAR_ 281
 #define DESC 282
 #define INDEX 283
 #define AND 284
-#define DATE 285
-#define FLOAT 286
+#define DATE_ 285
+#define FLOAT_ 286
 #define FOREIGN 287
 #define REFERENCES 288
 #define IDENTIFIER 289
@@ -519,8 +519,8 @@ static const char *const yytname[] =
   "$end", "error", "$undefined", "DATABASE", "DATABASES", "TABLE",
   "TABLES", "SHOW", "CREATE", "DROP", "USE", "PRIMARY", "KEY", "NOT",
   "NULL_", "INSERT", "INTO", "VALUES", "DELETE", "FROM", "WHERE", "UPDATE",
-  "SET", "SELECT", "IS", "INT_", "VARCHAR", "DESC", "INDEX", "AND", "DATE",
-  "FLOAT", "FOREIGN", "REFERENCES", "IDENTIFIER", "VALUE_STRING",
+  "SET", "SELECT", "IS", "INT_", "VARCHAR_", "DESC", "INDEX", "AND",
+  "DATE_", "FLOAT_", "FOREIGN", "REFERENCES", "IDENTIFIER", "VALUE_STRING",
   "VALUE_INT", "NOT_EQUAL", "GREATER_EQUAL", "LESS_EQUAL", "';'", "'('",
   "')'", "','", "'.'", "'<'", "'>'", "'='", "'*'", "$accept", "program",
   "stmt", "sysStmt", "dbStmt", "tbStmt", "idxStmt", "fieldList", "field",

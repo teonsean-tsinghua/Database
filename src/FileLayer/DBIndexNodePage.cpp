@@ -1,9 +1,9 @@
 #include"DBIndexNodePage.h"
 
-DBIndexNodePage::DBIndexNodePage(BufType cache, int index, int pageID, int type, int mode, int keyType):
-    DBPage(cache, index, pageID, type, mode), keyType(keyType), keyLength(DBType::typeSize(keyType))
+DBIndexNodePage::DBIndexNodePage(BufType cache, int index, int pageID, int type, int mode, int keyType, int keyLength):
+    DBPage(cache, index, pageID, type, mode), keyType(keyType), keyLength(keyLength)
 {
-    ins = new DBIndexNodeSlot((*this)[PAGE_INFO_SLOT_OFFSET + pis->size()], keyType);
+    ins = new DBIndexNodeSlot((*this)[PAGE_INFO_SLOT_OFFSET + pis->size()], keyType, keyLength);
     if(mode == MODE_CREATE)
     {
         ins->setChildrenCount(0);

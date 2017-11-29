@@ -1,9 +1,10 @@
 #include"DBDataFileDescriptionPage.h"
 
-DBDataFileDescriptionPage::DBDataFileDescriptionPage(BufType cache, int index, int pageID, int mode, DBRecordInfo* ri):
-    DBPage(cache, index, pageID, DBType::DATA_FILE_DESCRIPTION_PAGE, mode), ri(ri)
+DBDataFileDescriptionPage::DBDataFileDescriptionPage(BufType cache, int index, int pageID, int mode):
+    DBPage(cache, index, pageID, DBType::DATA_FILE_DESCRIPTION_PAGE, mode)
 {
-    dfds = new DBDataFileDescriptionSlot((*this)[PAGE_INFO_SLOT_OFFSET + pis->size()], mode, ri);
+    dfds = new DBDataFileDescriptionSlot((*this)[PAGE_INFO_SLOT_OFFSET + pis->size()], mode);
+    ri = DBRecordInfo::getInstance();
     if(mode == MODE_CREATE)
     {
         pis->setPageType(DBType::DATA_FILE_DESCRIPTION_PAGE);
@@ -52,18 +53,13 @@ int DBDataFileDescriptionPage::getPageNumber()
     return dfds->getPageNumber();
 }
 
-int DBDataFileDescriptionPage::getRecordLength()
-{
-    return dfds->getRecordLength();
-}
-
 int DBDataFileDescriptionPage::setPrimaryKey(std::string name)
 {
-    if(!ri->indexes.count(name))
+    int idx = ri->index(name);
+    if(idx < 0)
     {
         return FIELD_NOT_EXIST;
     }
-    int idx = ri->indexes[name];
     if(idx == dfds->getPrimaryKeyIndex())
     {
         return FIELD_IS_ALREADY_PRIMARY_KEY;
@@ -73,15 +69,15 @@ int DBDataFileDescriptionPage::setPrimaryKey(std::string name)
     return SUCCEED;
 }
 
-int DBDataFileDescriptionPage::addField(std::string name, int type, bool nullable)
+int DBDataFileDescriptionPage::maxRecordInfoLength()
 {
-    int re = dfds->addField(name, type, nullable ? 1 : 0, boundary);
-    if(re == SUCCEED)
-    {
-        dfds->write();
-        pis->setFirstAvailableByte(pis->size() + dfds->size());
-    }
-    return re;
+    return PAGE_SIZE - (DBPageInfoSlot::size() + DBDataFileDescriptionSlot::minSize());
+}
+
+void DBDataFileDescriptionPage::writeFields()
+{
+    dfds->write();
+    pis->setFirstAvailableByte(pis->size() + dfds->size());
 }
 
 void DBDataFileDescriptionPage::print()

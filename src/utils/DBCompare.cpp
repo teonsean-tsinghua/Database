@@ -1,11 +1,10 @@
 #include"DBCompare.h"
 
-int compare(void* a, void* b, int type)
+int compare(void* a, void* b, int type, int length)
 {
     int re;
     switch(type)
     {
-    case DBType::TEST_DATA_TYPE:
     case DBType::INT:
         {
             int aa = *(int*)a;
@@ -31,28 +30,28 @@ int compare(void* a, void* b, int type)
     return re;
 }
 
-bool larger(void* a, void* b, int type)
+bool larger(void* a, void* b, int type, int length)
 {
-    return compare(a, b, type) == LARGER;
+    return compare(a, b, type, length) == LARGER;
 }
 
-bool smaller(void* a, void* b, int type)
+bool smaller(void* a, void* b, int type, int length)
 {
-    return compare(a, b, type) == SMALLER;
+    return compare(a, b, type, length) == SMALLER;
 }
 
-bool equal(void* a, void* b, int type)
+bool equal(void* a, void* b, int type, int length)
 {
-    return compare(a, b, type) == EQUAL;
+    return compare(a, b, type, length) == EQUAL;
 }
 
-bool largerOrEqual(void* a, void* b, int type)
+bool largerOrEqual(void* a, void* b, int type, int length)
 {
-    return compare(a, b, type) >= EQUAL;
+    return compare(a, b, type, length) >= EQUAL;
 }
 
-bool smallerOrEqual(void* a, void* b, int type)
+bool smallerOrEqual(void* a, void* b, int type, int length)
 {
-    return compare(a, b, type) <= EQUAL;
+    return compare(a, b, type, length) <= EQUAL;
 }
 

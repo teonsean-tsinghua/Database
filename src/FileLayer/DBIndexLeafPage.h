@@ -7,7 +7,7 @@ class DBIndexLeafPage: public DBIndexNodePage
 {
 
 public:
-    DBIndexLeafPage(BufType cache, int index, int pageID, int mode, int keyLength = -1);
+    DBIndexLeafPage(BufType cache, int index, int pageID, int mode, int keyType = -1, int keyLength = -1);
 };
 
 #endif // DBINDEXLEAFPAGE_H_INCLUDED

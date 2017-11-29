@@ -10,7 +10,7 @@ protected:
     DBIndexFileDescriptionSlot* ifds;
 
 public:
-    DBIndexFileDescriptionPage(BufType cache, int index, int pageID, int mode, int type = -1);
+    DBIndexFileDescriptionPage(BufType cache, int index, int pageID, int mode, int type = -1, int length = -1);
 
     void incrementPageNumber();
 
@@ -19,6 +19,8 @@ public:
     void setRootPage(int pid);
 
     int getPageNumber();
+
+    int getKeyLength();
 
     int getKeyType();
 

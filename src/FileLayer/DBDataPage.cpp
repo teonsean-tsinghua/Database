@@ -1,8 +1,9 @@
 #include"DBDataPage.h"
 
-DBDataPage::DBDataPage(BufType cache, int index, int pageID, int recordLength, int mode, DBRecordInfo* ri):
-    DBPage(cache, index, pageID, DBType::DATA_PAGE, mode), recordLength(recordLength), ri(ri)
+DBDataPage::DBDataPage(BufType cache, int index, int pageID, int mode):
+    DBPage(cache, index, pageID, DBType::DATA_PAGE, mode)
 {
+    ri = DBRecordInfo::getInstance();
     if(mode == MODE_CREATE)
     {
         pis->setPageType(DBType::DATA_PAGE);
@@ -16,8 +17,8 @@ DBDataPage::DBDataPage(BufType cache, int index, int pageID, int recordLength, i
         int cur = pis->size(), end = pis->getFirstAvailableByte();
         while(cur < end)
         {
-            records.push_back(new DBRecordSlot((*this)[cur], ri));
-            cur += recordLength;
+            records.push_back(new DBRecordSlot((*this)[cur]));
+            cur += ri->getRecordLength();
         }
     }
 }
@@ -70,17 +71,17 @@ int DBDataPage::remove(std::map<int, void*>& data)
         {
             break;
         }
-        DBRecordSlot::copy(records[tail], records[head], recordLength);
+        DBRecordSlot::copy(records[tail], records[head], ri->getRecordLength());
         head++;
         tail--;
     }
-    pis->setFirstAvailableByte(pis->getFirstAvailableByte() - cnt * recordLength);
+    pis->setFirstAvailableByte(pis->getFirstAvailableByte() - cnt * ri->getRecordLength());
     int cur = pis->size(), end = pis->getFirstAvailableByte();
     records.clear();
     while(cur < end)
     {
-        records.push_back(new DBRecordSlot((*this)[cur], ri));
-        cur += recordLength;
+        records.push_back(new DBRecordSlot((*this)[cur]));
+        cur += ri->getRecordLength();
     }
     return SUCCEED;
 }
@@ -132,16 +133,16 @@ void DBDataPage::printAllRecords()
 int DBDataPage::insert(std::vector<void*>& data)
 {
     int cur = pis->getFirstAvailableByte();
-    DBRecordSlot* slot = new DBRecordSlot((*this)[cur], ri);
+    DBRecordSlot* slot = new DBRecordSlot((*this)[cur]);
     int re = slot->write(data);
     if(re != SUCCEED)
     {
         return ERROR;
     }
-    cur += recordLength;
+    cur += ri->getRecordLength();
     pis->setFirstAvailableByte(cur);
     records.push_back(slot);
-    if(cur + recordLength < PAGE_SIZE)
+    if(cur + ri->getRecordLength() < PAGE_SIZE)
     {
         return SUCCEED;
     }

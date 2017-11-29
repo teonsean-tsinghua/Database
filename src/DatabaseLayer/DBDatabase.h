@@ -2,8 +2,9 @@
 #define DBDATABASE_H_INCLUDED
 
 #include"../DBInclude.h"
-#include"../FileLayer/DBDataFile.h"
-#include"../FileLayer/../FileLayer/DBIndexFile.h"
+#include"../FileLayer/DBFileInclude.h"
+#include"DBBase.h"
+#include"y.tab.h"
 
 class DBDataBase
 {
@@ -19,6 +20,8 @@ private:
 
     void delete_path(const char* path);
 
+    void _test();
+
 public:
     static DBDataBase* getInstance();
 
@@ -33,6 +36,8 @@ public:
     void showTables();
 
     void dropTable(const char* name);
+
+    static void test();
 };
 
 #endif // DBDATABASE_H_INCLUDED

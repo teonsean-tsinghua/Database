@@ -209,3 +209,27 @@ DBDataBase* DBDataBase::getInstance()
     }
     return instance;
 }
+
+void DBDataBase::_test()
+{
+    const char* sFile="test.sql";
+    FILE* fp=fopen(sFile, "r");
+    if(fp==NULL)
+    {
+        printf("cannot open %s\n", sFile);
+        return;
+    }
+    extern FILE* yyin;
+    yyin=fp;
+
+    printf("-----begin parsing %s\n", sFile);
+    yyparse();
+    puts("-----end parsing");
+
+    fclose(fp);
+}
+
+void DBDataBase::test()
+{
+    getInstance()->_test();
+}
