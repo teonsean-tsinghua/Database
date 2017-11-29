@@ -3,10 +3,7 @@
 DBPageInfoSlot::DBPageInfoSlot(BufType cache):
     DBSlot(cache)
 {
-    pageType = (*this)[PAGE_TYPE_OFFSET];
-    firstAvailableByte = (*this)[FIRST_AVAILABLE_BYTE_OFFSET];
-    lengthFixed = (*this)[LENGTH_FIXED_OFFSET];
-    nextSamePage = (*this)[NEXT_SAME_PAGE_OFFSET];
+
 }
 
 int DBPageInfoSlot::size()
@@ -38,7 +35,7 @@ void DBPageInfoSlot::print()
 int DBPageInfoSlot::getPageType()
 {
     int re;
-    readInt(pageType, &re);
+    readInt((*this)[PAGE_TYPE_OFFSET], &re);
     return re;
 }
 
@@ -52,40 +49,40 @@ int DBPageInfoSlot::getPageType(BufType cache)
 int DBPageInfoSlot::getFirstAvailableByte()
 {
     int re;
-    readInt(firstAvailableByte, &re);
+    readInt((*this)[FIRST_AVAILABLE_BYTE_OFFSET], &re);
     return re;
 }
 
 bool DBPageInfoSlot::isLengthFixed()
 {
     int re;
-    readInt(lengthFixed, &re);
+    readInt((*this)[LENGTH_FIXED_OFFSET], &re);
     return re == 1;
 }
 
 int DBPageInfoSlot::getNextSamePage()
 {
     int re;
-    readInt(nextSamePage, &re);
+    readInt((*this)[NEXT_SAME_PAGE_OFFSET], &re);
     return re;
 }
 
 void DBPageInfoSlot::setPageType(int n)
 {
-    writeInt(pageType, n);
+    writeInt((*this)[PAGE_TYPE_OFFSET], n);
 }
 
 void DBPageInfoSlot::setFirstAvailableByte(int n)
 {
-    writeInt(firstAvailableByte, n);
+    writeInt((*this)[FIRST_AVAILABLE_BYTE_OFFSET], n);
 }
 
 void DBPageInfoSlot::setLengthFixed(bool n)
 {
-    writeInt(lengthFixed, n ? 1 : 0);
+    writeInt((*this)[LENGTH_FIXED_OFFSET], n ? 1 : 0);
 }
 
 void DBPageInfoSlot::setNextSamePage(int n)
 {
-    writeInt(nextSamePage, n);
+    writeInt((*this)[NEXT_SAME_PAGE_OFFSET], n);
 }

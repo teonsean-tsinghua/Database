@@ -5,13 +5,6 @@
 
 class DBPageInfoSlot: public DBSlot
 {
-protected:
-    BufType pageType;           // int
-    BufType firstAvailableByte; // int
-    BufType lengthFixed;        // int
-    BufType nextSamePage;       // int
-    //TODO: usage byte
-
 public:
 
     DBPageInfoSlot(BufType cache);

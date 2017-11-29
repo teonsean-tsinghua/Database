@@ -10,12 +10,6 @@
 class DBDataFileDescriptionSlot: public DBSlot
 {
 protected:
-    BufType firstDataPage;     // int
-    BufType firstUsagePage;    // int
-    BufType pageNumber;     // int
-    BufType primaryKeyIndex;   // int
-    BufType recordInfoLength;  // int
-    BufType recordInfo;
     DBRecordInfo* ri;
 
 public:

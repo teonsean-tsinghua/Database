@@ -3,16 +3,10 @@
 DBDataFileDescriptionSlot::DBDataFileDescriptionSlot(BufType cache, int mode):
     DBSlot(cache)
 {
-    firstDataPage = (*this)[FIRST_DATA_PAGE_OFFSET];
-    firstUsagePage = (*this)[FIRST_USAGE_PAGE_OFFSET];
-    pageNumber = (*this)[PAGE_NUMBER_OFFSET];
-    primaryKeyIndex = (*this)[PRIMARY_KEY_INDEX_OFFSET];
-    recordInfoLength = (*this)[RECORD_INFO_LENGTH_OFFSET];
-    recordInfo = (*this)[RECORD_INFO_OFFSET];
     ri = DBRecordInfo::getInstance();
     if(mode == MODE_PARSE)
     {
-        char* cache = (char*)recordInfo;
+        char* cache = (char*)(*this)[RECORD_INFO_OFFSET];
         char* end = cache + getRecordInfoLength();
         int offset = 0, type = 0, name_length = 0, nullable = 0, extra = 0;
         while(cache < end)
@@ -72,67 +66,67 @@ void DBDataFileDescriptionSlot::print()
 int DBDataFileDescriptionSlot::getFirstDataPage()
 {
     int re;
-    readInt(firstDataPage, &re);
+    readInt((*this)[FIRST_DATA_PAGE_OFFSET], &re);
     return re;
 }
 
 int DBDataFileDescriptionSlot::getFirstUsagePage()
 {
     int re;
-    readInt(firstUsagePage, &re);
+    readInt((*this)[FIRST_USAGE_PAGE_OFFSET], &re);
     return re;
 }
 
 int DBDataFileDescriptionSlot::getPageNumber()
 {
     int re;
-    readInt(pageNumber, &re);
+    readInt((*this)[PAGE_NUMBER_OFFSET], &re);
     return re;
 }
 
 int DBDataFileDescriptionSlot::getRecordInfoLength()
 {
     int re;
-    readInt(recordInfoLength, &re);
+    readInt((*this)[RECORD_INFO_LENGTH_OFFSET], &re);
     return re;
 }
 
 int DBDataFileDescriptionSlot::getPrimaryKeyIndex()
 {
     int re;
-    readInt(primaryKeyIndex, &re);
+    readInt((*this)[PRIMARY_KEY_INDEX_OFFSET], &re);
     return re;
 }
 
 void DBDataFileDescriptionSlot::setFirstDataPage(int n)
 {
-    writeInt(firstDataPage, n);
+    writeInt((*this)[FIRST_DATA_PAGE_OFFSET], n);
 }
 
 void DBDataFileDescriptionSlot::setFirstUsagePage(int n)
 {
-    writeInt(firstUsagePage, n);
+    writeInt((*this)[FIRST_USAGE_PAGE_OFFSET], n);
 }
 
 void DBDataFileDescriptionSlot::setPageNumber(int n)
 {
-    writeInt(pageNumber, n);
+    writeInt((*this)[PAGE_NUMBER_OFFSET], n);
 }
 
 void DBDataFileDescriptionSlot::setRecordInfoLength(int n)
 {
-    writeInt(recordInfoLength, n);
+    writeInt((*this)[RECORD_INFO_LENGTH_OFFSET], n);
 }
 
 void DBDataFileDescriptionSlot::setPrimaryKeyIndex(int n)
 {
-    writeInt(primaryKeyIndex, n);
+    writeInt((*this)[PRIMARY_KEY_INDEX_OFFSET], n);
 }
 
 void DBDataFileDescriptionSlot::write()
 {
     setRecordInfoLength(ri->getRecordInfoLength());
-    char* cache = (char*)recordInfo;
+    char* cache = (char*)(*this)[RECORD_INFO_OFFSET];
     int cnt = ri->getFieldCount();
     for(int i = 0; i < cnt; i++)
     {;
