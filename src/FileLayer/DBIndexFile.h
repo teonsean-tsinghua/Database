@@ -18,7 +18,7 @@ private:
     int minDgr;
     int maxDgr;
     bool open;
-    const char* path;
+    std::string path;
 
     int split(DBIndexNodePage* cur);
 
@@ -27,7 +27,7 @@ private:
     void _test();
 
 public:
-	DBIndexFile(const char* path);
+	DBIndexFile(std::string path);
 
 	int allocateNewLeafNode();
 

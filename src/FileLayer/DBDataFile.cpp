@@ -1,6 +1,6 @@
 #include"DBDataFile.h"
 
-DBDataFile::DBDataFile(const char* path):
+DBDataFile::DBDataFile(std::string path):
     path(path)
 {
     fm = DBFileIOModel::getInstance();
@@ -201,12 +201,12 @@ int DBDataFile::createFile()
         DBPrint::logLine("ERROR");
         return A_FILE_ALREADY_OPENED;
     }
-    if(fm->createFile(path) != SUCCEED)
+    if(fm->createFile(path.c_str()) != SUCCEED)
     {
         DBPrint::logLine("ERROR");
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
     }
-    if(fm->openFile(path, fileID) != SUCCEED)
+    if(fm->openFile(path.c_str(), fileID) != SUCCEED)
     {
         DBPrint::logLine("ERROR");
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
@@ -231,7 +231,7 @@ int DBDataFile::deleteFile()
         DBPrint::logLine("ERROR");
         return A_FILE_ALREADY_OPENED;
     }
-    if(fm->deleteFile(path) != SUCCEED)
+    if(fm->deleteFile(path.c_str()) != SUCCEED)
     {
         DBPrint::logLine("ERROR");
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
@@ -267,6 +267,15 @@ void DBDataFile::printFileDescription()
         return;
     }
     dfdp->print();
+}
+
+void DBDataFile::printRecordDescription()
+{
+    if(!open)
+    {
+        return;
+    }
+    dfdp->printRecordDescription();
 }
 
 int DBDataFile::addFields(std::vector<std::string>& name, std::vector<int>& type,
@@ -596,7 +605,7 @@ int DBDataFile::openFile()
         DBPrint::logLine("ERROR");
         return A_FILE_ALREADY_OPENED;
     }
-    if(fm->openFile(path, fileID) != SUCCEED)
+    if(fm->openFile(path.c_str(), fileID) != SUCCEED)
     {
         DBPrint::logLine("ERROR");
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;

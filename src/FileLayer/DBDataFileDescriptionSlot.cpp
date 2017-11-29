@@ -39,6 +39,30 @@ int DBDataFileDescriptionSlot::minSize()
     return sizeof(int) * 5;
 }
 
+void DBDataFileDescriptionSlot::printRecordDescription()
+{
+    int cnt = ri->getFieldCount();
+    std::ostringstream oss;
+    for(int i = 1; i < cnt; i++)
+    {
+        oss << "    " << ri->name(i) << " " << DBType::typeName(ri->type(i));
+        if(ri->extra(i) > 0)
+        {
+            oss << "(" << ri->extra(i) << ")";
+        }
+        if(!ri->nullable(i))
+        {
+            oss << " NOT NULL";
+        }
+        if(i != cnt - 1)
+        {
+            oss << ",";
+        }
+        oss << "\n";
+    }
+    DBPrint::print(oss.str());
+}
+
 void DBDataFileDescriptionSlot::print()
 {
     int cnt = ri->getFieldCount();

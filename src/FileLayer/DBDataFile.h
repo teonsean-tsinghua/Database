@@ -10,7 +10,7 @@ class DBDataFile
 {
 private:
     int fileID;
-    const char* path;
+    std::string path;
     DBFileIOModel* fm;
     DBDataFileDescriptionPage* dfdp;
     std::map<int, DBPage*> pages;
@@ -44,7 +44,7 @@ private:
     void _test();
 
 public:
-    DBDataFile(const char* path);
+    DBDataFile(std::string path);
 
     int createFile();
 
@@ -67,6 +67,8 @@ public:
     int update(std::map<std::string, void*>& key_value, std::map<std::string, void*>& update_value);
 
     int setPrimaryKey(const char* name);
+
+    void printRecordDescription();
 
     void printFileDescription();
 

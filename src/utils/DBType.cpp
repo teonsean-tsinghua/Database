@@ -3,7 +3,7 @@
 
 const int DBType::typeSize_[] = {20, sizeof(int), sizeof(float), 8, 0};
 
-const char* const DBType::typeName_[] = {"_id", "int", "float", "date", "varchar"};
+const char* const DBType::typeName_[] = {"_ID", "INT", "FLOAT", "DATE", "VARCHAR"};
 
 const char* const DBType::pageName_[] = {"Data file description page",
                                          "Data page",

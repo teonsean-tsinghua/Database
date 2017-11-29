@@ -18,6 +18,11 @@ DBDataFileDescriptionPage::DBDataFileDescriptionPage(BufType cache, int index, i
     }
 }
 
+void DBDataFileDescriptionPage::printRecordDescription()
+{
+    dfds->printRecordDescription();
+}
+
 void DBDataFileDescriptionPage::incrementPageNumber(int type)
 {
     dfds->setPageNumber(dfds->getPageNumber() + 1);

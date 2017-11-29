@@ -1,6 +1,6 @@
 #include "DBIndexFile.h"
 
-DBIndexFile::DBIndexFile(const char* path):
+DBIndexFile::DBIndexFile(std::string path):
     path(path)
 {
 	fm = DBFileIOModel::getInstance();
@@ -256,12 +256,12 @@ int DBIndexFile::createFile(int keyType, int keyLength)
         DBPrint::logLine("ERROR");
         return A_FILE_ALREADY_OPENED;
     }
-    if(fm->createFile(path) != SUCCEED)
+    if(fm->createFile(path.c_str()) != SUCCEED)
     {
         DBPrint::logLine("ERROR");
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
     }
-    if(fm->openFile(path, fileID) != SUCCEED)
+    if(fm->openFile(path.c_str(), fileID) != SUCCEED)
     {
         DBPrint::logLine("ERROR");
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
@@ -287,7 +287,7 @@ int DBIndexFile::deleteFile()
         DBPrint::logLine("ERROR");
         return A_FILE_ALREADY_OPENED;
     }
-    if(fm->deleteFile(path) != SUCCEED)
+    if(fm->deleteFile(path.c_str()) != SUCCEED)
     {
         DBPrint::logLine("ERROR");
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
@@ -323,7 +323,7 @@ int DBIndexFile::openFile()
         DBPrint::logLine("ERROR");
         return A_FILE_ALREADY_OPENED;
     }
-    if(fm->openFile(path, fileID) != SUCCEED){
+    if(fm->openFile(path.c_str(), fileID) != SUCCEED){
         DBPrint::logLine("ERROR");
         return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
     }

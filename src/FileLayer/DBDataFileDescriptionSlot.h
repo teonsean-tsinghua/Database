@@ -39,6 +39,8 @@ public:
 
     void print();
 
+    void printRecordDescription();
+
     int size();
 
     static int minSize();

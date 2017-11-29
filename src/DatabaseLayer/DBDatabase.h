@@ -18,10 +18,10 @@ private:
     std::vector<bool> pNullables;
     std::vector<int> pExtras;
 
-    const char* const root;
-    const char* name;
+    const std::string root;
+    std::string name;
 
-    DBDataBase(const char* root = "/home/teon/Documents/Database");
+    DBDataBase(std::string root = "/home/teon/Documents/Database");
 
     void delete_path(const char* path);
 
@@ -30,17 +30,19 @@ private:
 public:
     static DBDataBase* getInstance();
 
-    void createDatabase(const char* name);
+    void createDatabase(std::string name);
 
-    void dropDatabase(const char* name);
+    void dropDatabase(std::string name);
 
-    void useDatabase(const char* name);
+    void useDatabase(std::string name);
 
     void showDatabases();
 
-    void createTable(const char* name);
+    void createTable(std::string name);
 
-    void dropTable(const char* name);
+    void dropTable(std::string name);
+
+    void describeTable(std::string name);
 
     void showTables();
 

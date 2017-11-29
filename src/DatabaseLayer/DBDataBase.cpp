@@ -2,10 +2,10 @@
 
 DBDataBase* DBDataBase::instance;
 
-DBDataBase::DBDataBase(const char* root):
-    root(root), name(NULL)
+DBDataBase::DBDataBase(std::string root):
+    root(root), name("")
 {
-    if(access(root, F_OK) != 0)
+    if(access(root.c_str(), F_OK) != 0)
     {
         DBPrint::printLine("Cannot open root directory.");
         exit(0);
@@ -16,18 +16,16 @@ DBDataBase::DBDataBase(const char* root):
     pExtras.clear();
 }
 
-void DBDataBase::createDatabase(const char* name_)
+void DBDataBase::createDatabase(std::string name_)
 {
-    char* path = new char[256];
-    strcpy(path, root);
-    strcat(path, "/");
-    strcat(path, name_);
-    if(access(path, F_OK) == 0)
+    std::string path("");
+    path += (root + "/" + name_);
+    if(access(path.c_str(), F_OK) == 0)
     {
         DBPrint::printLine("File or directory already exists.");
         return;
     }
-    mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     DBPrint::log("Created directory ").logLine(path);
 }
 
@@ -69,7 +67,7 @@ void DBDataBase::delete_path(const char* path)
 
 void DBDataBase::showTables()
 {
-    if(name == NULL)
+    if(name == "")
     {
         return;
     }
@@ -77,10 +75,10 @@ void DBDataBase::showTables()
     struct dirent *dmsg;
     char szFileName[128];
     char szFolderName[128];
-    strcpy(szFolderName, root);
+    strcpy(szFolderName, root.c_str());
     strcat(szFolderName, "/");
-    strcat(szFolderName, name);
-    if(name != NULL && (pDir = opendir(szFolderName)) != NULL)
+    strcat(szFolderName, name.c_str());
+    if(name != "" && (pDir = opendir(szFolderName)) != NULL)
     {
         strcat(szFolderName, "/%s");
         DBPrint::printLine("====================");
@@ -90,9 +88,9 @@ void DBDataBase::showTables()
             if(strcmp(dmsg->d_name, ".") != 0 && strcmp(dmsg->d_name, "..") != 0)
             {
                 sprintf(szFileName, szFolderName, dmsg->d_name);
-                string tmp = szFileName;
+                std::string tmp = szFileName;
                 if(opendir(szFileName) == NULL && tmp.substr(tmp.size() - 4, 4).compare(".dat") == 0){
-                    string filename = std::string(dmsg->d_name);
+                    std::string filename = std::string(dmsg->d_name);
                     DBPrint::printLine(filename.substr(0, filename.size() - 4));
                 }
             }
@@ -117,16 +115,16 @@ void DBDataBase::showDatabases()
     struct dirent *dmsg;
     char szFileName[128];
     char szFolderName[128];
-    strcpy(szFolderName, root);
+    strcpy(szFolderName, root.c_str());
     strcat(szFolderName, "/%s");
-    if((pDir = opendir(root)) != NULL)
+    if((pDir = opendir(root.c_str())) != NULL)
     {
         while((dmsg = readdir(pDir)) != NULL)
         {
             if(strcmp(dmsg->d_name, ".") != 0 && strcmp(dmsg->d_name, "..") != 0)
             {
                 sprintf(szFileName, szFolderName, dmsg->d_name);
-                string tmp = szFileName;
+                std::string tmp = szFileName;
                 if(opendir(szFileName) != NULL)
                 {
                     DBPrint::printLine(dmsg->d_name);
@@ -141,72 +139,68 @@ void DBDataBase::showDatabases()
     }
 }
 
-void DBDataBase::useDatabase(const char* name_)
+void DBDataBase::useDatabase(std::string name_)
 {
-    char* path = new char[256];
-    strcpy(path, root);
-    strcat(path, "/");
-    strcat(path, name_);
-    if(access(path, F_OK) != 0)
+    std::string path("");
+    path += (root + "/" + name_);
+    if(access(path.c_str(), F_OK) != 0)
     {
         DBPrint::printLine("Database does not exist.");
         return;
     }
-    if (opendir(path) == NULL)
+    if (opendir(path.c_str()) == NULL)
     {
         DBPrint::print(name_).printLine(" is not a Database.");
         return;
     }
     name = name_;
-    DBPrint::log("Using database ").logLine(name);
+    data.clear();
+    indexes.clear();
+    DBPrint::log("USING DATABASE ").logLine(name);
 }
 
-void DBDataBase::dropDatabase(const char* name_)
+void DBDataBase::dropDatabase(std::string name_)
 {
-    if(strcmp(name_, name) == 0)
+    if(name_ == name)
     {
-        name = NULL;
+        name = "";
+        data.clear();
+        indexes.clear();
     }
-    char* path = new char[256];
-    strcpy(path, root);
-    strcat(path, "/");
-    strcat(path, name_);
-    if(access(path, F_OK) != 0)
+    std::string path("");
+    path += (root + "/" + name_);
+    if(access(path.c_str(), F_OK) != 0)
     {
         DBPrint::printLine("Database does not exist.");
         return;
     }
-    delete_path(path);
-    rmdir(path);
+    delete_path(path.c_str());
+    rmdir(path.c_str());
     DBPrint::log("Removed directory ").logLine(path);
 }
 
-void DBDataBase::createTable(const char* name_)
+void DBDataBase::createTable(std::string name_)
 {
-    if(name == NULL)
+    if(name == "")
     {
         DBPrint::printLine("No database being used.");
         return;
     }
-    char* path = new char[256];
-    strcpy(path, root);
-    strcat(path, "/");
-    strcat(path, name);
-    strcat(path, "/");
-    if(access(path, F_OK) != 0)
+    std::string path("");
+    path += (root + "/" + name + "/");
+    if(access(path.c_str(), F_OK) != 0)
     {
         DBPrint::printLine("Current database is not available.");
         return;
     }
-    strcat(path, name_);
-    strcat(path, ".dat");
-    if(access(path, F_OK) == 0)
+    path += (name_ + ".dat");
+    if(access(path.c_str(), F_OK) == 0)
     {
         DBPrint::printLine("Table already exists.");
         return;
     }
     DBDataFile* df = new DBDataFile(path);
-    data[std::string(name_)] = df;
+    data[name_] = df;
     df->createFile();
     df->openFile();
     df->addFields(pNames, pTypes, pNullables, pExtras);
@@ -214,9 +208,49 @@ void DBDataBase::createTable(const char* name_)
     DBPrint::log("Created file ").logLine(path);
 }
 
-void DBDataBase::dropTable(const char* name_)
+void DBDataBase::describeTable(std::string name_)
 {
-    if(name == NULL)
+    if(name == "")
+    {
+        DBPrint::printLine("No database being used.");
+        return;
+    }
+    std::string tmp(name_);
+    if(data.count(tmp))
+    {
+        DBDataFile* df = data[tmp];
+        df->openFile();
+        DBPrint::printLine("TABLE " + name_ + "(");
+        df->printRecordDescription();
+        DBPrint::printLine(")");
+        df->closeFile();
+        return;
+    }
+    std::string path("");
+    path += (root + "/" + name + "/");
+    if(access(path.c_str(), F_OK) != 0)
+    {
+        DBPrint::printLine("Current database is not available.");
+        return;
+    }
+    path += (name_ + ".dat");
+    if(access(path.c_str(), F_OK) != 0)
+    {
+        DBPrint::printLine("Table does not exist.");
+        return;
+    }
+    DBDataFile* df = new DBDataFile(path);
+    data[tmp] = df;
+    df->openFile();
+    DBPrint::printLine("TABLE " + name_ + "(");
+    df->printRecordDescription();
+    DBPrint::printLine(")");
+    df->closeFile();
+}
+
+void DBDataBase::dropTable(std::string name_)
+{
+    if(name == "")
     {
         DBPrint::printLine("No database being used.");
         return;
@@ -225,14 +259,14 @@ void DBDataBase::dropTable(const char* name_)
     struct dirent *dmsg;
     char szFileName[128];
     char szFolderName[128];
-    strcpy(szFolderName, root);
+    strcpy(szFolderName, root.c_str());
     strcat(szFolderName, "/");
-    strcat(szFolderName, name);
-    if(name != NULL && (pDir = opendir(szFolderName)) != NULL)
+    strcat(szFolderName, name.c_str());
+    if(name != "" && (pDir = opendir(szFolderName)) != NULL)
     {
         strcat(szFolderName, "/");
         strcpy(szFileName, szFolderName);
-        strcat(szFileName, name_);
+        strcat(szFileName, name_.c_str());
         strcat(szFileName, ".dat");
         if(access(szFileName, F_OK) != 0)
         {
@@ -243,7 +277,7 @@ void DBDataBase::dropTable(const char* name_)
             remove(szFileName);
             DBPrint::log("Removed file ").logLine(szFileName);
             strcpy(szFileName, szFolderName);
-            strcat(szFileName, name_);
+            strcat(szFileName, name_.c_str());
             strcat(szFileName, ".idx");
             delete_path(szFileName);
             rmdir(szFileName);
@@ -279,11 +313,7 @@ void DBDataBase::_test()
     }
     extern FILE* yyin;
     yyin=fp;
-
-    printf("-----begin parsing %s\n", sFile);
     yyparse();
-    puts("-----end parsing");
-
     fclose(fp);
 }
 

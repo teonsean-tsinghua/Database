@@ -43,15 +43,15 @@ stmt	: sysStmt ';'
 sysStmt	: SHOW DATABASES { instance->showDatabases(); }
 	;
 
-dbStmt	: CREATE DATABASE dbName { instance->createDatabase($3.c_str()); }
-	| DROP DATABASE dbName { instance->dropDatabase($3.c_str()); }
-	| USE dbName { instance->useDatabase($2.c_str()); }
+dbStmt	: CREATE DATABASE dbName { instance->createDatabase($3); }
+	| DROP DATABASE dbName { instance->dropDatabase($3); }
+	| USE dbName { instance->useDatabase($2); }
 	| SHOW TABLES { instance->showTables(); }
 	;
 
-tbStmt	: CREATE TABLE tbName '(' fieldList ')' { instance->createTable($3.c_str()); }
-	| DROP TABLE tbName { instance->dropTable($3.c_str()); }
-	| DESC tbName
+tbStmt	: CREATE TABLE tbName '(' fieldList ')' { instance->createTable($3); }
+	| DROP TABLE tbName { instance->dropTable($3); }
+	| DESC tbName { instance->describeTable($2); }
 	| INSERT INTO tbName VALUES valueLists
 	| DELETE FROM tbName WHERE whereClause
 	| UPDATE tbName SET setClause WHERE whereClause

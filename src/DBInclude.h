@@ -9,6 +9,7 @@
 #include<unistd.h>
 #include<string>
 #include<iostream>
+#include<sstream>
 #include<cstring>
 #include<map>
 #include<vector>

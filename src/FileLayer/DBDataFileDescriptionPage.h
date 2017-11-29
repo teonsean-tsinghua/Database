@@ -27,6 +27,8 @@ public:
 
     void print();
 
+    void printRecordDescription();
+
     static int maxRecordInfoLength();
 };
 
