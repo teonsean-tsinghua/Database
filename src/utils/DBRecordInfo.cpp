@@ -2,7 +2,7 @@
 #include"../DBInclude.h"
 #include"../FileLayer/DBDataFileDescriptionPage.h"
 
-DBRecordInfo* DBRecordInfo::instance = new DBRecordInfo();
+DBRecordInfo* DBRecordInfo::instance;
 
 DBRecordInfo::DBRecordInfo()
 {

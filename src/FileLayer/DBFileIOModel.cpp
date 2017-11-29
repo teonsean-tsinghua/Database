@@ -1,6 +1,6 @@
 #include"DBFileIOModel.h"
 
-DBFileIOModel* DBFileIOModel::instance = new DBFileIOModel();
+DBFileIOModel* DBFileIOModel::instance;
 
 DBFileIOModel::DBFileIOModel()
 {

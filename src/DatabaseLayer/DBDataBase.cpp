@@ -1,6 +1,6 @@
 #include"DBDatabase.h"
 
-DBDataBase* DBDataBase::instance = new DBDataBase();
+DBDataBase* DBDataBase::instance;
 
 DBDataBase::DBDataBase(const char* root):
     root(root), name(NULL)
@@ -37,7 +37,6 @@ void DBDataBase::addPending(std::string name, int type, bool nullable, int extra
     pTypes.push_back(type);
     pNullables.push_back(nullable);
     pExtras.push_back(extra);
-    printf("This in adding %d.\n", this);
 }
 
 void DBDataBase::delete_path(const char* path)
@@ -250,15 +249,8 @@ void DBDataBase::_test()
     printf("-----begin parsing %s\n", sFile);
     yyparse();
     puts("-----end parsing");
-    printf("This in _test %d.\n", this);
 
     fclose(fp);
-    for(int i = 0; i < pNames.size(); i++)
-    {
-        std::cout << pNames[i] << ": " << DBType::typeName(pTypes[i])
-                  << ", " << (pNullables[i] ? "nullable" : "not nullable")
-                  << ", extra is " << pExtras[i] << std::endl;
-    }
 }
 
 void DBDataBase::test()
