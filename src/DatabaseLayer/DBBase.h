@@ -6,10 +6,24 @@
 #include <stdio.h>
 
 using namespace std;
+struct Field
+{
+    int type;
+    int extra;
+    bool nullable;
+    string name;
+};
+struct FieldType
+{
+    int type;
+    int extra;
+};
 struct Type
 {
-	string m_sId;
-	int m_nInt;
+	string m_string;
+	int m_int;
+	struct Field m_field;
+	struct FieldType m_type;
 };
 
 #define YYSTYPE Type

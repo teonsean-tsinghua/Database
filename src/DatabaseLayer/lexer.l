@@ -51,9 +51,9 @@ BLANK_CHARS ([ \f\r\t\v]+)
 "<="			{ return LESS_EQUAL; }
 ">="			{ return GREATER_EQUAL; }
 {SIMPLE_OPERATOR} 	{ return *yytext; }
-{IDENTIFIER}    	{ yylval.m_sId=yytext; return IDENTIFIER; }
-{VALUE_INT}       	{ yylval.m_nInt=atoi(yytext); return VALUE_INT; }
-{VALUE_STRING}    	{ yylval.m_sId=yytext; return VALUE_STRING; }
+{IDENTIFIER}    	{ yylval.m_string=yytext; return IDENTIFIER; }
+{VALUE_INT}       	{ yylval.m_int=atoi(yytext); return VALUE_INT; }
+{VALUE_STRING}    	{ yylval.m_string=yytext; return VALUE_STRING; }
 {BLANK_CHARS}   	{}
 %%
 

@@ -57,6 +57,10 @@ void DBDataBase::delete_path(const char* path)
 
 void DBDataBase::showTables()
 {
+    if(name == NULL)
+    {
+        return;
+    }
     DIR *pDir = NULL;
     struct dirent *dmsg;
     char szFileName[128];
@@ -147,6 +151,10 @@ void DBDataBase::useDatabase(const char* name_)
 
 void DBDataBase::dropDatabase(const char* name_)
 {
+    if(strcmp(name_, name) == 0)
+    {
+        name = NULL;
+    }
     char* path = new char[256];
     strcpy(path, root);
     strcat(path, "/");
@@ -163,6 +171,10 @@ void DBDataBase::dropDatabase(const char* name_)
 
 void DBDataBase::dropTable(const char* name_)
 {
+    if(name == NULL)
+    {
+        return;
+    }
     DIR *pDir = NULL;
     struct dirent *dmsg;
     char szFileName[128];

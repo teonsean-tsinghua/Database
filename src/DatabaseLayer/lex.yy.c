@@ -1011,18 +1011,18 @@ YY_RULE_SETUP
 case 36:
 YY_RULE_SETUP
 #line 54 "lexer.l"
-{ yylval.m_sId=yytext; return IDENTIFIER; }
+{ yylval.m_string=yytext; return IDENTIFIER; }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
 #line 55 "lexer.l"
-{ yylval.m_nInt=atoi(yytext); return VALUE_INT; }
+{ yylval.m_int=atoi(yytext); return VALUE_INT; }
 	YY_BREAK
 case 38:
 /* rule 38 can match eol */
 YY_RULE_SETUP
 #line 56 "lexer.l"
-{ yylval.m_sId=yytext; return VALUE_STRING; }
+{ yylval.m_string=yytext; return VALUE_STRING; }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP

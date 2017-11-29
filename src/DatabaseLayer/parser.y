@@ -16,13 +16,14 @@ extern "C"
 %token  INSERT	INTO	VALUES	DELETE	FROM	WHERE
 %token  UPDATE	SET	SELECT	IS	INT_	VARCHAR_
 %token  DESC	INDEX 	AND	DATE_	FLOAT_	FOREIGN	REFERENCES
-%token  <m_sId>IDENTIFIER
-%token  <m_sId>VALUE_STRING
-%token	<m_nInt>VALUE_INT
+%token  <m_string>IDENTIFIER
+%token  <m_string>VALUE_STRING
+%token	<m_int>VALUE_INT
 %token  NOT_EQUAL GREATER_EQUAL LESS_EQUAL
 %token  ';' 	'('	')' 	','	'.' '<' '>' '=' '*'
 
-%type<m_sId>dbName tbName colName
+%type<m_string> dbName tbName colName
+%type<m_type> type
 
 %nonassoc ';'
 %left AND
@@ -64,16 +65,17 @@ fieldList : field
 	| fieldList ',' field
 	;
 
-field	: colName type
+field	: colName type {  }
 	| colName type NOT NULL_
 	| PRIMARY KEY '(' columnList ')'
 	| FOREIGN KEY '(' colName ')' REFERENCES tbName '(' colName ')'
 	;
 
-type	: INT_ '(' VALUE_INT ')'
-	| VARCHAR_ '(' VALUE_INT ')'
-	| DATE_
-	| FLOAT_
+type	: INT_ '(' VALUE_INT ')' { $$.type = DBType::INT; $$.extra = $3; }
+    | INT_ { $$.type = DBType::INT; $$.extra = 0; }
+	| VARCHAR_ '(' VALUE_INT ')' { $$.type = DBType::VARCHAR; $$.extra = $3; }
+	| DATE_ { $$.type = DBType::DATE; $$.extra = 0; }
+	| FLOAT_ { $$.type = DBType::FLOAT; $$.extra = 0; }
 	;
 
 valueLists : '(' valueList ')'
