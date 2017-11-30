@@ -26,19 +26,21 @@ extern "C"
 %type<m_type> type
 %type<m_field> field
 %type<m_value> value
+%type<m_col> col
+%type<m_bool> selector
 
 %nonassoc ';'
 %left AND
 %%
 
-program	: program stmt
-	| /* empty */
+program	: program stmt {}
+	| /* empty */ {}
 	;
 
-stmt	: sysStmt ';'
-	| dbStmt ';'
-	| tbStmt ';'
-	| idxStmt ';'
+stmt	: sysStmt ';' {}
+	| dbStmt ';' {}
+	| tbStmt ';' {}
+	| idxStmt ';' {}
 	;
 
 sysStmt	: SHOW DATABASES { instance->showDatabases(); }
@@ -56,7 +58,7 @@ tbStmt	: CREATE TABLE tbName '(' fieldList ')' { instance->createTable($3); }
 	| INSERT INTO tbName VALUES valueLists { instance->insert($3); }
 	| DELETE FROM tbName WHERE whereClause
 	| UPDATE tbName SET setClause WHERE whereClause
-	| SELECT selector FROM tableList WHERE whereClause
+	| SELECT selector FROM tableList WHERE whereClause { instance->select($2); } // unfinished
 	;
 
 idxStmt	: CREATE INDEX tbName '(' colName ')'
@@ -99,8 +101,8 @@ whereClause : col op expr
 	| whereClause AND whereClause %prec AND
 	;
 
-col	: tbName '.' colName
-	| colName
+col	: tbName '.' colName { $$.table = $1; $$.field = $3; }
+	| colName { $$.table = ""; $$.field = $1; }
 	;
 
 op	: '='
@@ -119,20 +121,20 @@ setClause : colName '=' value
 	| setClause ',' colName '=' value
 	;
 
-selector : '*'
-	| colList
+selector : '*' { $$ = true; }
+	| colList { $$ = false; }
 	;
 
-colList : colList ',' col
-	| col
+colList : colList ',' col { instance->addPendingCol($3); }
+	| col { instance->addPendingCol($1); }
 	;
 
-tableList : tbName
-	| tableList ',' tbName
+tableList : tbName { instance->addPendingTable($1); }
+	| tableList ',' tbName { instance->addPendingTable($3); }
 	;
 
-columnList : colName
-	| columnList ',' colName
+columnList : colName { instance->addPendingColumn($1); }
+	| columnList ',' colName { instance->addPendingColumn($3); }
 	;
 
 dbName	: IDENTIFIER { $$ = $1; }

@@ -22,6 +22,8 @@ public:
 
     void init();
 
+    bool contains(std::string name);
+
     int index(std::string name);
 
     std::string name(int index);

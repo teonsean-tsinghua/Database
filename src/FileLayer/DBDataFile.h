@@ -69,6 +69,10 @@ public:
 
     int setPrimaryKey(const char* name);
 
+    bool validateFields(std::vector<std::string>& names, std::string tableName);
+
+    void getAllFields(std::vector<std::string>& names);
+
     void printRecordDescription();
 
     void printFileDescription();

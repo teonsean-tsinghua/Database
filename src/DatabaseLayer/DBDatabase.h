@@ -19,6 +19,9 @@ private:
     std::vector<int> pExtras;
     std::vector<Value> pValues;
     std::vector<std::vector<Value> > pValueLists;
+    std::vector<std::string> pTables;
+    std::vector<std::string> pColumns;
+    std::vector<Col> pCols;
 
     const std::string root;
     std::string name;
@@ -32,6 +35,10 @@ private:
     bool databaseAvailable();
 
     DBDataFile* getDataFile(std::string name);
+
+    void selectOneTable(bool all);
+
+    void selectMultiTable(bool all);
 
 public:
     static DBDatabase* getInstance();
@@ -54,13 +61,19 @@ public:
 
     void addPendingField(std::string& name, int type, bool nullable, int extra);
 
+    void addPendingTable(std::string& name);
+
+    void addPendingColumn(std::string& name);
+
+    void addPendingCol(Col& col);
+
     void addPendingValue(Value& value);
 
     void addPendingValueList();
 
-    void clearPending();
-
     void insert(std::string name);
+
+    void select(bool all);
 
     static void test();
 };

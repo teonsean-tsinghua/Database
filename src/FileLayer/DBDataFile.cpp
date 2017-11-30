@@ -30,6 +30,37 @@ void DBDataFile::printAllRecords()
     }
 }
 
+void DBDataFile::getAllFields(std::vector<std::string>& names)
+{
+    if(!open)
+    {
+        return;
+    }
+    int cnt = ri->getFieldCount();
+    for(int i = 1; i < cnt; i++)
+    {
+        names.push_back(ri->name(i));
+    }
+}
+
+bool DBDataFile::validateFields(std::vector<std::string>& names, std::string tableName)
+{
+    if(!open)
+    {
+        return false;
+    }
+    bool flag = true;
+    for(int i = 0; i < names.size(); i++)
+    {
+        if(!ri->contains(names[i]))
+        {
+            DBPrint::print("Table ").print(tableName).print(" does not have field ").print(names[i]).printLine(".");
+            flag = false;
+        }
+    }
+    return flag;
+}
+
 int DBDataFile::findFirstAvailableDataPage()
 {
     if(!open)

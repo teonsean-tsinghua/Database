@@ -27,13 +27,21 @@ struct Value
     std::string v_str;
 };
 
+struct Col
+{
+    std::string table;
+    std::string field;
+};
+
 struct Type
 {
 	std::string m_string;
 	int m_int;
+	bool m_bool;
 	struct Field m_field;
 	struct FieldType m_type;
 	struct Value m_value;
+	struct Col m_col;
 };
 
 #define YYSTYPE Type

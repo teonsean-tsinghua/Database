@@ -96,6 +96,11 @@ int DBRecordInfo::length(std::string name)
     return DBType::typeSize(type(name));
 }
 
+bool DBRecordInfo::contains(std::string name)
+{
+    return indexes.count(name);
+}
+
 int DBRecordInfo::addField(std::string name, int type, bool nullable, int extra)
 {
     if(name.empty())

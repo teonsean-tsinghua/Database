@@ -14,6 +14,10 @@ DBDatabase::DBDatabase(std::string root):
     pTypes.clear();
     pNullables.clear();
     pExtras.clear();
+    pValues.clear();
+    pValueLists.clear();
+    pTables.clear();
+    pColumns.clear();
 }
 
 void DBDatabase::createDatabase(std::string name_)
@@ -29,12 +33,27 @@ void DBDatabase::createDatabase(std::string name_)
     DBPrint::log("Created directory ").logLine(path);
 }
 
-void DBDatabase::addPendingField(std::string& name, int type, bool nullable, int extra)
+void DBDatabase::addPendingField(std::string& name_, int type, bool nullable, int extra)
 {
-    pNames.push_back(name);
+    pNames.push_back(name_);
     pTypes.push_back(type);
     pNullables.push_back(nullable);
     pExtras.push_back(extra);
+}
+
+void DBDatabase::addPendingTable(std::string& name_)
+{
+    pTables.push_back(name_);
+}
+
+void DBDatabase::addPendingColumn(std::string& name_)
+{
+    pColumns.push_back(name_);
+}
+
+void DBDatabase::addPendingCol(Col& col)
+{
+    pCols.push_back(col);
 }
 
 void DBDatabase::addPendingValue(Value& value)
@@ -48,14 +67,75 @@ void DBDatabase::addPendingValueList()
     pValues.clear();
 }
 
-void DBDatabase::clearPending()
+void DBDatabase::selectOneTable(bool all)
 {
-    pNames.clear();
-    pTypes.clear();
-    pNullables.clear();
-    pExtras.clear();
-    pValues.clear();
-    pValueLists.clear();
+    DBDataFile* df = getDataFile(pTables[0]);
+    if(df == NULL)
+    {
+        pTables.clear();
+        pCols.clear();
+        return;
+    }
+    std::vector<std::string> selected;
+    df->openFile();
+    if(all)
+    {
+        df->getAllFields(selected);
+    }
+    else
+    {
+        bool flag = true;
+        for(int i = 0; i < pCols.size(); i++)
+        {
+            if(pCols[i].table != "" &&
+               pCols[i].table != pTables[0])
+            {
+                DBPrint::printLine("Table " + pCols[i].table + " is not selected.");
+                flag = false;
+            }
+            else
+            {
+                selected.push_back(pCols[i].field);
+            }
+        }
+        if(!flag || !df->validateFields(selected, pTables[0]))
+        {
+            pTables.clear();
+            pCols.clear();
+            df->closeFile();
+            return;
+        }
+    }
+    DBPrint::printLine("Selected:");
+    for(int i = 0; i < selected.size(); i++)
+    {
+        DBPrint::print(selected[i] + " ");
+    }
+    DBPrint::printLine();
+    pTables.clear();
+    pCols.clear();
+    df->closeFile();
+}
+
+void DBDatabase::selectMultiTable(bool all)
+{
+
+}
+
+void DBDatabase::select(bool all)
+{
+    if(pTables.size() == 1)
+    {
+        selectOneTable(all);
+    }
+    else if(pTables.size() > 1)
+    {
+        selectMultiTable(all);
+    }
+    else
+    {
+        DBPrint::printLine("At least one table should be provided.");
+    }
 }
 
 void DBDatabase::insert(std::string name_)
@@ -63,7 +143,8 @@ void DBDatabase::insert(std::string name_)
     DBDataFile* df = getDataFile(name_);
     if(df == NULL)
     {
-        clearPending();
+        pValues.clear();
+        pValueLists.clear();
         return;
     }
     df->openFile();
@@ -88,10 +169,8 @@ void DBDatabase::insert(std::string name_)
         }
         df->insert(data);
     }
-    clearPending();
-    df->closeFile();
-    df->openFile();
-    df->printAllRecords();
+    pValues.clear();
+    pValueLists.clear();
     df->closeFile();
 }
 
@@ -256,7 +335,10 @@ void DBDatabase::createTable(std::string name_)
     df->openFile();
     df->addFields(pNames, pTypes, pNullables, pExtras);
     df->closeFile();
-    clearPending();
+    pNames.clear();
+    pTypes.clear();
+    pNullables.clear();
+    pExtras.clear();
     DBPrint::log("Created file ").logLine(path);
 }
 
@@ -288,7 +370,7 @@ DBDataFile* DBDatabase::getDataFile(std::string name_)
     path += (root + "/" + name + "/" + name_ + ".dat");
     if(access(path.c_str(), F_OK) != 0)
     {
-        DBPrint::printLine("Table does not exist.");
+        DBPrint::printLine("Table " + name_ + " does not exist.");
         return NULL;
     }
     if(opendir(path.c_str()) != NULL)
