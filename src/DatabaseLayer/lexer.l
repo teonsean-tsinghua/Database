@@ -10,7 +10,7 @@ int yylex(void);
 %}
 
 IDENTIFIER [A-Za-z][_0-9A-Za-z]*
-VALUE_INT [0-9]+
+VALUE_INT (-)?[0-9]+
 VALUE_STRING '[^']*'
 SIMPLE_OPERATOR [;,.()=><*]
 BLANK_CHARS ([ \f\r\t\v]+)

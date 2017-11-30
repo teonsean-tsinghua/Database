@@ -22,9 +22,9 @@ struct FieldType
 
 struct Value
 {
-    bool isNull;
-    std::string v_str;
+    int type; // 0-null, 1-int, 2-str
     int v_int;
+    std::string v_str;
 };
 
 struct Type

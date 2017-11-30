@@ -25,7 +25,14 @@ int DBRecordSlot::write(std::vector<void*>& data)
         else
         {
             writeBoolToChar((*this)[offset], false);
-            writeData((*this)[offset + 1], ptr, ri->length(i));
+            switch(ri->type(i))
+            {
+            case DBType::INT:
+                writeInt((*this)[offset + 1], *(int*)data[i]);
+                break;
+            default:
+                writeData((*this)[offset + 1], ptr, ri->length(i));
+            }
         }
     }
     return SUCCEED;

@@ -31,8 +31,6 @@ private:
 
     DBUsagePage* openUsagePage(int pid);
 
-    int insertRecordToPage(int page, std::vector<void*>& processed);
-
     void processKeyValue(std::map<std::string, void*>& data,
                          std::map<int, void*>& processed,
                          std::vector<std::string>& errors);
@@ -40,6 +38,8 @@ private:
     void processWriteValue(std::map<std::string, void*>& data,
                             std::vector<void*>& processed,
                             std::map<std::string, int>& errors);
+
+    bool validateInsertion(std::vector<void*>& data);
 
     void _test();
 
@@ -57,8 +57,9 @@ public:
     int addFields(std::vector<std::string>& name, std::vector<int>& type,
                   std::vector<bool>& nullable, std::vector<int>& extra);
 
-    //If a nullable field is set to null, then don't include it in fields.
     int insertRecord(std::map<std::string, void*>& fields);
+
+    int insert(std::vector<void*>& fields);
 
     int findEqual(std::map<std::string, void*>& data, std::set<std::map<std::string, void*>*>& result);
 

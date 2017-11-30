@@ -1,8 +1,8 @@
 #include"DBDatabase.h"
 
-DBDataBase* DBDataBase::instance;
+DBDatabase* DBDatabase::instance;
 
-DBDataBase::DBDataBase(std::string root):
+DBDatabase::DBDatabase(std::string root):
     root(root), name("")
 {
     if(access(root.c_str(), F_OK) != 0)
@@ -16,7 +16,7 @@ DBDataBase::DBDataBase(std::string root):
     pExtras.clear();
 }
 
-void DBDataBase::createDatabase(std::string name_)
+void DBDatabase::createDatabase(std::string name_)
 {
     std::string path("");
     path += (root + "/" + name_);
@@ -29,7 +29,7 @@ void DBDataBase::createDatabase(std::string name_)
     DBPrint::log("Created directory ").logLine(path);
 }
 
-void DBDataBase::addPending(std::string name, int type, bool nullable, int extra)
+void DBDatabase::addPendingField(std::string& name, int type, bool nullable, int extra)
 {
     pNames.push_back(name);
     pTypes.push_back(type);
@@ -37,7 +37,65 @@ void DBDataBase::addPending(std::string name, int type, bool nullable, int extra
     pExtras.push_back(extra);
 }
 
-void DBDataBase::delete_path(const char* path)
+void DBDatabase::addPendingValue(Value& value)
+{
+    pValues.push_back(value);
+}
+
+void DBDatabase::addPendingValueList()
+{
+    pValueLists.push_back(pValues);
+    pValues.clear();
+}
+
+void DBDatabase::clearPending()
+{
+    pNames.clear();
+    pTypes.clear();
+    pNullables.clear();
+    pExtras.clear();
+    pValues.clear();
+    pValueLists.clear();
+}
+
+void DBDatabase::insert(std::string name_)
+{
+    DBDataFile* df = getDataFile(name_);
+    if(df == NULL)
+    {
+        clearPending();
+        return;
+    }
+    df->openFile();
+    for(int i = 0; i < pValueLists.size(); i++)
+    {
+        std::vector<void*> data;
+        data.push_back(NULL);
+        for(int j = 0; j < pValueLists[i].size(); j++)
+        {
+            switch(pValueLists[i][j].type)
+            {
+            case 0:
+                data.push_back(NULL);
+                break;
+            case 1:
+                data.push_back(&(pValueLists[i][j].v_int));
+                break;
+            case 2:
+                data.push_back(&(pValueLists[i][j].v_str));
+                break;
+            }
+        }
+        df->insert(data);
+    }
+    clearPending();
+    df->closeFile();
+    df->openFile();
+    df->printAllRecords();
+    df->closeFile();
+}
+
+void DBDatabase::delete_path(const char* path)
 {
     DIR *pDir = NULL;
     struct dirent *dmsg;
@@ -65,7 +123,7 @@ void DBDataBase::delete_path(const char* path)
     }
 }
 
-void DBDataBase::showTables()
+void DBDatabase::showTables()
 {
     if(name == "")
     {
@@ -107,7 +165,7 @@ void DBDataBase::showTables()
     }
 }
 
-void DBDataBase::showDatabases()
+void DBDatabase::showDatabases()
 {
     DBPrint::printLine("====================");
     DBPrint::printLine("All databases are listed as below:");
@@ -139,7 +197,7 @@ void DBDataBase::showDatabases()
     }
 }
 
-void DBDataBase::useDatabase(std::string name_)
+void DBDatabase::useDatabase(std::string name_)
 {
     std::string path("");
     path += (root + "/" + name_);
@@ -159,7 +217,7 @@ void DBDataBase::useDatabase(std::string name_)
     DBPrint::log("USING DATABASE ").logLine(name);
 }
 
-void DBDataBase::dropDatabase(std::string name_)
+void DBDatabase::dropDatabase(std::string name_)
 {
     if(name_ == name)
     {
@@ -179,24 +237,17 @@ void DBDataBase::dropDatabase(std::string name_)
     DBPrint::log("Removed directory ").logLine(path);
 }
 
-void DBDataBase::createTable(std::string name_)
+void DBDatabase::createTable(std::string name_)
 {
-    if(name == "")
+    if(!databaseAvailable())
     {
-        DBPrint::printLine("No database being used.");
         return;
     }
     std::string path("");
-    path += (root + "/" + name + "/");
-    if(access(path.c_str(), F_OK) != 0)
-    {
-        DBPrint::printLine("Current database is not available.");
-        return;
-    }
-    path += (name_ + ".dat");
+    path += (root + "/" + name + "/" + name_ + ".dat");
     if(access(path.c_str(), F_OK) == 0)
     {
-        DBPrint::printLine("Table already exists.");
+        DBPrint::printLine("File already exists.");
         return;
     }
     DBDataFile* df = new DBDataFile(path);
@@ -205,42 +256,17 @@ void DBDataBase::createTable(std::string name_)
     df->openFile();
     df->addFields(pNames, pTypes, pNullables, pExtras);
     df->closeFile();
+    clearPending();
     DBPrint::log("Created file ").logLine(path);
 }
 
-void DBDataBase::describeTable(std::string name_)
+void DBDatabase::describeTable(std::string name_)
 {
-    if(name == "")
+    DBDataFile* df = getDataFile(name_);
+    if(df == NULL)
     {
-        DBPrint::printLine("No database being used.");
         return;
     }
-    std::string tmp(name_);
-    if(data.count(tmp))
-    {
-        DBDataFile* df = data[tmp];
-        df->openFile();
-        DBPrint::printLine("TABLE " + name_ + "(");
-        df->printRecordDescription();
-        DBPrint::printLine(")");
-        df->closeFile();
-        return;
-    }
-    std::string path("");
-    path += (root + "/" + name + "/");
-    if(access(path.c_str(), F_OK) != 0)
-    {
-        DBPrint::printLine("Current database is not available.");
-        return;
-    }
-    path += (name_ + ".dat");
-    if(access(path.c_str(), F_OK) != 0)
-    {
-        DBPrint::printLine("Table does not exist.");
-        return;
-    }
-    DBDataFile* df = new DBDataFile(path);
-    data[tmp] = df;
     df->openFile();
     DBPrint::printLine("TABLE " + name_ + "(");
     df->printRecordDescription();
@@ -248,61 +274,74 @@ void DBDataBase::describeTable(std::string name_)
     df->closeFile();
 }
 
-void DBDataBase::dropTable(std::string name_)
+DBDataFile* DBDatabase::getDataFile(std::string name_)
+{
+    if(!databaseAvailable())
+    {
+        return NULL;
+    }
+    if(data.count(name_))
+    {
+        return data[name_];
+    }
+    std::string path("");
+    path += (root + "/" + name + "/" + name_ + ".dat");
+    if(access(path.c_str(), F_OK) != 0)
+    {
+        DBPrint::printLine("Table does not exist.");
+        return NULL;
+    }
+    if(opendir(path.c_str()) != NULL)
+    {
+        DBPrint::printLine(name_ + " is not a file.");
+        return NULL;
+    }
+    DBDataFile* df = new DBDataFile(path);
+    data[name_] = df;
+    return df;
+}
+
+void DBDatabase::dropTable(std::string name_)
+{
+    DBDataFile* df = getDataFile(name_);
+    if(df == NULL)
+    {
+        return;
+    }
+    df->deleteFile();
+    std::string path("");
+    path += (root + "/" + name + "/" + name_ + ".idx");
+    delete_path(path.c_str());
+    rmdir(path.c_str());
+}
+
+bool DBDatabase::databaseAvailable()
 {
     if(name == "")
     {
         DBPrint::printLine("No database being used.");
-        return;
+        return false;
     }
-    DIR *pDir = NULL;
-    struct dirent *dmsg;
-    char szFileName[128];
-    char szFolderName[128];
-    strcpy(szFolderName, root.c_str());
-    strcat(szFolderName, "/");
-    strcat(szFolderName, name.c_str());
-    if(name != "" && (pDir = opendir(szFolderName)) != NULL)
-    {
-        strcat(szFolderName, "/");
-        strcpy(szFileName, szFolderName);
-        strcat(szFileName, name_.c_str());
-        strcat(szFileName, ".dat");
-        if(access(szFileName, F_OK) != 0)
-        {
-            DBPrint::printLine("Table does not exist.");
-        }
-        else
-        {
-            remove(szFileName);
-            DBPrint::log("Removed file ").logLine(szFileName);
-            strcpy(szFileName, szFolderName);
-            strcat(szFileName, name_.c_str());
-            strcat(szFileName, ".idx");
-            delete_path(szFileName);
-            rmdir(szFileName);
-        }
-    }
-    else
+    std::string path("");
+    path += (root + "/" + name + "/");
+    if(access(path.c_str(), F_OK) != 0)
     {
         DBPrint::printLine("Current database is not available.");
+        return false;
     }
-    if(pDir != NULL)
-    {
-        closedir(pDir);
-    }
+    return true;
 }
 
-DBDataBase* DBDataBase::getInstance()
+DBDatabase* DBDatabase::getInstance()
 {
     if(instance == NULL)
     {
-        instance = new DBDataBase();
+        instance = new DBDatabase();
     }
     return instance;
 }
 
-void DBDataBase::_test()
+void DBDatabase::_test()
 {
     const char* sFile="test.sql";
     FILE* fp=fopen(sFile, "r");
@@ -317,7 +356,7 @@ void DBDataBase::_test()
     fclose(fp);
 }
 
-void DBDataBase::test()
+void DBDatabase::test()
 {
     getInstance()->_test();
 }

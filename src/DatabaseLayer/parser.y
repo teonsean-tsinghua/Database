@@ -2,7 +2,7 @@
 #include "DBBase.h"
 #include "DBDatabase.h"
 
-DBDataBase* instance = DBDataBase::getInstance();
+DBDatabase* instance = DBDatabase::getInstance();
 
 extern "C"
 {
@@ -53,7 +53,7 @@ dbStmt	: CREATE DATABASE dbName { instance->createDatabase($3); }
 tbStmt	: CREATE TABLE tbName '(' fieldList ')' { instance->createTable($3); }
 	| DROP TABLE tbName { instance->dropTable($3); }
 	| DESC tbName { instance->describeTable($2); }
-	| INSERT INTO tbName VALUES valueLists
+	| INSERT INTO tbName VALUES valueLists { instance->insert($3); }
 	| DELETE FROM tbName WHERE whereClause
 	| UPDATE tbName SET setClause WHERE whereClause
 	| SELECT selector FROM tableList WHERE whereClause
@@ -63,8 +63,8 @@ idxStmt	: CREATE INDEX tbName '(' colName ')'
 	| DROP INDEX tbName '(' colName ')'
 	;
 
-fieldList : field { instance->addPending($1.name, $1.type, $1.nullable, $1.extra); }
-	| fieldList ',' field { instance->addPending($3.name, $3.type, $3.nullable, $3.extra); }
+fieldList : field { instance->addPendingField($1.name, $1.type, $1.nullable, $1.extra); }
+	| fieldList ',' field { instance->addPendingField($3.name, $3.type, $3.nullable, $3.extra); }
 	;
 
 field	: colName type { $$.type = $2.type; $$.extra = $2.extra; $$.nullable = true; $$.name = $1; }
@@ -80,17 +80,17 @@ type	: INT_ '(' VALUE_INT ')' { $$.type = DBType::INT; $$.extra = $3; }
 	| FLOAT_ { $$.type = DBType::FLOAT; $$.extra = 0; }
 	;
 
-valueLists : '(' valueList ')'
-	| valueLists ',' '(' valueList ')'
+valueLists : '(' valueList ')' { instance->addPendingValueList(); }
+	| valueLists ',' '(' valueList ')' { instance->addPendingValueList(); }
 	;
 
-valueList : value { std::cout << $1.v_int << " "; }
-	| valueList ',' value { std::cout << $3.v_int << " "; }
+valueList : value { instance->addPendingValue($1); }
+	| valueList ',' value { instance->addPendingValue($3); }
 	;
 
-value	: VALUE_INT { $$.isNull = false; $$.v_int = $1; }
-	| VALUE_STRING { $$.isNull = false; $$.v_str = $1; }
-	| NULL_ { $$.isNull = true; }
+value	: VALUE_INT { $$.type = 1; $$.v_int = $1; }
+	| VALUE_STRING { $$.type = 2; $$.v_str = $1; }
+	| NULL_ { $$.type = 0; }
 	;
 
 whereClause : col op expr

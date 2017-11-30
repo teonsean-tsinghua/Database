@@ -7,8 +7,8 @@ int main()
 {
     srand((unsigned)time(NULL));
 //    freopen("test.out", "w", stdout);
-    DBDataFile::test();
+//    DBDataFile::test();
 //    DBIndexFile::test();
-//    DBDataBase::test();
+    DBDatabase::test();
     return 0;
 }

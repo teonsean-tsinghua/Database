@@ -117,7 +117,7 @@ int DBRecordInfo::addField(std::string name, int type, bool nullable, int extra)
     extras.push_back(extra);
     offsets.push_back(recordLength);
     indexes[name] = names.size() - 1;
-    recordLength += length(name);
+    recordLength += (1 + length(name));
     return SUCCEED;
 }
 

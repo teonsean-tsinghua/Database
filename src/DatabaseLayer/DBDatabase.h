@@ -6,10 +6,10 @@
 #include"DBBase.h"
 #include"y.tab.h"
 
-class DBDataBase
+class DBDatabase
 {
 private:
-    static DBDataBase* instance;
+    static DBDatabase* instance;
     std::map<std::string, DBDataFile*> data;
     std::map<std::string, std::map<std::string, DBIndexFile*> > indexes;
 
@@ -17,18 +17,24 @@ private:
     std::vector<int> pTypes;
     std::vector<bool> pNullables;
     std::vector<int> pExtras;
+    std::vector<Value> pValues;
+    std::vector<std::vector<Value> > pValueLists;
 
     const std::string root;
     std::string name;
 
-    DBDataBase(std::string root = "/home/teon/Documents/Database");
+    DBDatabase(std::string root = "/home/teon/Documents/Database");
 
     void delete_path(const char* path);
 
     void _test();
 
+    bool databaseAvailable();
+
+    DBDataFile* getDataFile(std::string name);
+
 public:
-    static DBDataBase* getInstance();
+    static DBDatabase* getInstance();
 
     void createDatabase(std::string name);
 
@@ -46,7 +52,15 @@ public:
 
     void showTables();
 
-    void addPending(std::string name, int type, bool nullable, int extra);
+    void addPendingField(std::string& name, int type, bool nullable, int extra);
+
+    void addPendingValue(Value& value);
+
+    void addPendingValueList();
+
+    void clearPending();
+
+    void insert(std::string name);
 
     static void test();
 };

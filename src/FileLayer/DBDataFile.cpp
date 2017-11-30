@@ -312,7 +312,6 @@ int DBDataFile::addFields(std::vector<std::string>& name, std::vector<int>& type
         }
     }
     dfdp->writeFields();
-    printFileDescription();
     return SUCCEED;
 }
 
@@ -525,16 +524,6 @@ int DBDataFile::findEqual(std::map<std::string, void*>& data, std::set<std::map<
     }
 }
 
-int DBDataFile::insertRecordToPage(int page, std::vector<void*>& processed)
-{
-    if(!open)
-    {
-        return FILE_NOT_OPENED;
-    }
-    DBDataPage* dp = (DBDataPage*)(pages[page]);
-    return dp->insert(processed);
-}
-
 int DBDataFile::insertRecord(std::map<std::string, void*>& fields)
 {
     if(!open)
@@ -547,7 +536,7 @@ int DBDataFile::insertRecord(std::map<std::string, void*>& fields)
     if(errors.empty())
     {
         int fadp = findFirstAvailableDataPage();
-        int re = insertRecordToPage(fadp, processed);
+        int re = openDataPage(fadp)->insert(processed);
         switch(re)
         {
         case ERROR:
@@ -575,6 +564,48 @@ int DBDataFile::insertRecord(std::map<std::string, void*>& fields)
             }
         }
         return ERROR;
+    }
+    return SUCCEED;
+}
+
+bool DBDataFile::validateInsertion(std::vector<void*>& data)
+{
+    int n = ri->getFieldCount();
+    if(n != data.size())
+    {
+        DBPrint::printLine("Not enough fields provided.");
+        return false;
+    }
+    bool flag = true;
+    for(int i = 1; i < data.size(); i++)
+    {
+        if(!ri->nullable(i) && data[i] == NULL)
+        {
+            flag = false;
+            DBPrint::print("Field ").print(ri->name(i)).printLine(" cannot be null");
+        }
+    }
+    return flag;
+}
+
+int DBDataFile::insert(std::vector<void*>& fields)
+{
+    if(!open)
+    {
+        return FILE_NOT_OPENED;
+    }
+    if(!validateInsertion(fields))
+    {
+        return ERROR;
+    }
+    int fadp = findFirstAvailableDataPage();
+    int re = openDataPage(fadp)->insert(fields);
+    switch(re)
+    {
+    case ERROR:
+        return ERROR;
+    case DATA_PAGE_FULL:
+        setAvailableOfDataPage(fadp, false);
     }
     return SUCCEED;
 }
