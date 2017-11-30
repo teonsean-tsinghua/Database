@@ -22,6 +22,7 @@ private:
     std::vector<std::string> pTables;
     std::vector<std::string> pColumns;
     std::vector<Col> pCols;
+    std::vector<Where> pWheres;
 
     const std::string root;
     std::string name;
@@ -70,6 +71,8 @@ public:
     void addPendingValue(Value& value);
 
     void addPendingValueList();
+
+    void addPendingWhere(Where& where);
 
     void insert(std::string name);
 

@@ -18,6 +18,8 @@ DBDatabase::DBDatabase(std::string root):
     pValueLists.clear();
     pTables.clear();
     pColumns.clear();
+    pCols.clear();
+    pWheres.clear();
 }
 
 void DBDatabase::createDatabase(std::string name_)
@@ -61,6 +63,11 @@ void DBDatabase::addPendingValue(Value& value)
     pValues.push_back(value);
 }
 
+void DBDatabase::addPendingWhere(Where& where)
+{
+    pWheres.push_back(where);
+}
+
 void DBDatabase::addPendingValueList()
 {
     pValueLists.push_back(pValues);
@@ -72,6 +79,7 @@ void DBDatabase::selectOneTable(bool all)
     DBDataFile* df = getDataFile(pTables[0]);
     if(df == NULL)
     {
+        pWheres.clear();
         pTables.clear();
         pCols.clear();
         return;
@@ -100,18 +108,63 @@ void DBDatabase::selectOneTable(bool all)
         }
         if(!flag || !df->validateFields(selected, pTables[0]))
         {
+            pWheres.clear();
             pTables.clear();
             pCols.clear();
             df->closeFile();
             return;
         }
     }
-    DBPrint::printLine("Selected:");
-    for(int i = 0; i < selected.size(); i++)
+    for(int i = 0; i < pWheres.size(); i++)
     {
-        DBPrint::print(selected[i] + " ");
+        Where& w = pWheres[i];
+        DBPrint::print((w.left.table == "" ? pTables[0] : w.left.table) + "." + w.left.field);
+        switch(w.type)
+        {
+        case 0:
+            DBPrint::print(" IS NULL");
+            break;
+        case 1:
+            DBPrint::print(" IS NOT NULL");
+            break;
+        case 2:
+            switch(w.op)
+            {
+            case 0:
+                DBPrint::print(" = ");
+                break;
+            case 1:
+                DBPrint::print(" <> ");
+                break;
+            case 2:
+                DBPrint::print(" <= ");
+                break;
+            case 3:
+                DBPrint::print(" >= ");
+                break;
+            case 4:
+                DBPrint::print(" < ");
+                break;
+            case 5:
+                DBPrint::print(" > ");
+                break;
+            };
+            if(w.opCol)
+            {
+                DBPrint::print((w.left.table == "" ? pTables[0] : w.left.table) + "." + w.col_r.field);
+            }
+            else
+            {
+                DBPrint::print(w.val_r.v_int);
+            }
+        };
+        if(i != pWheres.size() - 1)
+        {
+            DBPrint::print(" AND ");
+        }
     }
     DBPrint::printLine();
+    pWheres.clear();
     pTables.clear();
     pCols.clear();
     df->closeFile();

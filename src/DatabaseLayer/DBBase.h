@@ -33,6 +33,16 @@ struct Col
     std::string field;
 };
 
+struct Where
+{
+    int type; // 0-is null, 1-not null, 2-op
+    int op; // 0-=, 1-!=, 2-<=, 3->=, 4-<, 5->
+    bool opCol;
+    Col left;
+    Col col_r;
+    Value val_r;
+};
+
 struct Type
 {
 	std::string m_string;
@@ -42,6 +52,7 @@ struct Type
 	struct FieldType m_type;
 	struct Value m_value;
 	struct Col m_col;
+	struct Where m_where;
 };
 
 #define YYSTYPE Type

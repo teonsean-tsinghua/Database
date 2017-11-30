@@ -28,6 +28,8 @@ extern "C"
 %type<m_value> value
 %type<m_col> col
 %type<m_bool> selector
+%type<m_where> whereClause
+%type<m_int> op
 
 %nonassoc ';'
 %left AND
@@ -95,26 +97,23 @@ value	: VALUE_INT { $$.type = 1; $$.v_int = $1; }
 	| NULL_ { $$.type = 0; }
 	;
 
-whereClause : col op expr
-	| col IS NULL_
-	| col IS NOT NULL_
-	| whereClause AND whereClause %prec AND
+whereClause : col op value { $$.type = 2; $$.op = $2; $$.opCol = false; $$.left = $1; $$.val_r = $3; instance->addPendingWhere($$); }
+    | col op col { $$.type = 2; $$.op = $2; $$.opCol = true; $$.left = $1; $$.col_r = $3; instance->addPendingWhere($$); }
+	| col IS NULL_ { $$.type = 0; $$.left = $1; instance->addPendingWhere($$); }
+	| col IS NOT NULL_ { $$.type = 1; $$.left = $1; instance->addPendingWhere($$); }
+	| whereClause AND whereClause %prec AND {}
 	;
 
 col	: tbName '.' colName { $$.table = $1; $$.field = $3; }
 	| colName { $$.table = ""; $$.field = $1; }
 	;
 
-op	: '='
-	| NOT_EQUAL
-	| LESS_EQUAL
-	| GREATER_EQUAL
-	| '<'
-	| '>'
-	;
-
-expr	: value
-	| col
+op	: '=' { $$ = 0; }
+	| NOT_EQUAL { $$ = 1; }
+	| LESS_EQUAL { $$ = 2; }
+	| GREATER_EQUAL { $$ = 3; }
+	| '<' { $$ = 4; }
+	| '>' { $$ = 5; }
 	;
 
 setClause : colName '=' value
