@@ -19,7 +19,7 @@ public:
 
     void read(std::map<std::string, void*>& data);
 
-    bool equal(std::map<int, void*>& data);
+    void checkValue(std::map<int, void*>& info, std::vector<std::vector<void*> >& datas, int op);
 
     void update(std::map<int, void*>& data);
 

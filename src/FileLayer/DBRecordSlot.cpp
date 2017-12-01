@@ -22,6 +22,49 @@ void DBRecordSlot::checkNull(std::map<int, bool>& nulls, std::vector<std::vector
     }
 }
 
+void DBRecordSlot::checkValue(std::map<int, void*>& info, std::vector<std::vector<void*> >& datas, int op)
+{
+    std::map<int, void*>::iterator iter;
+    for(iter = info.begin(); iter != info.end(); iter++)
+    {
+        int idx = iter->first;
+        int offset = ri->offset(idx);
+        bool flag = false;
+        readCharToBool((*this)[offset], &flag);
+        if(flag)
+        {
+            return;
+        }
+        switch(op)
+        {
+        case 0:
+            flag = equal((*this)[offset + 1], iter->second, ri->type(idx), ri->length(idx));
+            break;
+        case 1:
+            flag = !equal((*this)[offset + 1], iter->second, ri->type(idx), ri->length(idx));
+            break;
+        case 2:
+            flag = smallerOrEqual((*this)[offset + 1], iter->second, ri->type(idx), ri->length(idx));
+            break;
+        case 3:
+            flag = largerOrEqual((*this)[offset + 1], iter->second, ri->type(idx), ri->length(idx));
+            break;
+        case 4:
+            flag = smaller((*this)[offset + 1], iter->second, ri->type(idx), ri->length(idx));
+            break;
+        case 5:
+            flag = larger((*this)[offset + 1], iter->second, ri->type(idx), ri->length(idx));
+            break;
+        }
+        if(!flag)
+        {
+            return;
+        }
+    }
+    datas.push_back(std::vector<void*>());
+    read(datas.back());
+}
+
 void DBRecordSlot::write(std::vector<void*>& data)
 {
     int cnt = ri->getFieldCount();
@@ -111,30 +154,6 @@ void DBRecordSlot::update(std::map<int, void*>& data)
             writeData((*this)[ri->offset(idx) + 1], ptr, ri->length(idx));
         }
     }
-}
-
-bool DBRecordSlot::equal(std::map<int, void*>& data)
-{
-    std::map<int, void*>::iterator iter;
-    for(iter = data.begin(); iter != data.end(); iter++)
-    {
-        int idx = iter->first;
-        char* ptr = (char*)iter->second;
-        if(ptr == NULL)
-        {
-            bool isNull;
-            readCharToBool((*this)[ri->offset(idx)], &isNull);
-            if(!isNull)
-            {
-                return false;
-            }
-        }
-        else if(strncmp(ptr, (char*)(*this)[ri->offset(idx) + 1], ri->length(idx)) != 0)
-        {
-            return false;
-        }
-    }
-    return true;
 }
 
 void DBRecordSlot::read(std::map<std::string, void*>& data)

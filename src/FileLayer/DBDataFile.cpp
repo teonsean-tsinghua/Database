@@ -361,12 +361,30 @@ void DBDataFile::select(SearchInfo& si, SelectResult& sr)
             dp = openDataPage(dp->getNextSameType());
         }
         DBPrint::printLine(sr.results.size());
+        if(sr.results.empty())
+        {
+            return;
+        }
     }
     if(si.equals.size() > 0)
     {
         if(sr.results.empty())
         {
-
+            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+            while(true)
+            {
+                if(dp == NULL)
+                {
+                    break;
+                }
+                dp->filterByValue(si.equals, sr.results, 0);
+                dp = openDataPage(dp->getNextSameType());
+            }
+            DBPrint::printLine(sr.results.size());
+            if(sr.results.empty())
+            {
+                return;
+            }
         }
         else
         {
@@ -377,18 +395,121 @@ void DBDataFile::select(SearchInfo& si, SelectResult& sr)
     {
         if(sr.results.empty())
         {
-
+            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+            while(true)
+            {
+                if(dp == NULL)
+                {
+                    break;
+                }
+                dp->filterByValue(si.notEquals, sr.results, 1);
+                dp = openDataPage(dp->getNextSameType());
+            }
+            DBPrint::printLine(sr.results.size());
+            if(sr.results.empty())
+            {
+                return;
+            }
         }
         else
         {
 
         }
     }
-    if(si.notEquals.size() > 0)
+    if(si.smallerEquals.size() > 0)
     {
         if(sr.results.empty())
         {
+            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+            while(true)
+            {
+                if(dp == NULL)
+                {
+                    break;
+                }
+                dp->filterByValue(si.smallerEquals, sr.results, 2);
+                dp = openDataPage(dp->getNextSameType());
+            }
+            DBPrint::printLine(sr.results.size());
+            if(sr.results.empty())
+            {
+                return;
+            }
+        }
+        else
+        {
 
+        }
+    }
+    if(si.largerEquals.size() > 0)
+    {
+        if(sr.results.empty())
+        {
+            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+            while(true)
+            {
+                if(dp == NULL)
+                {
+                    break;
+                }
+                dp->filterByValue(si.largerEquals, sr.results, 3);
+                dp = openDataPage(dp->getNextSameType());
+            }
+            DBPrint::printLine(sr.results.size());
+            if(sr.results.empty())
+            {
+                return;
+            }
+        }
+        else
+        {
+
+        }
+    }
+    if(si.smallers.size() > 0)
+    {
+        if(sr.results.empty())
+        {
+            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+            while(true)
+            {
+                if(dp == NULL)
+                {
+                    break;
+                }
+                dp->filterByValue(si.smallers, sr.results, 4);
+                dp = openDataPage(dp->getNextSameType());
+            }
+            DBPrint::printLine(sr.results.size());
+            if(sr.results.empty())
+            {
+                return;
+            }
+        }
+        else
+        {
+
+        }
+    }
+    if(si.largers.size() > 0)
+    {
+        if(sr.results.empty())
+        {
+            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+            while(true)
+            {
+                if(dp == NULL)
+                {
+                    break;
+                }
+                dp->filterByValue(si.largers, sr.results, 5);
+                dp = openDataPage(dp->getNextSameType());
+            }
+            DBPrint::printLine(sr.results.size());
+            if(sr.results.empty())
+            {
+                return;
+            }
         }
         else
         {
