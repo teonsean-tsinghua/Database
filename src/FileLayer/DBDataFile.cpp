@@ -5,6 +5,126 @@ SelectResult::SelectResult()
 
 }
 
+void SelectResult::filterByValue(std::map<int, void*>& info, int op, DBRecordInfo* ri)
+{
+    std::list<std::vector<void*> >::iterator it;
+    for(it = results.begin(); it != results.end(); )
+    {
+        std::vector<void*>& data = *it;
+        std::map<int, void*>::iterator iter;
+        bool flag = true;
+        for(iter = info.begin(); iter != info.end(); iter++)
+        {
+            int idx = iter->first;
+            if(data[idx] == NULL)
+            {
+                flag = false;
+                break;
+            }
+            switch(op)
+            {
+            case 0:
+                flag = Equal(data[idx], iter->second, ri->type(idx), ri->length(idx));
+                break;
+            case 1:
+                flag = !Equal(data[idx], iter->second, ri->type(idx), ri->length(idx));
+                break;
+            case 2:
+                flag = smallerOrEqual(data[idx], iter->second, ri->type(idx), ri->length(idx));
+                break;
+            case 3:
+                flag = largerOrEqual(data[idx], iter->second, ri->type(idx), ri->length(idx));
+                break;
+            case 4:
+                flag = smaller(data[idx], iter->second, ri->type(idx), ri->length(idx));
+                break;
+            case 5:
+                flag = larger(data[idx], iter->second, ri->type(idx), ri->length(idx));
+                break;
+            }
+            if(!flag)
+            {
+                break;
+            }
+        }
+        if(!flag)
+        {
+            it = results.erase(it);
+        }
+        else
+        {
+            it++;
+        }
+    }
+}
+
+void SelectResult::filterByFields(std::map<int, int>& info, int op, DBRecordInfo* ri)
+{
+    std::list<std::vector<void*> >::iterator it;
+    for(it = results.begin(); it != results.end(); )
+    {
+        std::vector<void*>& data = *it;
+        std::map<int, int>::iterator iter;
+        bool flag = true;
+        for(iter = info.begin(); iter != info.end(); iter++)
+        {
+            int lidx = iter->first;
+            int ridx = iter->second;
+            bool lnull = (data[lidx] == NULL);
+            bool rnull = (data[ridx] == NULL);
+            if(lnull && rnull)
+            {
+                if(op != 0)
+                {
+                    flag = false;
+                    break;
+                }
+            }
+            if((lnull && !rnull) || (!lnull && rnull))
+            {
+                if(op != 1)
+                {
+                    flag = false;
+                    break;
+                }
+            }
+            switch(op)
+            {
+            case 0:
+                flag = Equal(data[lidx], data[ridx], ri->type(lidx), ri->length(lidx));
+                break;
+            case 1:
+                flag = !Equal(data[lidx], data[ridx], ri->type(lidx), ri->length(lidx));
+                break;
+            case 2:
+                flag = smallerOrEqual(data[lidx], data[ridx], ri->type(lidx), ri->length(lidx));
+                break;
+            case 3:
+                flag = largerOrEqual(data[lidx], data[ridx], ri->type(lidx), ri->length(lidx));
+                break;
+            case 4:
+                flag = smaller(data[lidx], data[ridx], ri->type(lidx), ri->length(lidx));
+                break;
+            case 5:
+                flag = larger(data[lidx], data[ridx], ri->type(lidx), ri->length(lidx));
+                break;
+            }
+            if(!flag)
+            {
+                break;
+            }
+        }
+        if(!flag)
+        {
+            it = results.erase(it);
+        }
+        else
+        {
+            it++;
+        }
+    }
+}
+
 DBDataFile::DBDataFile(std::string path):
     path(path)
 {
@@ -256,98 +376,78 @@ void DBDataFile::addFields(std::vector<std::string>& name, std::vector<int>& typ
     dfdp->writeFields();
 }
 
-void DBDataFile::processKeyValue(std::map<std::string, void*>& data,
-                                std::map<int, void*>& processed,
-                                std::vector<std::string>& errors)
-{
-    assert(open);
-    errors.clear();
-    std::map<std::string, void*>::iterator iter;
-    for(iter = data.begin(); iter != data.end(); iter++)
-    {
-        int idx = ri->index(iter->first);
-        if(idx < 0)
-        {
-            errors.push_back(iter->first);
-            continue;
-        }
-        processed[idx] = iter->second;
-    }
-}
-
 void DBDataFile::remove(std::map<std::string, void*>& data)
 {
-    assert(open);
-    std::map<int, void*> processed;
-    std::vector<std::string> errors;
-    processKeyValue(data, processed, errors);
-    if(errors.empty())
-    {
-        DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
-        while(true)
-        {
-            if(dp == NULL)
-            {
-                break;
-            }
-            dp->remove(processed);
-            dp = openDataPage(dp->getNextSameType());
-        }
-    }
-    else
-    {
-        for(int i = 0; i < errors.size(); i++)
-        {
-            DBPrint::printLine("This table does not contain field " + errors[i]);
-        }
-    }
+//    assert(open);
+//    std::map<int, void*> processed;
+//    std::vector<std::string> errors;
+//    processKeyValue(data, processed, errors);
+//    if(errors.empty())
+//    {
+//        DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+//        while(true)
+//        {
+//            if(dp == NULL)
+//            {
+//                break;
+//            }
+//            dp->remove(processed);
+//            dp = openDataPage(dp->getNextSameType());
+//        }
+//    }
+//    else
+//    {
+//        for(int i = 0; i < errors.size(); i++)
+//        {
+//            DBPrint::printLine("This table does not contain field " + errors[i]);
+//        }
+//    }
 }
 
 void DBDataFile::update(std::map<std::string, void*>& key_value, std::map<std::string, void*>& update_value)
 {
-    assert(open);
-    std::map<int, void*> processed;
-    std::vector<std::string> errors;
-    processKeyValue(key_value, processed, errors);
-    if(errors.empty())
-    {
-        std::map<int, void*> processed2;
-        std::vector<std::string> errors2;
-        processKeyValue(update_value, processed2, errors2);
-        if(errors2.empty())
-        {
-            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
-            while(true)
-            {
-                if(dp == NULL)
-                {
-                    break;
-                }
-                dp->update(processed, processed2);
-                dp = openDataPage(dp->getNextSameType());
-            }
-        }
-        else
-        {
-            for(int i = 0; i < errors.size(); i++)
-            {
-                DBPrint::printLine("This table does not contain field " + errors[i]);
-            }
-        }
-    }
-    else
-    {
-        for(int i = 0; i < errors.size(); i++)
-        {
-            DBPrint::printLine("This table does not contain field " + errors[i]);
-        }
-    }
+//    assert(open);
+//    std::map<int, void*> processed;
+//    std::vector<std::string> errors;
+//    processKeyValue(key_value, processed, errors);
+//    if(errors.empty())
+//    {
+//        std::map<int, void*> processed2;
+//        std::vector<std::string> errors2;
+//        processKeyValue(update_value, processed2, errors2);
+//        if(errors2.empty())
+//        {
+//            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+//            while(true)
+//            {
+//                if(dp == NULL)
+//                {
+//                    break;
+//                }
+//                dp->update(processed, processed2);
+//                dp = openDataPage(dp->getNextSameType());
+//            }
+//        }
+//        else
+//        {
+//            for(int i = 0; i < errors.size(); i++)
+//            {
+//                DBPrint::printLine("This table does not contain field " + errors[i]);
+//            }
+//        }
+//    }
+//    else
+//    {
+//        for(int i = 0; i < errors.size(); i++)
+//        {
+//            DBPrint::printLine("This table does not contain field " + errors[i]);
+//        }
+//    }
 }
 
 void DBDataFile::select(SearchInfo& si, SelectResult& sr)
 {
     assert(open);
-    printAllRecords();
     if(si.nulls.size() > 0)
     {
         DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
@@ -360,7 +460,6 @@ void DBDataFile::select(SearchInfo& si, SelectResult& sr)
             dp->filterByNull(si.nulls, sr.results);
             dp = openDataPage(dp->getNextSameType());
         }
-        DBPrint::printLine(sr.results.size());
         if(sr.results.empty())
         {
             return;
@@ -380,7 +479,6 @@ void DBDataFile::select(SearchInfo& si, SelectResult& sr)
                 dp->filterByValue(si.equals, sr.results, 0);
                 dp = openDataPage(dp->getNextSameType());
             }
-            DBPrint::printLine(sr.results.size());
             if(sr.results.empty())
             {
                 return;
@@ -388,7 +486,20 @@ void DBDataFile::select(SearchInfo& si, SelectResult& sr)
         }
         else
         {
-
+            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+            while(true)
+            {
+                if(dp == NULL)
+                {
+                    break;
+                }
+                sr.filterByValue(si.equals, 0, ri);
+                dp = openDataPage(dp->getNextSameType());
+            }
+            if(sr.results.empty())
+            {
+                return;
+            }
         }
     }
     if(si.notEquals.size() > 0)
@@ -405,7 +516,6 @@ void DBDataFile::select(SearchInfo& si, SelectResult& sr)
                 dp->filterByValue(si.notEquals, sr.results, 1);
                 dp = openDataPage(dp->getNextSameType());
             }
-            DBPrint::printLine(sr.results.size());
             if(sr.results.empty())
             {
                 return;
@@ -413,7 +523,20 @@ void DBDataFile::select(SearchInfo& si, SelectResult& sr)
         }
         else
         {
-
+            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+            while(true)
+            {
+                if(dp == NULL)
+                {
+                    break;
+                }
+                sr.filterByValue(si.notEquals, 1, ri);
+                dp = openDataPage(dp->getNextSameType());
+            }
+            if(sr.results.empty())
+            {
+                return;
+            }
         }
     }
     if(si.smallerEquals.size() > 0)
@@ -430,7 +553,6 @@ void DBDataFile::select(SearchInfo& si, SelectResult& sr)
                 dp->filterByValue(si.smallerEquals, sr.results, 2);
                 dp = openDataPage(dp->getNextSameType());
             }
-            DBPrint::printLine(sr.results.size());
             if(sr.results.empty())
             {
                 return;
@@ -438,7 +560,20 @@ void DBDataFile::select(SearchInfo& si, SelectResult& sr)
         }
         else
         {
-
+            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+            while(true)
+            {
+                if(dp == NULL)
+                {
+                    break;
+                }
+                sr.filterByValue(si.smallerEquals, 2, ri);
+                dp = openDataPage(dp->getNextSameType());
+            }
+            if(sr.results.empty())
+            {
+                return;
+            }
         }
     }
     if(si.largerEquals.size() > 0)
@@ -455,7 +590,6 @@ void DBDataFile::select(SearchInfo& si, SelectResult& sr)
                 dp->filterByValue(si.largerEquals, sr.results, 3);
                 dp = openDataPage(dp->getNextSameType());
             }
-            DBPrint::printLine(sr.results.size());
             if(sr.results.empty())
             {
                 return;
@@ -463,7 +597,20 @@ void DBDataFile::select(SearchInfo& si, SelectResult& sr)
         }
         else
         {
-
+            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+            while(true)
+            {
+                if(dp == NULL)
+                {
+                    break;
+                }
+                sr.filterByValue(si.largerEquals, 3, ri);
+                dp = openDataPage(dp->getNextSameType());
+            }
+            if(sr.results.empty())
+            {
+                return;
+            }
         }
     }
     if(si.smallers.size() > 0)
@@ -480,7 +627,6 @@ void DBDataFile::select(SearchInfo& si, SelectResult& sr)
                 dp->filterByValue(si.smallers, sr.results, 4);
                 dp = openDataPage(dp->getNextSameType());
             }
-            DBPrint::printLine(sr.results.size());
             if(sr.results.empty())
             {
                 return;
@@ -488,7 +634,20 @@ void DBDataFile::select(SearchInfo& si, SelectResult& sr)
         }
         else
         {
-
+            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+            while(true)
+            {
+                if(dp == NULL)
+                {
+                    break;
+                }
+                sr.filterByValue(si.smallers, 4, ri);
+                dp = openDataPage(dp->getNextSameType());
+            }
+            if(sr.results.empty())
+            {
+                return;
+            }
         }
     }
     if(si.largers.size() > 0)
@@ -505,7 +664,6 @@ void DBDataFile::select(SearchInfo& si, SelectResult& sr)
                 dp->filterByValue(si.largers, sr.results, 5);
                 dp = openDataPage(dp->getNextSameType());
             }
-            DBPrint::printLine(sr.results.size());
             if(sr.results.empty())
             {
                 return;
@@ -513,7 +671,20 @@ void DBDataFile::select(SearchInfo& si, SelectResult& sr)
         }
         else
         {
-
+            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+            while(true)
+            {
+                if(dp == NULL)
+                {
+                    break;
+                }
+                sr.filterByValue(si.largers, 5, ri);
+                dp = openDataPage(dp->getNextSameType());
+            }
+            if(sr.results.empty())
+            {
+                return;
+            }
         }
     }
     if(si.fequals.size() > 0)
@@ -530,7 +701,6 @@ void DBDataFile::select(SearchInfo& si, SelectResult& sr)
                 dp->filterByFields(si.fequals, sr.results, 0);
                 dp = openDataPage(dp->getNextSameType());
             }
-            DBPrint::printLine(sr.results.size());
             if(sr.results.empty())
             {
                 return;
@@ -538,7 +708,20 @@ void DBDataFile::select(SearchInfo& si, SelectResult& sr)
         }
         else
         {
-
+            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+            while(true)
+            {
+                if(dp == NULL)
+                {
+                    break;
+                }
+                sr.filterByFields(si.fequals, 0, ri);
+                dp = openDataPage(dp->getNextSameType());
+            }
+            if(sr.results.empty())
+            {
+                return;
+            }
         }
     }
     if(si.fnotEquals.size() > 0)
@@ -555,7 +738,6 @@ void DBDataFile::select(SearchInfo& si, SelectResult& sr)
                 dp->filterByFields(si.fnotEquals, sr.results, 1);
                 dp = openDataPage(dp->getNextSameType());
             }
-            DBPrint::printLine(sr.results.size());
             if(sr.results.empty())
             {
                 return;
@@ -563,7 +745,20 @@ void DBDataFile::select(SearchInfo& si, SelectResult& sr)
         }
         else
         {
-
+            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+            while(true)
+            {
+                if(dp == NULL)
+                {
+                    break;
+                }
+                sr.filterByFields(si.fnotEquals, 1, ri);
+                dp = openDataPage(dp->getNextSameType());
+            }
+            if(sr.results.empty())
+            {
+                return;
+            }
         }
     }
     if(si.fsmallerEquals.size() > 0)
@@ -580,7 +775,6 @@ void DBDataFile::select(SearchInfo& si, SelectResult& sr)
                 dp->filterByFields(si.fsmallerEquals, sr.results, 2);
                 dp = openDataPage(dp->getNextSameType());
             }
-            DBPrint::printLine(sr.results.size());
             if(sr.results.empty())
             {
                 return;
@@ -588,7 +782,20 @@ void DBDataFile::select(SearchInfo& si, SelectResult& sr)
         }
         else
         {
-
+            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+            while(true)
+            {
+                if(dp == NULL)
+                {
+                    break;
+                }
+                sr.filterByFields(si.fsmallerEquals, 2, ri);
+                dp = openDataPage(dp->getNextSameType());
+            }
+            if(sr.results.empty())
+            {
+                return;
+            }
         }
     }
     if(si.flargerEquals.size() > 0)
@@ -605,7 +812,6 @@ void DBDataFile::select(SearchInfo& si, SelectResult& sr)
                 dp->filterByFields(si.flargerEquals, sr.results, 3);
                 dp = openDataPage(dp->getNextSameType());
             }
-            DBPrint::printLine(sr.results.size());
             if(sr.results.empty())
             {
                 return;
@@ -613,7 +819,20 @@ void DBDataFile::select(SearchInfo& si, SelectResult& sr)
         }
         else
         {
-
+            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+            while(true)
+            {
+                if(dp == NULL)
+                {
+                    break;
+                }
+                sr.filterByFields(si.flargerEquals, 3, ri);
+                dp = openDataPage(dp->getNextSameType());
+            }
+            if(sr.results.empty())
+            {
+                return;
+            }
         }
     }
     if(si.fsmallers.size() > 0)
@@ -630,7 +849,6 @@ void DBDataFile::select(SearchInfo& si, SelectResult& sr)
                 dp->filterByFields(si.fsmallers, sr.results, 4);
                 dp = openDataPage(dp->getNextSameType());
             }
-            DBPrint::printLine(sr.results.size());
             if(sr.results.empty())
             {
                 return;
@@ -638,7 +856,20 @@ void DBDataFile::select(SearchInfo& si, SelectResult& sr)
         }
         else
         {
-
+            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+            while(true)
+            {
+                if(dp == NULL)
+                {
+                    break;
+                }
+                sr.filterByFields(si.fsmallers, 4, ri);
+                dp = openDataPage(dp->getNextSameType());
+            }
+            if(sr.results.empty())
+            {
+                return;
+            }
         }
     }
     if(si.flargers.size() > 0)
@@ -655,7 +886,6 @@ void DBDataFile::select(SearchInfo& si, SelectResult& sr)
                 dp->filterByFields(si.flargers, sr.results, 5);
                 dp = openDataPage(dp->getNextSameType());
             }
-            DBPrint::printLine(sr.results.size());
             if(sr.results.empty())
             {
                 return;
@@ -663,35 +893,20 @@ void DBDataFile::select(SearchInfo& si, SelectResult& sr)
         }
         else
         {
-
-        }
-    }
-}
-
-void DBDataFile::findEqual(std::map<std::string, void*>& data, std::set<std::map<std::string, void*>*>& result)
-{
-    assert(open);
-    std::map<int, void*> processed;
-    std::vector<std::string> errors;
-    processKeyValue(data, processed, errors);
-    if(errors.empty())
-    {
-        DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
-        while(true)
-        {
-            if(dp == NULL)
+            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+            while(true)
             {
-                break;
+                if(dp == NULL)
+                {
+                    break;
+                }
+                sr.filterByFields(si.flargers, 5, ri);
+                dp = openDataPage(dp->getNextSameType());
             }
-            dp->findEqual(processed, result);
-            dp = openDataPage(dp->getNextSameType());
-        }
-    }
-    else
-    {
-        for(int i = 0; i < errors.size(); i++)
-        {
-            DBPrint::printLine("This table does not contain field " + errors[i]);
+            if(sr.results.empty())
+            {
+                return;
+            }
         }
     }
 }
@@ -747,65 +962,4 @@ void DBDataFile::openFile()
     ri->init();
     BufType cache = fm->getPage(fileID, 0, index);
     dfdp = new DBDataFileDescriptionPage(cache, index, 0, MODE_PARSE, ri);
-}
-
-void DBDataFile::_test()
-{
-//    createFile();
-//    openFile();
-//    setPrimaryKey("_id");
-//    setPrimaryKey("test1");
-//    int data = 1;
-//    int data2 = 99999;
-//    int data3 = -99999;
-//    int data4 = 10;
-//    int i = 0;
-//    do
-//    {
-//        printFileDescription();
-//        DBLogLine("=========================================");
-//        sprintf(name, "test%d", i++);
-//    }while(addField(name, DBType::INT, true) == SUCCEED);
-//    std::vector<std::string> names;
-//    std::vector<int> types;
-//    std::vector<bool> nullables;
-//    std::vector<int> extras;
-//    names.push_back("test1");
-//    names.push_back("test2");
-//    names.push_back("test3");
-//    types.push_back(1);
-//    types.push_back(1);
-//    types.push_back(1);
-//    nullables.push_back(false);
-//    nullables.push_back(false);
-//    nullables.push_back(false);
-//    extras.push_back(0);
-//    extras.push_back(5);
-//    extras.push_back(30);
-//    addFields(names, types, nullables, extras);
-//    printFileDescription();
-//    map<string, void*> f, f2, f3;
-//    f["test1"] = &data;
-//    f["test2"] = &data2;
-//    f["test3"] = &data3;
-//    for(int i = 0; i < 1000; i++)
-//        insertRecord(f);
-//    f2["test2"] = &data4;
-//    update(f, f2);
-//    f3["test2"] = &data4;
-//    printAllRecords();
-//    closeFile();
-//    openFile();
-//    printFileDescription();
-//    printAllRecords();
-//    set<map<string, void*>*> re;
-//    findEqual(f, re);
-//    remove(f);
-//    printAllRecords();
-}
-
-void DBDataFile::test()
-{
-    DBDataFile df("test.dat");
-    df._test();
 }

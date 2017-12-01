@@ -22,11 +22,11 @@ public:
 
     void remove(std::map<int, void*>& data);
 
-    void filterByNull(std::map<int, bool>& nulls, std::vector<std::vector<void*> >& datas);
+    void filterByNull(std::map<int, bool>& nulls, std::list<std::vector<void*> >& datas);
 
-    void filterByValue(std::map<int, void*>& info, std::vector<std::vector<void*> >& datas, int op);
+    void filterByValue(std::map<int, void*>& info, std::list<std::vector<void*> >& datas, int op);
 
-    void filterByFields(std::map<int, int>& info, std::vector<std::vector<void*> >& datas, int op);
+    void filterByFields(std::map<int, int>& info, std::list<std::vector<void*> >& datas, int op);
 
     void update(std::map<int, void*>& key_value, std::map<int, void*>& update_value);
 

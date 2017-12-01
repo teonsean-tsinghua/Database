@@ -109,7 +109,7 @@ void DBDataPage::findEqual(std::map<int, void*>& data, std::set<char*>& result)
 //    }
 }
 
-void DBDataPage::filterByNull(std::map<int, bool>& nulls, std::vector<std::vector<void*> >& datas)
+void DBDataPage::filterByNull(std::map<int, bool>& nulls, std::list<std::vector<void*> >& datas)
 {
     for(int i = 0; i < records.size(); i++)
     {
@@ -117,7 +117,7 @@ void DBDataPage::filterByNull(std::map<int, bool>& nulls, std::vector<std::vecto
     }
 }
 
-void DBDataPage::filterByValue(std::map<int, void*>& info, std::vector<std::vector<void*> >& datas, int op)
+void DBDataPage::filterByValue(std::map<int, void*>& info, std::list<std::vector<void*> >& datas, int op)
 {
     for(int i = 0; i < records.size(); i++)
     {
@@ -125,7 +125,7 @@ void DBDataPage::filterByValue(std::map<int, void*>& info, std::vector<std::vect
     }
 }
 
-void DBDataPage::filterByFields(std::map<int, int>& info, std::vector<std::vector<void*> >& datas, int op)
+void DBDataPage::filterByFields(std::map<int, int>& info, std::list<std::vector<void*> >& datas, int op)
 {
     for(int i = 0; i < records.size(); i++)
     {

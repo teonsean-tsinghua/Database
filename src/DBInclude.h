@@ -17,6 +17,7 @@
 #include<cstdio>
 #include<cstdlib>
 #include<set>
+#include<list>
 #include<cassert>
 
 const static int MODE_CREATE = 101;

@@ -190,6 +190,11 @@ void DBDatabase::processWheresWithOneTable(SearchInfo& si, DBRecordInfo* ri)
     pWheres.clear();
 }
 
+void DBDatabase::printOneTableSelectResult(SelectResult& sr, std::vector<bool>& selected, DBRecordInfo* ri)
+{
+
+}
+
 void DBDatabase::selectOneTable(bool all)
 {
     DBDataFile* df = getDataFile(pTables[0]);
@@ -242,7 +247,7 @@ void DBDatabase::selectOneTable(bool all)
     processWheresWithOneTable(si, ri);
     SelectResult sr;
     df->select(si, sr);
-
+    printOneTableSelectResult(sr, selected, ri);
     pTables.clear();
     pCols.clear();
     df->closeFile();

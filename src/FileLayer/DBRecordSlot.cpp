@@ -6,7 +6,7 @@ DBRecordSlot::DBRecordSlot(BufType cache, DBRecordInfo* ri):
 
 }
 
-void DBRecordSlot::checkNull(std::map<int, bool>& nulls, std::vector<std::vector<void*> >& datas)
+void DBRecordSlot::checkNull(std::map<int, bool>& nulls, std::list<std::vector<void*> >& datas)
 {
     std::map<int, bool>::iterator iter;
     bool b;
@@ -22,7 +22,7 @@ void DBRecordSlot::checkNull(std::map<int, bool>& nulls, std::vector<std::vector
     }
 }
 
-void DBRecordSlot::checkValue(std::map<int, void*>& info, std::vector<std::vector<void*> >& datas, int op)
+void DBRecordSlot::checkValue(std::map<int, void*>& info, std::list<std::vector<void*> >& datas, int op)
 {
     std::map<int, void*>::iterator iter;
     for(iter = info.begin(); iter != info.end(); iter++)
@@ -65,7 +65,7 @@ void DBRecordSlot::checkValue(std::map<int, void*>& info, std::vector<std::vecto
     read(datas.back());
 }
 
-void DBRecordSlot::checkFields(std::map<int, int>& info, std::vector<std::vector<void*> >& datas, int op)
+void DBRecordSlot::checkFields(std::map<int, int>& info, std::list<std::vector<void*> >& datas, int op)
 {
     std::map<int, int>::iterator iter;
     for(iter = info.begin(); iter != info.end(); iter++)

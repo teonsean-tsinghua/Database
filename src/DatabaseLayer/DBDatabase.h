@@ -43,6 +43,8 @@ private:
 
     void processWheresWithOneTable(SearchInfo& si, DBRecordInfo* ri);
 
+    void printOneTableSelectResult(SelectResult& sr, std::vector<bool>& selected, DBRecordInfo* ri);
+
 public:
     static DBDatabase* getInstance();
 

@@ -11,10 +11,16 @@ class DBDataFile;
 class SelectResult
 {
 private:
-    std::vector<std::vector<void*> > results;
+    std::list<std::vector<void*> > results;
 
 public:
     SelectResult();
+
+    void filterByValue(std::map<int, void*>& info, int op, DBRecordInfo* ri);
+
+    void filterByFields(std::map<int, int>& info, int op, DBRecordInfo* ri);
+
+    void print();
 
     friend DBRecordSlot;
     friend DBDataFile;
@@ -45,13 +51,7 @@ private:
 
     DBUsagePage* openUsagePage(int pid);
 
-    void processKeyValue(std::map<std::string, void*>& data,
-                         std::map<int, void*>& processed,
-                         std::vector<std::string>& errors);
-
     bool validateInsertion(std::vector<void*>& data);
-
-    void _test();
 
 public:
     DBDataFile(std::string path);
@@ -71,8 +71,6 @@ public:
 
     void insert(std::vector<void*>& fields);
 
-    void findEqual(std::map<std::string, void*>& data, std::set<std::map<std::string, void*>*>& result);
-
     void select(SearchInfo& si, SelectResult& sr);
 
     void remove(std::map<std::string, void*>& data);
@@ -88,8 +86,6 @@ public:
     void printFileDescription();
 
     void printAllRecords();
-
-    static void test();
 };
 
 #endif // DBDATAFILE_H_INCLUDED
