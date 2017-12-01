@@ -22,6 +22,8 @@ public:
 
     void remove(std::map<int, void*>& data);
 
+    void filterByNull(std::map<int, bool>& nulls, std::vector<std::vector<void*> >& datas);
+
     void update(std::map<int, void*>& key_value, std::map<int, void*>& update_value);
 
     void findEqual(std::map<int, void*>& data, std::set<std::map<std::string, void*>*>& result);

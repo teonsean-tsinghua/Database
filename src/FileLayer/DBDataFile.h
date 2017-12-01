@@ -6,6 +6,20 @@
 #include"DBDataPage.h"
 #include"DBUsagePage.h"
 
+class DBDataFile;
+
+class SelectResult
+{
+private:
+    std::vector<std::vector<void*> > results;
+
+public:
+    SelectResult();
+
+    friend DBRecordSlot;
+    friend DBDataFile;
+};
+
 class DBDataFile
 {
 private:
@@ -42,6 +56,8 @@ private:
 public:
     DBDataFile(std::string path);
 
+    DBRecordInfo* getRecordInfo();
+
     void createFile();
 
     void openFile();
@@ -57,13 +73,13 @@ public:
 
     void findEqual(std::map<std::string, void*>& data, std::set<std::map<std::string, void*>*>& result);
 
+    void select(SearchInfo& si, SelectResult& sr);
+
     void remove(std::map<std::string, void*>& data);
 
     void update(std::map<std::string, void*>& key_value, std::map<std::string, void*>& update_value);
 
     void setPrimaryKey(const char* name);
-
-    bool validateFields(std::vector<std::string>& names, std::string tableName);
 
     void getAllFields(std::vector<std::string>& names);
 

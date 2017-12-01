@@ -109,6 +109,14 @@ void DBDataPage::findEqual(std::map<int, void*>& data, std::set<char*>& result)
     }
 }
 
+void DBDataPage::filterByNull(std::map<int, bool>& nulls, std::vector<std::vector<void*> >& datas)
+{
+    for(int i = 0; i < records.size(); i++)
+    {
+        records[i]->checkNull(nulls, datas);
+    }
+}
+
 void DBDataPage::print()
 {
     DBPage::print();

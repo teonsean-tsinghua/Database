@@ -11,6 +11,8 @@ protected:
 public:
     DBRecordSlot(BufType cache, DBRecordInfo* ri);
 
+    void checkNull(std::map<int, bool>& nulls, std::vector<std::vector<void*> >& datas);
+
     void write(std::vector<void*>& data);
 
     void read(std::vector<void*>& data);

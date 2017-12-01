@@ -1,5 +1,10 @@
 #include"DBDataFile.h"
 
+SelectResult::SelectResult()
+{
+
+}
+
 DBDataFile::DBDataFile(std::string path):
     path(path)
 {
@@ -8,6 +13,11 @@ DBDataFile::DBDataFile(std::string path):
     lastDataPage = -1;
     open = false;
     ri = new DBRecordInfo();
+}
+
+DBRecordInfo* DBDataFile::getRecordInfo()
+{
+    return ri;
 }
 
 void DBDataFile::printAllRecords()
@@ -25,31 +35,6 @@ void DBDataFile::printAllRecords()
         DBPrint::printLine("====================");
         dp = openDataPage(dp->getNextSameType());
     }
-}
-
-void DBDataFile::getAllFields(std::vector<std::string>& names)
-{
-    assert(open);
-    int cnt = ri->getFieldCount();
-    for(int i = 1; i < cnt; i++)
-    {
-        names.push_back(ri->name(i));
-    }
-}
-
-bool DBDataFile::validateFields(std::vector<std::string>& names, std::string tableName)
-{
-    assert(open);
-    bool flag = true;
-    for(int i = 0; i < names.size(); i++)
-    {
-        if(!ri->contains(names[i]))
-        {
-            DBPrint::print("Table ").print(tableName).print(" does not have field ").print(names[i]).printLine(".");
-            flag = false;
-        }
-    }
-    return flag;
 }
 
 int DBDataFile::findFirstAvailableDataPage()
@@ -355,6 +340,59 @@ void DBDataFile::update(std::map<std::string, void*>& key_value, std::map<std::s
         for(int i = 0; i < errors.size(); i++)
         {
             DBPrint::printLine("This table does not contain field " + errors[i]);
+        }
+    }
+}
+
+void DBDataFile::select(SearchInfo& si, SelectResult& sr)
+{
+    assert(open);
+    printAllRecords();
+    if(si.nulls.size() > 0)
+    {
+        DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+        while(true)
+        {
+            if(dp == NULL)
+            {
+                break;
+            }
+            dp->filterByNull(si.nulls, sr.results);
+            dp = openDataPage(dp->getNextSameType());
+        }
+        DBPrint::printLine(sr.results.size());
+    }
+    if(si.equals.size() > 0)
+    {
+        if(sr.results.empty())
+        {
+
+        }
+        else
+        {
+
+        }
+    }
+    if(si.notEquals.size() > 0)
+    {
+        if(sr.results.empty())
+        {
+
+        }
+        else
+        {
+
+        }
+    }
+    if(si.notEquals.size() > 0)
+    {
+        if(sr.results.empty())
+        {
+
+        }
+        else
+        {
+
         }
     }
 }

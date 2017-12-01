@@ -6,6 +6,22 @@ DBRecordSlot::DBRecordSlot(BufType cache, DBRecordInfo* ri):
 
 }
 
+void DBRecordSlot::checkNull(std::map<int, bool>& nulls, std::vector<std::vector<void*> >& datas)
+{
+    std::map<int, bool>::iterator iter;
+    bool b;
+    for(iter = nulls.begin(); iter != nulls.end(); iter++)
+    {
+        int idx = iter->first;
+        readCharToBool((*this)[ri->offset(idx)], &b);
+        if(b == iter->second)
+        {
+            datas.push_back(std::vector<void*>());
+            read(datas.back());
+        }
+    }
+}
+
 void DBRecordSlot::write(std::vector<void*>& data)
 {
     int cnt = ri->getFieldCount();
@@ -40,6 +56,7 @@ void DBRecordSlot::write(std::vector<void*>& data)
 void DBRecordSlot::print()
 {
     std::vector<void*> data;
+    read(data);
     for(int idx = 0; idx < data.size(); idx++)
     {
         void* ptr = data[idx];

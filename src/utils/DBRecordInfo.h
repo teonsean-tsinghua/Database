@@ -6,6 +6,25 @@
 #include<vector>
 #include"DBException.h"
 
+struct SearchInfo
+{
+    std::map<int, bool> nulls;
+    std::map<int, void*> equals;
+    std::map<int, void*> largers;
+    std::map<int, void*> smallers;
+    std::map<int, void*> notEquals;
+    std::map<int, void*> largerEquals;
+    std::map<int, void*> smallerEquals;
+    std::map<int, int> fequals;
+    std::map<int, int> flargers;
+    std::map<int, int> fsmallers;
+    std::map<int, int> fnotEquals;
+    std::map<int, int> flargerEquals;
+    std::map<int, int> fsmallerEquals;
+
+    void init();
+};
+
 class DBRecordInfo
 {
 private:

@@ -73,6 +73,123 @@ void DBDatabase::addPendingValueList()
     pValues.clear();
 }
 
+void DBDatabase::processWheresWithOneTable(SearchInfo& si, DBRecordInfo* ri)
+{
+    bool flag = true;
+    for(int i = 0; i < pWheres.size(); i++)
+    {
+        Where& w = pWheres[i];
+        if(w.left.table != "" &&
+           w.left.table != pTables[0])
+        {
+            DBPrint::printLine("Table " + w.left.table + " is not selected.");
+            flag = false;
+        }
+        else if(ri->index(w.left.field) < 0)
+        {
+            DBPrint::printLine("Table " + pTables[0] + " does not have field" + w.left.field + ".");
+            flag = false;
+        }
+        if(w.type == 2 && w.opCol)
+        {
+            if(w.col_r.table != "" && w.col_r.table != pTables[0])
+            {
+                throw Exception("Table " + w.col_r.table + " is not selected.");
+                flag = false;
+            }
+            else if(ri->index(w.col_r.field) < 0)
+            {
+                DBPrint::printLine("Table " + pTables[0] + " does not have field" + w.col_r.field + ".");
+                flag = false;
+            }
+        }
+    }
+    if(!flag)
+    {
+        pWheres.clear();
+        throw Exception("Error in where clause.");
+    }
+    si.init();
+    for(int i = 0; i < pWheres.size(); i++)
+    {
+        Where& w = pWheres[i];
+        switch(w.type)
+        {
+        case 0:
+            si.nulls[ri->index(w.left.field)] = true;
+            break;
+        case 1:
+            si.nulls[ri->index(w.left.field)] = false;
+            break;
+        case 2:
+            switch(w.op)
+            {
+            case 0:
+                if(w.opCol)
+                {
+                    si.fequals[ri->index(w.left.field)] = ri->index(w.col_r.field);
+                }
+                else
+                {
+                    si.equals[ri->index(w.left.field)] = (w.val_r.type == 1 ? (void*)&w.val_r.v_int : (void*)&w.val_r.v_str);
+                }
+                break;
+            case 1:
+                if(w.opCol)
+                {
+                    si.fnotEquals[ri->index(w.left.field)] = ri->index(w.col_r.field);
+                }
+                else
+                {
+                    si.notEquals[ri->index(w.left.field)] = (w.val_r.type == 1 ? (void*)&w.val_r.v_int : (void*)&w.val_r.v_str);
+                }
+                break;
+            case 2:
+                if(w.opCol)
+                {
+                    si.fsmallerEquals[ri->index(w.left.field)] = ri->index(w.col_r.field);
+                }
+                else
+                {
+                    si.smallerEquals[ri->index(w.left.field)] = (w.val_r.type == 1 ? (void*)&w.val_r.v_int : (void*)&w.val_r.v_str);
+                }
+                break;
+            case 3:
+                if(w.opCol)
+                {
+                    si.flargerEquals[ri->index(w.left.field)] = ri->index(w.col_r.field);
+                }
+                else
+                {
+                    si.largerEquals[ri->index(w.left.field)] = (w.val_r.type == 1 ? (void*)&w.val_r.v_int : (void*)&w.val_r.v_str);
+                }
+                break;
+            case 4:
+                if(w.opCol)
+                {
+                    si.fsmallers[ri->index(w.left.field)] = ri->index(w.col_r.field);
+                }
+                else
+                {
+                    si.smallers[ri->index(w.left.field)] = (w.val_r.type == 1 ? (void*)&w.val_r.v_int : (void*)&w.val_r.v_str);
+                }
+                break;
+            case 5:
+                if(w.opCol)
+                {
+                    si.flargers[ri->index(w.left.field)] = ri->index(w.col_r.field);
+                }
+                else
+                {
+                    si.largers[ri->index(w.left.field)] = (w.val_r.type == 1 ? (void*)&w.val_r.v_int : (void*)&w.val_r.v_str);
+                }
+                break;
+            }
+        }
+    }
+    pWheres.clear();
+}
+
 void DBDatabase::selectOneTable(bool all)
 {
     DBDataFile* df = getDataFile(pTables[0]);
@@ -83,11 +200,12 @@ void DBDatabase::selectOneTable(bool all)
         pCols.clear();
         return;
     }
-    std::vector<std::string> selected;
+    std::vector<bool> selected;
     df->openFile();
+    DBRecordInfo* ri = df->getRecordInfo();
     if(all)
     {
-        df->getAllFields(selected);
+        selected.assign(ri->getFieldCount(), true);
     }
     else
     {
@@ -100,12 +218,13 @@ void DBDatabase::selectOneTable(bool all)
                 DBPrint::printLine("Table " + pCols[i].table + " is not selected.");
                 flag = false;
             }
-            else
+            else if(ri->index(pCols[i].field) < 0)
             {
-                selected.push_back(pCols[i].field);
+                DBPrint::printLine("Table " + pTables[0] + " does not have field" + pCols[i].field + ".");
+                flag = false;
             }
         }
-        if(!flag || !df->validateFields(selected, pTables[0]))
+        if(!flag)
         {
             pWheres.clear();
             pTables.clear();
@@ -113,57 +232,17 @@ void DBDatabase::selectOneTable(bool all)
             df->closeFile();
             return;
         }
-    }
-    for(int i = 0; i < pWheres.size(); i++)
-    {
-        Where& w = pWheres[i];
-        DBPrint::print((w.left.table == "" ? pTables[0] : w.left.table) + "." + w.left.field);
-        switch(w.type)
+        selected.assign(ri->getFieldCount(), false);
+        for(int i = 0; i < pCols.size(); i++)
         {
-        case 0:
-            DBPrint::print(" IS NULL");
-            break;
-        case 1:
-            DBPrint::print(" IS NOT NULL");
-            break;
-        case 2:
-            switch(w.op)
-            {
-            case 0:
-                DBPrint::print(" = ");
-                break;
-            case 1:
-                DBPrint::print(" <> ");
-                break;
-            case 2:
-                DBPrint::print(" <= ");
-                break;
-            case 3:
-                DBPrint::print(" >= ");
-                break;
-            case 4:
-                DBPrint::print(" < ");
-                break;
-            case 5:
-                DBPrint::print(" > ");
-                break;
-            };
-            if(w.opCol)
-            {
-                DBPrint::print((w.left.table == "" ? pTables[0] : w.left.table) + "." + w.col_r.field);
-            }
-            else
-            {
-                DBPrint::print(w.val_r.v_int);
-            }
-        };
-        if(i != pWheres.size() - 1)
-        {
-            DBPrint::print(" AND ");
+            selected[ri->index(pCols[i].field)] = true;
         }
     }
-    DBPrint::printLine();
-    pWheres.clear();
+    SearchInfo si;
+    processWheresWithOneTable(si, ri);
+    SelectResult sr;
+    df->select(si, sr);
+
     pTables.clear();
     pCols.clear();
     df->closeFile();
@@ -253,10 +332,7 @@ void DBDatabase::delete_path(const char* path)
 
 void DBDatabase::showTables()
 {
-    if(!databaseAvailable())
-    {
-        return;
-    }
+    assert(databaseAvailable());
     DIR *pDir = NULL;
     struct dirent *dmsg;
     char szFileName[128];
@@ -356,10 +432,7 @@ void DBDatabase::dropDatabase(std::string name_)
 
 void DBDatabase::createTable(std::string name_)
 {
-    if(!databaseAvailable())
-    {
-        return;
-    }
+    assert(databaseAvailable());
     std::string path("");
     path += (root + "/" + name + "/" + name_ + ".dat");
     if(access(path.c_str(), F_OK) == 0)
@@ -396,10 +469,7 @@ void DBDatabase::describeTable(std::string name_)
 
 DBDataFile* DBDatabase::getDataFile(std::string name_)
 {
-    if(!databaseAvailable())
-    {
-        return NULL;
-    }
+    assert(databaseAvailable());
     if(data.count(name_))
     {
         return data[name_];

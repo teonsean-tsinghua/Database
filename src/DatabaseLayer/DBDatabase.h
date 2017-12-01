@@ -41,6 +41,8 @@ private:
 
     void selectMultiTable(bool all);
 
+    void processWheresWithOneTable(SearchInfo& si, DBRecordInfo* ri);
+
 public:
     static DBDatabase* getInstance();
 

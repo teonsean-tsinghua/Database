@@ -2,6 +2,23 @@
 #include"../DBInclude.h"
 #include"../FileLayer/DBDataFileDescriptionPage.h"
 
+void SearchInfo::init()
+{
+    nulls.clear();
+    equals.clear();
+    notEquals.clear();
+    largers.clear();
+    smallers.clear();
+    largerEquals.clear();
+    smallerEquals.clear();
+    fequals.clear();
+    fnotEquals.clear();
+    flargerEquals.clear();
+    flargers.clear();
+    fsmallerEquals.clear();
+    fsmallers.clear();
+}
+
 DBRecordInfo::DBRecordInfo()
 {
     indexes.clear();
