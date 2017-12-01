@@ -28,8 +28,7 @@ void DBDatabase::createDatabase(std::string name_)
     path += (root + "/" + name_);
     if(access(path.c_str(), F_OK) == 0)
     {
-        DBPrint::printLine("File or directory already exists.");
-        return;
+        throw Exception("File or directory already exists.");
     }
     mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     DBPrint::log("Created directory ").logLine(path);
@@ -187,7 +186,7 @@ void DBDatabase::select(bool all)
     }
     else
     {
-        DBPrint::printLine("At least one table should be provided.");
+        throw Exception("At least one table should be provided.");
     }
 }
 
@@ -198,7 +197,7 @@ void DBDatabase::insert(std::string name_)
     {
         pValues.clear();
         pValueLists.clear();
-        return;
+        throw Exception("Cannot read table " + name_);
     }
     df->openFile();
     for(int i = 0; i < pValueLists.size(); i++)
@@ -248,16 +247,13 @@ void DBDatabase::delete_path(const char* path)
                 remove(szFileName);
             }
         }
-    }
-    if(pDir != NULL)
-    {
         closedir(pDir);
     }
 }
 
 void DBDatabase::showTables()
 {
-    if(name == "")
+    if(!databaseAvailable())
     {
         return;
     }
@@ -268,7 +264,7 @@ void DBDatabase::showTables()
     strcpy(szFolderName, root.c_str());
     strcat(szFolderName, "/");
     strcat(szFolderName, name.c_str());
-    if(name != "" && (pDir = opendir(szFolderName)) != NULL)
+    if((pDir = opendir(szFolderName)) != NULL)
     {
         strcat(szFolderName, "/%s");
         DBPrint::printLine("====================");
@@ -286,14 +282,11 @@ void DBDatabase::showTables()
             }
         }
         DBPrint::printLine("====================");
+        closedir(pDir);
     }
     else
     {
         DBPrint::printLine("Current database is not available.");
-    }
-    if(pDir != NULL)
-    {
-        closedir(pDir);
     }
 }
 
@@ -321,12 +314,9 @@ void DBDatabase::showDatabases()
                 }
             }
         }
-    }
-    DBPrint::printLine("====================");
-    if(pDir != NULL)
-    {
         closedir(pDir);
     }
+    DBPrint::printLine("====================");
 }
 
 void DBDatabase::useDatabase(std::string name_)
@@ -335,13 +325,11 @@ void DBDatabase::useDatabase(std::string name_)
     path += (root + "/" + name_);
     if(access(path.c_str(), F_OK) != 0)
     {
-        DBPrint::printLine("Database does not exist.");
-        return;
+        throw Exception("Database does not exist.");
     }
     if (opendir(path.c_str()) == NULL)
     {
-        DBPrint::print(name_).printLine(" is not a Database.");
-        return;
+        throw Exception(" is not a Database.");
     }
     name = name_;
     data.clear();
@@ -354,15 +342,12 @@ void DBDatabase::dropDatabase(std::string name_)
     if(name_ == name)
     {
         name = "";
-        data.clear();
-        indexes.clear();
     }
     std::string path("");
     path += (root + "/" + name_);
     if(access(path.c_str(), F_OK) != 0)
     {
-        DBPrint::printLine("Database does not exist.");
-        return;
+        throw Exception("Database does not exist.");
     }
     delete_path(path.c_str());
     rmdir(path.c_str());

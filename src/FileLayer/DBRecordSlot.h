@@ -11,19 +11,19 @@ protected:
 public:
     DBRecordSlot(BufType cache, DBRecordInfo* ri);
 
-    int write(std::vector<void*>& data);
+    void write(std::vector<void*>& data);
 
-    int read(std::vector<void*>& data);
+    void read(std::vector<void*>& data);
 
-    int read(std::map<std::string, void*>& data);
+    void read(std::map<std::string, void*>& data);
 
-    int equal(std::map<int, void*>& data);
+    bool equal(std::map<int, void*>& data);
 
-    int update(std::map<int, void*>& data);
+    void update(std::map<int, void*>& data);
 
-    int compare_id(char* _id);
+    bool compare_id(char* _id);
 
-    int get_id(char* _id);
+    void get_id(char* _id);
 
     static void copy(DBRecordSlot* src, DBRecordSlot* dest, int length);
 

@@ -4,6 +4,7 @@
 #include<map>
 #include<string>
 #include<vector>
+#include"DBException.h"
 
 class DBRecordInfo
 {
@@ -59,6 +60,14 @@ public:
     int addField(std::string name, int type, bool nullable, int extra);
 
     void reset(int n);
+
+    const static int SUCCEED = 0;
+
+    const static int EMPTY_FIELD_NAME = 156;
+
+    const static int FIELD_ALREADY_EXIST = 561;
+
+    const static int EXCEED_PAGE_LIMIT = 615;
 };
 
 #endif // DBRECORDINFO_H_INCLUDED

@@ -29,7 +29,7 @@ void writeString(char* cache, std::string& str, int len)
 {
     if(str.copy(cache, len) != len)
     {
-        throw ERROR;
+        throw Exception("Failed to write string.");
     }
 }
 

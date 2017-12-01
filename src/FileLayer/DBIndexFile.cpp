@@ -10,14 +10,11 @@ DBIndexFile::DBIndexFile(std::string path):
 
 int DBIndexFile::allocateNewLeafNode()
 {
-    if(!open)
-    {
-        return FILE_NOT_OPENED;
-    }
+    assert(open);
     int cnt = ifdp->getPageNumber();
     if(cnt <= 0)
     {
-        return ERROR;
+        throw Exception("Invalid page number count.");
     }
     int index;
     BufType cache = fm->getPage(fileID, cnt, index);
@@ -30,14 +27,11 @@ int DBIndexFile::allocateNewLeafNode()
 
 int DBIndexFile::allocateNewInternalNode()
 {
-    if(!open)
-    {
-        return FILE_NOT_OPENED;
-    }
+    assert(open);
     int cnt = ifdp->getPageNumber();
     if(cnt <= 0)
     {
-        return ERROR;
+        throw Exception("Invalid page number count.");
     }
     int index;
     BufType cache = fm->getPage(fileID, cnt, index);
@@ -50,10 +44,7 @@ int DBIndexFile::allocateNewInternalNode()
 
 void DBIndexFile::printFileDescription()
 {
-    if(!open)
-    {
-        return;
-    }
+    assert(open);
     ifdp->print();
     DBPrint::print("Max degree of each node is: ").printLine(maxDgr)
             .print("Min degree of each node is: ").printLine(minDgr);
@@ -61,10 +52,7 @@ void DBIndexFile::printFileDescription()
 
 DBIndexNodePage* DBIndexFile::openNode(int pid)
 {
-    if(!open)
-    {
-        return NULL;
-    }
+    assert(open);
 	if(pages.count(pid))
     {
 		return pages[pid];
@@ -94,8 +82,9 @@ DBIndexNodePage* DBIndexFile::openNode(int pid)
     }
 }
 
-int DBIndexFile::split(DBIndexNodePage* cur)
+void DBIndexFile::split(DBIndexNodePage* cur)
 {
+    assert(open);
     if(cur->getChildrenCount() >= maxDgr)
     {
         int new_pid;
@@ -106,10 +95,6 @@ int DBIndexFile::split(DBIndexNodePage* cur)
         else
         {
             new_pid = allocateNewInternalNode();
-        }
-        if(new_pid <= 0)
-        {
-            return ERROR;
         }
         DBIndexNodePage* new_page = openNode(new_pid);
         DBIndexNodePage::split(cur, new_page);
@@ -123,8 +108,7 @@ int DBIndexFile::split(DBIndexNodePage* cur)
                 DBIndexNodePage* tmp = openNode(curPage);
                 if(tmp == NULL)
                 {
-                    DBPrint::log("Failed to open page ").logLine(new_pid);
-                    return ERROR;
+                    throw Exception("Error in index node linked lists.");
                 }
                 tmp->setParent(new_pid);
                 curPage = tmp->getNextSameType();
@@ -134,10 +118,6 @@ int DBIndexFile::split(DBIndexNodePage* cur)
         if(cur->getParent() <= 0)
         {
             int new_root = allocateNewInternalNode();
-            if(new_root <= 0)
-            {
-                return ERROR;
-            }
             rootNode = new_root;
             ifdp->setRootPage(rootNode);
             DBIndexNodePage* new_root_node = openNode(new_root);
@@ -145,7 +125,6 @@ int DBIndexFile::split(DBIndexNodePage* cur)
             new_root_node->insert(new_page->getMaxKey(), new_page->getPageID());
             cur->setParent(new_root);
             new_page->setParent(new_root);
-            return SUCCEED;
         }
         else
         {
@@ -153,25 +132,25 @@ int DBIndexFile::split(DBIndexNodePage* cur)
             new_page->setParent(cur->getParent());
             parent->changeKeyOfPage(cur->getPageID(), cur->getMaxKey());
             parent->insert(new_page->getMaxKey(), new_page->getPageID());
-            return split(parent);
+            split(parent);
         }
     }
-    return SUCCEED;
 }
 
-int DBIndexFile::merge(DBIndexNodePage* cur)
+void DBIndexFile::merge(DBIndexNodePage* cur)
 {
     //TODO:
 }
 
-int DBIndexFile::insert(void* key, int pid)
+void DBIndexFile::insert(void* key, int pid)
 {
+    assert(open);
     DBIndexNodePage* curNode = openNode(rootNode);
     void* maxKey = curNode->getMaxKey();
     if(maxKey == NULL)
     {
         curNode->insert(key, pid);
-        return SUCCEED;
+        return;
     }
     while(true)
     {
@@ -192,18 +171,15 @@ int DBIndexFile::insert(void* key, int pid)
     }
     if(curNode == NULL)
     {
-        return ERROR;
+        throw Exception("Invalid page ID.");
     }
-    int re = curNode->insert(key, pid);
-    if(re != SUCCEED)
-    {
-        return re;
-    }
-    return split(curNode);
+    curNode->insert(key, pid);
+    split(curNode);
 }
 
-int DBIndexFile::remove(void* key)
+void DBIndexFile::remove(void* key)
 {
+    assert(open);
     DBIndexNodePage* curNode = openNode(rootNode);
     while(curNode != NULL && !curNode->isLeaf())
     {
@@ -211,18 +187,15 @@ int DBIndexFile::remove(void* key)
     }
     if(curNode == NULL)
     {
-        return ERROR;
+        throw Exception("Invalid page ID.");
     }
-    int re = curNode->remove(key);
-    if(re != SUCCEED)
-    {
-        return re;
-    }
-    return merge(curNode);
+    curNode->remove(key);
+    merge(curNode);
 }
 
 int DBIndexFile::search(void* key)
 {
+    assert(open);
     DBIndexNodePage* curNode = openNode(rootNode);
     while(curNode != NULL && !curNode->isLeaf())
     {
@@ -230,13 +203,14 @@ int DBIndexFile::search(void* key)
     }
     if(curNode == NULL)
     {
-        return ERROR;
+        throw Exception("Invalid page ID.");
     }
     return curNode->searchEqual(key);
 }
 
-int DBIndexFile::update(void* key, int pid)
+void DBIndexFile::update(void* key, int pid)
 {
+    assert(open);
     DBIndexNodePage* curNode = openNode(rootNode);
     while(curNode != NULL && !curNode->isLeaf())
     {
@@ -244,28 +218,16 @@ int DBIndexFile::update(void* key, int pid)
     }
     if(curNode == NULL)
     {
-        return ERROR;
+        throw Exception("Invalid page ID.");
     }
-    return curNode->update(key, pid);
+    curNode->update(key, pid);
 }
 
-int DBIndexFile::createFile(int keyType, int keyLength)
+void DBIndexFile::createFile(int keyType, int keyLength)
 {
-    if(open)
-    {
-        DBPrint::logLine("ERROR");
-        return A_FILE_ALREADY_OPENED;
-    }
-    if(fm->createFile(path.c_str()) != SUCCEED)
-    {
-        DBPrint::logLine("ERROR");
-        return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
-    }
-    if(fm->openFile(path.c_str(), fileID) != SUCCEED)
-    {
-        DBPrint::logLine("ERROR");
-        return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
-    }
+    assert(!open);
+    fm->createFile(path.c_str());
+    fm->openFile(path.c_str(), fileID);
     this->keyType = keyType;
     this->keyLength = keyLength;
     open = true;
@@ -277,56 +239,31 @@ int DBIndexFile::createFile(int keyType, int keyLength)
     fm->flush(ifdp->getIndex());
     fm->closeFile(fileID);
     open = false;
-    return SUCCEED;
 }
 
-int DBIndexFile::deleteFile()
+void DBIndexFile::deleteFile()
 {
-    if(open)
-    {
-        DBPrint::logLine("ERROR");
-        return A_FILE_ALREADY_OPENED;
-    }
-    if(fm->deleteFile(path.c_str()) != SUCCEED)
-    {
-        DBPrint::logLine("ERROR");
-        return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
-    }
-    return SUCCEED;
+    assert(!open);
+    fm->deleteFile(path.c_str());
 }
 
-int DBIndexFile::closeFile()
+void DBIndexFile::closeFile()
 {
-    if(!open)
-    {
-        return FILE_NOT_OPENED;
-    }
+    assert(open);
     fm->flush(ifdp->getIndex());
     for(std::map<int, DBIndexNodePage*>::iterator iter = pages.begin(); iter != pages.end(); iter++)
     {
         fm->flush(iter->second->getIndex());
     }
-    if(fm->closeFile(fileID) != SUCCEED)
-    {
-        DBPrint::logLine("ERROR");
-        return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
-    }
     pages.clear();
     open = false;
-    return SUCCEED;
+    fm->closeFile(fileID);
 }
 
-int DBIndexFile::openFile()
+void DBIndexFile::openFile()
 {
-    if(open)
-    {
-        DBPrint::logLine("ERROR");
-        return A_FILE_ALREADY_OPENED;
-    }
-    if(fm->openFile(path.c_str(), fileID) != SUCCEED){
-        DBPrint::logLine("ERROR");
-        return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
-    }
+    assert(!open);
+    fm->openFile(path.c_str(), fileID);
     int index;
     open = true;
     BufType cache = fm->getPage(fileID, 0, index);
@@ -335,7 +272,6 @@ int DBIndexFile::openFile()
     rootNode = ifdp->getRootPage();
     keyLength = ifdp->getKeyLength();
     openNode(rootNode)->calcDegree(minDgr, maxDgr);
-    return SUCCEED;
 }
 
 void DBIndexFile::_test()

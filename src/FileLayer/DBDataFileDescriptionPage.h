@@ -23,7 +23,7 @@ public:
 
     void writeFields();
 
-    int setPrimaryKey(std::string name);
+    void setPrimaryKey(std::string name);
 
     void print();
 

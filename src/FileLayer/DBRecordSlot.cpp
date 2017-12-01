@@ -6,12 +6,12 @@ DBRecordSlot::DBRecordSlot(BufType cache, DBRecordInfo* ri):
 
 }
 
-int DBRecordSlot::write(std::vector<void*>& data)
+void DBRecordSlot::write(std::vector<void*>& data)
 {
     int cnt = ri->getFieldCount();
     if(cnt != data.size())
     {
-        return ERROR;
+        throw Exception("Not enough fields provided for insertion.");
     }
     write_id((*this)[1]);
     for(int i = 1; i < cnt; i++)
@@ -35,16 +35,11 @@ int DBRecordSlot::write(std::vector<void*>& data)
             }
         }
     }
-    return SUCCEED;
 }
 
 void DBRecordSlot::print()
 {
     std::vector<void*> data;
-    if(read(data) != SUCCEED)
-    {
-        return;
-    }
     for(int idx = 0; idx < data.size(); idx++)
     {
         void* ptr = data[idx];
@@ -83,7 +78,7 @@ void DBRecordSlot::copy(DBRecordSlot* src, DBRecordSlot* dest, int length)
     copyData(src->cache, dest->cache, length);
 }
 
-int DBRecordSlot::update(std::map<int, void*>& data)
+void DBRecordSlot::update(std::map<int, void*>& data)
 {
     std::map<int, void*>::iterator iter;
     for(iter = data.begin(); iter != data.end(); iter++)
@@ -99,10 +94,9 @@ int DBRecordSlot::update(std::map<int, void*>& data)
             writeData((*this)[ri->offset(idx) + 1], ptr, ri->length(idx));
         }
     }
-    return SUCCEED;
 }
 
-int DBRecordSlot::equal(std::map<int, void*>& data)
+bool DBRecordSlot::equal(std::map<int, void*>& data)
 {
     std::map<int, void*>::iterator iter;
     for(iter = data.begin(); iter != data.end(); iter++)
@@ -115,25 +109,21 @@ int DBRecordSlot::equal(std::map<int, void*>& data)
             readCharToBool((*this)[ri->offset(idx)], &isNull);
             if(!isNull)
             {
-                return NON_EQUAL_RECORD;
+                return false;
             }
         }
         else if(strncmp(ptr, (char*)(*this)[ri->offset(idx) + 1], ri->length(idx)) != 0)
         {
-            return NON_EQUAL_RECORD;
+            return false;
         }
     }
-    return EQUAL_RECORD;
+    return true;
 }
 
-int DBRecordSlot::read(std::map<std::string, void*>& data)
+void DBRecordSlot::read(std::map<std::string, void*>& data)
 {
     data.clear();
     int cnt = ri->getFieldCount();
-    if(cnt < 0)
-    {
-        return ERROR;
-    }
     char* _id = new char[DBType::typeSize(DBType::_ID)];
     read_id((*this)[1], _id);
     data["_id"] = (void*)_id;
@@ -154,32 +144,26 @@ int DBRecordSlot::read(std::map<std::string, void*>& data)
             data[ri->name(i)] = (void*)tmp;
         }
     }
-    return SUCCEED;
 }
 
-int DBRecordSlot::compare_id(char* _id)
+bool DBRecordSlot::compare_id(char* _id)
 {
     if(strncmp(_id, (char*)((*this)[1]), DBType::typeSize(DBType::_ID)) == 0)
     {
-        return EQUAL_RECORD;
+        return true;
     }
-    return NON_EQUAL_RECORD;
+    return false;
 }
 
-int DBRecordSlot::get_id(char* _id)
+void DBRecordSlot::get_id(char* _id)
 {
     read_id((*this)[1], _id);
-    return SUCCEED;
 }
 
-int DBRecordSlot::read(std::vector<void*>& data)
+void DBRecordSlot::read(std::vector<void*>& data)
 {
     data.clear();
     int cnt = ri->getFieldCount();
-    if(cnt < 0)
-    {
-        return ERROR;
-    }
     data.assign(cnt, NULL);
     data[0] = (void*)((*this)[1]);
     for(int i = 1; i < cnt; i++)
@@ -199,5 +183,4 @@ int DBRecordSlot::read(std::vector<void*>& data)
             data[i] = (void*)tmp;
         }
     }
-    return SUCCEED;
 }

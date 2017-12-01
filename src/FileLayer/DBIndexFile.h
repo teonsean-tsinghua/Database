@@ -20,9 +20,9 @@ private:
     bool open;
     std::string path;
 
-    int split(DBIndexNodePage* cur);
+    void split(DBIndexNodePage* cur);
 
-    int merge(DBIndexNodePage* cur);
+    void merge(DBIndexNodePage* cur);
 
     void _test();
 
@@ -35,21 +35,21 @@ public:
 
 	DBIndexNodePage* openNode(int pid);
 
-	int createFile(int keyType, int keyLength);
+	void createFile(int keyType, int keyLength);
 
-	int openFile();
+	void openFile();
 
-	int deleteFile();
+	void deleteFile();
 
-	int closeFile();
+	void closeFile();
 
-	int insert(void* key, int pid);
+	void insert(void* key, int pid);
 
 	int search(void* key);
 
-	int update(void* key, int pid);
+	void update(void* key, int pid);
 
-	int remove(void* key);
+	void remove(void* key);
 
     void printFileDescription();
 

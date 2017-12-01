@@ -34,9 +34,9 @@ void DBIndexNodePage::split(DBIndexNodePage* src, DBIndexNodePage* dest)
     dest->pis->setFirstAvailableByte(dest->pis->size() + dest->ins->size());
 }
 
-int DBIndexNodePage::update(void* key, int pid)
+void DBIndexNodePage::update(void* key, int pid)
 {
-    return ins->update(key, pid);
+    ins->update(key, pid);
 }
 
 int DBIndexNodePage::search(void* key)
@@ -54,24 +54,16 @@ void DBIndexNodePage::setMaxKey(void* key)
     ins->setKeyOfIndex(ins->getChildrenCount() - 1, key);
 }
 
-int DBIndexNodePage::insert(void* key, int pid)
+void DBIndexNodePage::insert(void* key, int pid)
 {
-    int re = ins->insert(key, pid);
-    if(re == SUCCEED)
-    {
-        pis->setFirstAvailableByte(pis->getFirstAvailableByte() + keyLength + sizeof(int));
-    }
-    return re;
+    ins->insert(key, pid);
+    pis->setFirstAvailableByte(pis->getFirstAvailableByte() + keyLength + sizeof(int));
 }
 
-int DBIndexNodePage::remove(void* key)
+void DBIndexNodePage::remove(void* key)
 {
-    int re = ins->remove(key);
-    if(re == SUCCEED)
-    {
-        pis->setFirstAvailableByte(pis->getFirstAvailableByte() - keyLength - sizeof(int));
-    }
-    return re;
+    ins->remove(key);
+    pis->setFirstAvailableByte(pis->getFirstAvailableByte() - keyLength - sizeof(int));
 }
 
 void DBIndexNodePage::changeKeyOfPage(int page, void* key)

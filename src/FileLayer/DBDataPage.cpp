@@ -22,26 +22,25 @@ DBDataPage::DBDataPage(BufType cache, int index, int pageID, int mode, DBRecordI
     }
 }
 
-int DBDataPage::update(std::map<int, void*>& key_value, std::map<int, void*>& update_value)
+void DBDataPage::update(std::map<int, void*>& key_value, std::map<int, void*>& update_value)
 {
     for(int i = 0; i < records.size(); i++)
     {
-        if(records[i]->equal(key_value) == EQUAL_RECORD)
+        if(records[i]->equal(key_value))
         {
             records[i]->update(update_value);
         }
     }
-    return SUCCEED;
 }
 
-int DBDataPage::remove(std::map<int, void*>& data)
+void DBDataPage::remove(std::map<int, void*>& data)
 {
     std::vector<bool> removed;
     removed.assign(records.size(), false);
     int cnt = 0;
     for(int i = 0; i < records.size(); i++)
     {
-        if(records[i]->equal(data) == EQUAL_RECORD)
+        if(records[i]->equal(data))
         {
             removed[i] = true;
             cnt++;
@@ -49,7 +48,7 @@ int DBDataPage::remove(std::map<int, void*>& data)
     }
     if(cnt == 0)
     {
-        return SUCCEED;
+        return;
     }
     int head = 0, tail = records.size() - 1;
     while(head < tail)
@@ -82,37 +81,32 @@ int DBDataPage::remove(std::map<int, void*>& data)
         records.push_back(new DBRecordSlot((*this)[cur], ri));
         cur += ri->getRecordLength();
     }
-    return SUCCEED;
 }
 
-int DBDataPage::findEqual(std::map<int, void*>& data, std::set<std::map<std::string, void*>*>& result)
+void DBDataPage::findEqual(std::map<int, void*>& data, std::set<std::map<std::string, void*>*>& result)
 {
     for(int i = 0; i < records.size(); i++)
     {
-        if(records[i]->equal(data) == EQUAL_RECORD)
+        if(records[i]->equal(data))
         {
             std::map<std::string, void*>* re = new std::map<std::string, void*>();
-            if(records[i]->read(*re) == SUCCEED)
-            {
-                result.insert(re);
-            }
+            records[i]->read(*re);
+            result.insert(re);
         }
     }
-    return SUCCEED;
 }
 
-int DBDataPage::findEqual(std::map<int, void*>& data, std::set<char*>& result)
+void DBDataPage::findEqual(std::map<int, void*>& data, std::set<char*>& result)
 {
     for(int i = 0; i < records.size(); i++)
     {
-        if(records[i]->equal(data) == EQUAL_RECORD)
+        if(records[i]->equal(data))
         {
             char* _id = new char[DBType::typeSize(DBType::_ID)];
             records[i]->get_id(_id);
             result.insert(_id);
         }
     }
-    return SUCCEED;
 }
 
 void DBDataPage::print()
@@ -133,11 +127,7 @@ int DBDataPage::insert(std::vector<void*>& data)
 {
     int cur = pis->getFirstAvailableByte();
     DBRecordSlot* slot = new DBRecordSlot((*this)[cur], ri);
-    int re = slot->write(data);
-    if(re != SUCCEED)
-    {
-        return ERROR;
-    }
+    slot->write(data);
     cur += ri->getRecordLength();
     pis->setFirstAvailableByte(cur);
     records.push_back(slot);
@@ -145,5 +135,5 @@ int DBDataPage::insert(std::vector<void*>& data)
     {
         return SUCCEED;
     }
-    return DATA_PAGE_FULL;
+    return PAGE_FULL;
 }

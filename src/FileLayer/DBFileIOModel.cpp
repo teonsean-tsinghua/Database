@@ -45,40 +45,36 @@ void DBFileIOModel::flushAll()
     bpm->close();
 }
 
-int DBFileIOModel::deleteFile(const char* name)
+void DBFileIOModel::deleteFile(const char* name)
 {
-    if(remove(name) == 0)
+    if(!remove(name) == 0)
     {
-        return SUCCEED;
+        throw Exception("File " + std::string(name) + " cannot be deleted.");
     }
-    return ERROR;
 }
 
-int DBFileIOModel::createFile(const char* name)
+void DBFileIOModel::createFile(const char* name)
 {
-    if(fm->createFile(name))
+    if(!fm->createFile(name))
     {
-        return SUCCEED;
+        throw Exception("File " + std::string(name) + " cannot be created.");
     }
-    return ERROR;
 }
 
-int DBFileIOModel::openFile(const char* name, int& fileID)
+void DBFileIOModel::openFile(const char* name, int& fileID)
 {
-    if(fm->openFile(name, fileID))
+    if(!fm->openFile(name, fileID))
     {
-        return SUCCEED;
+        throw Exception("File " + std::string(name) + " cannot be opened.");
     }
-    return ERROR;
 }
 
-int DBFileIOModel::closeFile(int fileID)
+void DBFileIOModel::closeFile(int fileID)
 {
-    if(fm->closeFile(fileID) == 0)
+    if(!fm->closeFile(fileID) == 0)
     {
-        return SUCCEED;
+        throw Exception("File cannot be closed.");
     }
-    return ERROR;
 }
 
 BufType DBFileIOModel::allocatePage(int fileID, int pageID, int& index)

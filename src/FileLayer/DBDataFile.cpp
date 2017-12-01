@@ -12,10 +12,7 @@ DBDataFile::DBDataFile(std::string path):
 
 void DBDataFile::printAllRecords()
 {
-    if(!open)
-    {
-        return;
-    }
+    assert(open);
     DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
     while(true)
     {
@@ -32,10 +29,7 @@ void DBDataFile::printAllRecords()
 
 void DBDataFile::getAllFields(std::vector<std::string>& names)
 {
-    if(!open)
-    {
-        return;
-    }
+    assert(open);
     int cnt = ri->getFieldCount();
     for(int i = 1; i < cnt; i++)
     {
@@ -45,10 +39,7 @@ void DBDataFile::getAllFields(std::vector<std::string>& names)
 
 bool DBDataFile::validateFields(std::vector<std::string>& names, std::string tableName)
 {
-    if(!open)
-    {
-        return false;
-    }
+    assert(open);
     bool flag = true;
     for(int i = 0; i < names.size(); i++)
     {
@@ -63,10 +54,7 @@ bool DBDataFile::validateFields(std::vector<std::string>& names, std::string tab
 
 int DBDataFile::findFirstAvailableDataPage()
 {
-    if(!open)
-    {
-        return FILE_NOT_OPENED;
-    }
+    assert(open);
     DBUsagePage* up = openUsagePage(dfdp->getFirstUsagePage());
     while(true)
     {
@@ -83,18 +71,15 @@ int DBDataFile::findFirstAvailableDataPage()
     }
 }
 
-int DBDataFile::setAvailableOfDataPage(int dpid, bool available)
+void DBDataFile::setAvailableOfDataPage(int dpid, bool available)
 {
-    if(!open)
-    {
-        return FILE_NOT_OPENED;
-    }
+    assert(open);
     DBUsagePage* up = openUsagePage(dfdp->getFirstUsagePage());
     while(true)
     {
         if(up == NULL)
         {
-            return SUCCEED;
+            return;
         }
         if(up->withinRange(dpid))
         {
@@ -103,19 +88,15 @@ int DBDataFile::setAvailableOfDataPage(int dpid, bool available)
         up = openUsagePage(up->getNextSameType());
     }
     up->setAvailable(dpid, available);
-    return SUCCEED;
 }
 
 int DBDataFile::allocateNewUsagePage()
 {
-    if(!open)
-    {
-        return FILE_NOT_OPENED;
-    }
+    assert(open);
     int cnt = dfdp->getPageNumber();
     if(cnt <= 0)
     {
-        return ERROR;
+        throw Exception("Invalid page number.");
     }
     int index;
     BufType cache = fm->getPage(fileID, cnt, index);
@@ -134,23 +115,16 @@ int DBDataFile::allocateNewUsagePage()
 
 int DBDataFile::allocateNewDataPage()
 {
-    if(!open)
-    {
-        return FILE_NOT_OPENED;
-    }
+    assert(open);
     int cnt = dfdp->getPageNumber();
     if(cnt <= 0)
     {
-        return ERROR;
+        throw Exception("Invalid page number.");
     }
     DBUsagePage* up = openUsagePage(lastUsagePage);
     if(up == NULL || !up->withinRange(cnt))
     {
         up = openUsagePage(allocateNewUsagePage());
-        if(up == NULL)
-        {
-            return ERROR;
-        }
     }
     cnt = dfdp->getPageNumber();
     int index;
@@ -167,7 +141,7 @@ int DBDataFile::allocateNewDataPage()
     lastDataPage = cnt;
     if(!up->withinRange(cnt))
     {
-        return ERROR;
+        throw Exception("Internal error when allocating new data page.");
     }
     up->setAvailable(cnt, true);
     return cnt;
@@ -175,10 +149,7 @@ int DBDataFile::allocateNewDataPage()
 
 DBDataPage* DBDataFile::openDataPage(int pid)
 {
-    if(!open)
-    {
-        return NULL;
-    }
+    assert(open);
     if(pages.count(pid))
     {
         DBPage* re = pages[pid];
@@ -201,10 +172,7 @@ DBDataPage* DBDataFile::openDataPage(int pid)
 
 DBUsagePage* DBDataFile::openUsagePage(int pid)
 {
-    if(!open)
-    {
-        return NULL;
-    }
+    assert(open);
     if(pages.count(pid))
     {
         DBPage* re = pages[pid];
@@ -225,23 +193,11 @@ DBUsagePage* DBDataFile::openUsagePage(int pid)
     return re;
 }
 
-int DBDataFile::createFile()
+void DBDataFile::createFile()
 {
-    if(open)
-    {
-        DBPrint::logLine("ERROR");
-        return A_FILE_ALREADY_OPENED;
-    }
-    if(fm->createFile(path.c_str()) != SUCCEED)
-    {
-        DBPrint::logLine("ERROR");
-        return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
-    }
-    if(fm->openFile(path.c_str(), fileID) != SUCCEED)
-    {
-        DBPrint::logLine("ERROR");
-        return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
-    }
+    assert(!open);
+    fm->createFile(path.c_str());
+    fm->openFile(path.c_str(), fileID);
     int index;
     open = true;
     ri->init();
@@ -252,75 +208,48 @@ int DBDataFile::createFile()
     fm->flush(dfdp->getIndex());
     fm->closeFile(fileID);
     open = false;
-    return SUCCEED;
 }
 
-int DBDataFile::deleteFile()
+void DBDataFile::deleteFile()
 {
-    if(open)
-    {
-        DBPrint::logLine("ERROR");
-        return A_FILE_ALREADY_OPENED;
-    }
-    if(fm->deleteFile(path.c_str()) != SUCCEED)
-    {
-        DBPrint::logLine("ERROR");
-        return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
-    }
-    return SUCCEED;
+    assert(!open);
+    fm->deleteFile(path.c_str());
 }
 
-int DBDataFile::closeFile()
+void DBDataFile::closeFile()
 {
-    if(!open)
-    {
-        return FILE_NOT_OPENED;
-    }
+    assert(open);
     fm->flush(dfdp->getIndex());
     for(std::map<int, DBPage*>::iterator iter = pages.begin(); iter != pages.end(); iter++)
     {
         fm->flush(iter->second->getIndex());
     }
-    if(fm->closeFile(fileID) != SUCCEED)
-    {
-        DBPrint::logLine("ERROR");
-        return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
-    }
     pages.clear();
     open = false;
-    return SUCCEED;
+    fm->closeFile(fileID);
 }
 
 void DBDataFile::printFileDescription()
 {
-    if(!open)
-    {
-        return;
-    }
+    assert(open);
     dfdp->print();
 }
 
 void DBDataFile::printRecordDescription()
 {
-    if(!open)
-    {
-        return;
-    }
+    assert(open);
     dfdp->printRecordDescription();
 }
 
-int DBDataFile::addFields(std::vector<std::string>& name, std::vector<int>& type,
+void DBDataFile::addFields(std::vector<std::string>& name, std::vector<int>& type,
                           std::vector<bool>& nullable, std::vector<int>& extra)
 {
-    if(!open)
-    {
-        return FILE_NOT_OPENED;
-    }
+    assert(open);
     if(name.size() != type.size() ||
        type.size() != nullable.size() ||
        nullable.size() != extra.size())
     {
-        return ERROR;
+        throw Exception("Numbers of parameters passed into addFields don't match.");
     }
     for(int i = 0; i < name.size(); i++)
     {
@@ -328,75 +257,25 @@ int DBDataFile::addFields(std::vector<std::string>& name, std::vector<int>& type
         //TODO: might need to rewrite the whole file. But this is not included in the requirements seemingly, so leave it here for now.
         switch(re)
         {
-        case EMPTY_FIELD_NAME:
-            DBPrint::printLine("Field name cannot be empty.");
+        case DBRecordInfo::EMPTY_FIELD_NAME:
             ri->reset(i);
-            return re;
-        case FIELD_ALREADY_EXIST:
-            DBPrint::printLine("Field " + name[i] + " already exists.");
+            throw Exception("Field name cannot be empty.");
+        case DBRecordInfo::FIELD_ALREADY_EXIST:
             ri->reset(i);
-            return re;
-        case EXCEED_PAGE_LIMIT:
-            DBPrint::printLine("You cannot add any more fields to this table.");
+            throw Exception("Field " + name[i] + " already exists.");
+        case DBRecordInfo::EXCEED_PAGE_LIMIT:
             ri->reset(i);
-            return re;
+            throw Exception("You cannot add any more fields to this table.");
         }
     }
     dfdp->writeFields();
-    return SUCCEED;
-}
-
-void DBDataFile::processWriteValue(std::map<std::string, void*>& data,
-                                    std::vector<void*>& processed,
-                                    std::map<std::string, int>& errors)
-{
-    if(!open)
-    {
-        return;
-    }
-    int n = ri->getFieldCount();
-    std::vector<bool> included;
-    included.assign(n, false);
-    processed.assign(n, NULL);
-    errors.clear();
-    std::map<std::string, void*>::iterator iter;
-    for(iter = data.begin(); iter != data.end(); iter++)
-    {
-        int idx = ri->index(iter->first);
-        if(idx < 0)
-        {
-            errors[iter->first] = EXTRA_FIELD;
-            continue;
-        }
-        if(idx == 0)
-        {
-            errors[iter->first] = EDIT__ID;
-            continue;
-        }
-        if(!ri->nullable(idx) && iter->second == NULL)
-        {
-            errors[iter->first] = UNNULLABLE;
-        }
-        included[idx] = true;
-        processed[idx] = iter->second;
-    }
-    for(int i = 1; i < included.size(); i++)
-    {
-        if(!included[i] && !ri->nullable(i))
-        {
-            errors[ri->name(i)] = UNNULLABLE;
-        }
-    }
 }
 
 void DBDataFile::processKeyValue(std::map<std::string, void*>& data,
                                 std::map<int, void*>& processed,
                                 std::vector<std::string>& errors)
 {
-    if(!open)
-    {
-        return;
-    }
+    assert(open);
     errors.clear();
     std::map<std::string, void*>::iterator iter;
     for(iter = data.begin(); iter != data.end(); iter++)
@@ -411,12 +290,9 @@ void DBDataFile::processKeyValue(std::map<std::string, void*>& data,
     }
 }
 
-int DBDataFile::remove(std::map<std::string, void*>& data)
+void DBDataFile::remove(std::map<std::string, void*>& data)
 {
-    if(!open)
-    {
-        return FILE_NOT_OPENED;
-    }
+    assert(open);
     std::map<int, void*> processed;
     std::vector<std::string> errors;
     processKeyValue(data, processed, errors);
@@ -432,7 +308,6 @@ int DBDataFile::remove(std::map<std::string, void*>& data)
             dp->remove(processed);
             dp = openDataPage(dp->getNextSameType());
         }
-        return SUCCEED;
     }
     else
     {
@@ -440,16 +315,12 @@ int DBDataFile::remove(std::map<std::string, void*>& data)
         {
             DBPrint::printLine("This table does not contain field " + errors[i]);
         }
-        return ERROR;
     }
 }
 
-int DBDataFile::update(std::map<std::string, void*>& key_value, std::map<std::string, void*>& update_value)
+void DBDataFile::update(std::map<std::string, void*>& key_value, std::map<std::string, void*>& update_value)
 {
-    if(!open)
-    {
-        return FILE_NOT_OPENED;
-    }
+    assert(open);
     std::map<int, void*> processed;
     std::vector<std::string> errors;
     processKeyValue(key_value, processed, errors);
@@ -470,7 +341,6 @@ int DBDataFile::update(std::map<std::string, void*>& key_value, std::map<std::st
                 dp->update(processed, processed2);
                 dp = openDataPage(dp->getNextSameType());
             }
-            return SUCCEED;
         }
         else
         {
@@ -478,7 +348,6 @@ int DBDataFile::update(std::map<std::string, void*>& key_value, std::map<std::st
             {
                 DBPrint::printLine("This table does not contain field " + errors[i]);
             }
-            return ERROR;
         }
     }
     else
@@ -487,16 +356,12 @@ int DBDataFile::update(std::map<std::string, void*>& key_value, std::map<std::st
         {
             DBPrint::printLine("This table does not contain field " + errors[i]);
         }
-        return ERROR;
     }
 }
 
-int DBDataFile::findEqual(std::map<std::string, void*>& data, std::set<std::map<std::string, void*>*>& result)
+void DBDataFile::findEqual(std::map<std::string, void*>& data, std::set<std::map<std::string, void*>*>& result)
 {
-    if(!open)
-    {
-        return FILE_NOT_OPENED;
-    }
+    assert(open);
     std::map<int, void*> processed;
     std::vector<std::string> errors;
     processKeyValue(data, processed, errors);
@@ -512,38 +377,6 @@ int DBDataFile::findEqual(std::map<std::string, void*>& data, std::set<std::map<
             dp->findEqual(processed, result);
             dp = openDataPage(dp->getNextSameType());
         }
-//        int i = 0;
-//        for(std::set<std::map<std::string, void*>*>::iterator iter = result.begin(); iter != result.end(); iter++)
-//        {
-//            std::map<std::string, void*>* ele = *iter;
-//            DBPrint("Equal record: ");
-//            DBPrintLine(i++);
-//            for(std::map<std::string, void*>::iterator iter2 = ele->begin(); iter2 != ele->end(); iter2++)
-//            {
-//                std::string name =iter2->first;
-//                int idx = ri->indexes[name];
-//                void* ptr = iter2->second;
-//                DBPrint(name + ": ");
-//                if(ptr == NULL)
-//                {
-//                    DBPrintLine("NULL");
-//                }
-//                else
-//                {
-//                    switch(ri->types[idx])
-//                    {
-//                    case DBType::_ID:
-//                        DBPrint_ID((char*)ptr);
-//                        DBPrintLine("");
-//                        break;
-//                    case DBType::INT:
-//                        DBPrintLine(*(int*)ptr);
-//                        break;
-//                    }
-//                }
-//            }
-//        }
-        return SUCCEED;
     }
     else
     {
@@ -551,56 +384,12 @@ int DBDataFile::findEqual(std::map<std::string, void*>& data, std::set<std::map<
         {
             DBPrint::printLine("This table does not contain field " + errors[i]);
         }
-        return ERROR;
     }
-}
-
-int DBDataFile::insertRecord(std::map<std::string, void*>& fields)
-{
-    if(!open)
-    {
-        return FILE_NOT_OPENED;
-    }
-    std::vector<void*> processed;
-    std::map<std::string, int> errors;
-    processWriteValue(fields, processed, errors);
-    if(errors.empty())
-    {
-        int fadp = findFirstAvailableDataPage();
-        int re = openDataPage(fadp)->insert(processed);
-        switch(re)
-        {
-        case ERROR:
-            return ERROR;
-        case DATA_PAGE_FULL:
-            setAvailableOfDataPage(fadp, false);
-        }
-    }
-    else
-    {
-        std::map<std::string, int>::iterator iter;
-        for(iter = errors.begin(); iter != errors.end(); iter++)
-        {
-            switch(iter->second)
-            {
-            case UNNULLABLE:
-                DBPrint::printLine("Field " + iter->first + " should be assigned.");
-                break;
-            case EXTRA_FIELD:
-                DBPrint::printLine("This table does not contain field " + iter->first);
-                break;
-            case EDIT__ID:
-                DBPrint::printLine("You should not modify _id of any record.");
-                break;
-            }
-        }
-        return ERROR;
-    }
-    return SUCCEED;
 }
 
 bool DBDataFile::validateInsertion(std::vector<void*>& data)
 {
+    assert(open);
     int n = ri->getFieldCount();
     if(n != data.size())
     {
@@ -619,77 +408,48 @@ bool DBDataFile::validateInsertion(std::vector<void*>& data)
     return flag;
 }
 
-int DBDataFile::insert(std::vector<void*>& fields)
+void DBDataFile::insert(std::vector<void*>& fields)
 {
-    if(!open)
-    {
-        return FILE_NOT_OPENED;
-    }
+    assert(open);
     if(!validateInsertion(fields))
     {
-        return ERROR;
+        return;
     }
     int fadp = findFirstAvailableDataPage();
     int re = openDataPage(fadp)->insert(fields);
-    switch(re)
+    if(re == DBDataPage::PAGE_FULL)
     {
-    case ERROR:
-        return ERROR;
-    case DATA_PAGE_FULL:
         setAvailableOfDataPage(fadp, false);
     }
-    return SUCCEED;
 }
 
-int DBDataFile::setPrimaryKey(const char* name)
+void DBDataFile::setPrimaryKey(const char* name)
 {
-    if(!open)
-    {
-        return FILE_NOT_OPENED;
-    }
-    int re = dfdp->setPrimaryKey(name);
-    switch(re)
-    {
-    case FIELD_IS_ALREADY_PRIMARY_KEY:
-        DBPrint::printLine("This field is already the primary key.");
-        break;
-    case FIELD_NOT_EXIST:
-        DBPrint::printLine("This table does not contain field " + std::string(name));
-        break;
-    }
-    return re;
+    assert(open);
+    dfdp->setPrimaryKey(name);
 }
 
-int DBDataFile::openFile()
+void DBDataFile::openFile()
 {
-    if(open)
-    {
-        DBPrint::logLine("ERROR");
-        return A_FILE_ALREADY_OPENED;
-    }
-    if(fm->openFile(path.c_str(), fileID) != SUCCEED)
-    {
-        DBPrint::logLine("ERROR");
-        return FILE_OR_DIRECTORY_DOES_NOT_EXIST;
-    }
+    assert(!open);
+    fm->openFile(path.c_str(), fileID);
     int index;
     open = true;
     ri->init();
     BufType cache = fm->getPage(fileID, 0, index);
     dfdp = new DBDataFileDescriptionPage(cache, index, 0, MODE_PARSE, ri);
-    return SUCCEED;
 }
 
 void DBDataFile::_test()
 {
-    createFile();
-    openFile();
+//    createFile();
+//    openFile();
 //    setPrimaryKey("_id");
 //    setPrimaryKey("test1");
-    int data = 1;
-    int data2 = 99999;
-    int data3 = -99999;
-    int data4 = 10;
+//    int data = 1;
+//    int data2 = 99999;
+//    int data3 = -99999;
+//    int data4 = 10;
 //    int i = 0;
 //    do
 //    {
@@ -697,38 +457,38 @@ void DBDataFile::_test()
 //        DBLogLine("=========================================");
 //        sprintf(name, "test%d", i++);
 //    }while(addField(name, DBType::INT, true) == SUCCEED);
-    std::vector<std::string> names;
-    std::vector<int> types;
-    std::vector<bool> nullables;
-    std::vector<int> extras;
-    names.push_back("test1");
-    names.push_back("test2");
-    names.push_back("test3");
-    types.push_back(1);
-    types.push_back(1);
-    types.push_back(1);
-    nullables.push_back(false);
-    nullables.push_back(false);
-    nullables.push_back(false);
-    extras.push_back(0);
-    extras.push_back(5);
-    extras.push_back(30);
-    addFields(names, types, nullables, extras);
-    printFileDescription();
-    map<string, void*> f, f2, f3;
-    f["test1"] = &data;
-    f["test2"] = &data2;
-    f["test3"] = &data3;
-    for(int i = 0; i < 1000; i++)
-        insertRecord(f);
+//    std::vector<std::string> names;
+//    std::vector<int> types;
+//    std::vector<bool> nullables;
+//    std::vector<int> extras;
+//    names.push_back("test1");
+//    names.push_back("test2");
+//    names.push_back("test3");
+//    types.push_back(1);
+//    types.push_back(1);
+//    types.push_back(1);
+//    nullables.push_back(false);
+//    nullables.push_back(false);
+//    nullables.push_back(false);
+//    extras.push_back(0);
+//    extras.push_back(5);
+//    extras.push_back(30);
+//    addFields(names, types, nullables, extras);
+//    printFileDescription();
+//    map<string, void*> f, f2, f3;
+//    f["test1"] = &data;
+//    f["test2"] = &data2;
+//    f["test3"] = &data3;
+//    for(int i = 0; i < 1000; i++)
+//        insertRecord(f);
 //    f2["test2"] = &data4;
 //    update(f, f2);
 //    f3["test2"] = &data4;
 //    printAllRecords();
-    closeFile();
-    openFile();
-    printFileDescription();
-    printAllRecords();
+//    closeFile();
+//    openFile();
+//    printFileDescription();
+//    printAllRecords();
 //    set<map<string, void*>*> re;
 //    findEqual(f, re);
 //    remove(f);

@@ -161,7 +161,7 @@ int DBRecordInfo::getFieldCount()
        types.size() != offsets.size() ||
        offsets.size() != nullables.size())
     {
-        return -1;
+        throw Exception("Invalid record info structure.");
     }
     return indexes.size();
 }

@@ -20,13 +20,16 @@ public:
 
     void printAllRecords();
 
-    int remove(std::map<int, void*>& data);
+    void remove(std::map<int, void*>& data);
 
-    int update(std::map<int, void*>& key_value, std::map<int, void*>& update_value);
+    void update(std::map<int, void*>& key_value, std::map<int, void*>& update_value);
 
-    int findEqual(std::map<int, void*>& data, std::set<std::map<std::string, void*>*>& result);
+    void findEqual(std::map<int, void*>& data, std::set<std::map<std::string, void*>*>& result);
 
-    int findEqual(std::map<int, void*>& data, std::set<char*>& result);
+    void findEqual(std::map<int, void*>& data, std::set<char*>& result);
+
+    const static int SUCCEED = 0;
+    const static int PAGE_FULL = 1;
 
 };
 

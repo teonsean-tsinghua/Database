@@ -21,7 +21,7 @@ private:
 
     int findFirstAvailableDataPage();
 
-    int setAvailableOfDataPage(int dpid, bool available);
+    void setAvailableOfDataPage(int dpid, bool available);
 
     int allocateNewDataPage();
 
@@ -35,10 +35,6 @@ private:
                          std::map<int, void*>& processed,
                          std::vector<std::string>& errors);
 
-    void processWriteValue(std::map<std::string, void*>& data,
-                            std::vector<void*>& processed,
-                            std::map<std::string, int>& errors);
-
     bool validateInsertion(std::vector<void*>& data);
 
     void _test();
@@ -46,28 +42,26 @@ private:
 public:
     DBDataFile(std::string path);
 
-    int createFile();
+    void createFile();
 
-    int openFile();
+    void openFile();
 
-    int closeFile();
+    void closeFile();
 
-    int deleteFile();
+    void deleteFile();
 
-    int addFields(std::vector<std::string>& name, std::vector<int>& type,
+    void addFields(std::vector<std::string>& name, std::vector<int>& type,
                   std::vector<bool>& nullable, std::vector<int>& extra);
 
-    int insertRecord(std::map<std::string, void*>& fields);
+    void insert(std::vector<void*>& fields);
 
-    int insert(std::vector<void*>& fields);
+    void findEqual(std::map<std::string, void*>& data, std::set<std::map<std::string, void*>*>& result);
 
-    int findEqual(std::map<std::string, void*>& data, std::set<std::map<std::string, void*>*>& result);
+    void remove(std::map<std::string, void*>& data);
 
-    int remove(std::map<std::string, void*>& data);
+    void update(std::map<std::string, void*>& key_value, std::map<std::string, void*>& update_value);
 
-    int update(std::map<std::string, void*>& key_value, std::map<std::string, void*>& update_value);
-
-    int setPrimaryKey(const char* name);
+    void setPrimaryKey(const char* name);
 
     bool validateFields(std::vector<std::string>& names, std::string tableName);
 

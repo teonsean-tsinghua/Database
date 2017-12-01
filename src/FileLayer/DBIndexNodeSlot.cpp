@@ -68,20 +68,20 @@ void DBIndexNodeSlot::setKeyOfIndex(int index, void* key)
 
 int DBIndexNodeSlot::search(void* key)
 {
-    if(getChildrenCount() <= 0)
+    int cnt = getChildrenCount();
+    if(getChildrenCount() < 0)
     {
-        return ERROR;
+        throw Exception("Invalid children count of index node.");
     }
     if(larger(key, getMaxKey(), keyType, keyLength))
     {
-        return LARGEST_KEY;
+        return -1;
     }
-    int cnt = getChildrenCount(), i;
+    int i;
     for(i = 0; i < cnt; i++)
     {
         if(!larger(key, getKeyOfIndex(i), keyType, keyLength))
         {
-
             break;
         }
     }
@@ -90,11 +90,11 @@ int DBIndexNodeSlot::search(void* key)
 
 int DBIndexNodeSlot::searchEqual(void* key)
 {
-    if(getChildrenCount() <= 0)
-    {
-        return ERROR;
-    }
     int cnt = getChildrenCount();
+    if(getChildrenCount() < 0)
+    {
+        throw Exception("Invalid children count of index node.");
+    }
     for(int i = 0; i < cnt; i++)
     {
         if(equal(key, getKeyOfIndex(i), keyType, keyLength))
@@ -102,26 +102,26 @@ int DBIndexNodeSlot::searchEqual(void* key)
             return getPageOfIndex(i);
         }
     }
-    return NO_EQUAL_KEY;
+    return -1;
 }
 
-int DBIndexNodeSlot::insert(void* key, int pid)
+void DBIndexNodeSlot::insert(void* key, int pid)
 {
     if(searchEqual(key) > 0)
     {
-        return ERROR;
+        //TODO:
+        throw Exception("Attempted to insert duplicate key into unique index.");
     }
     int cnt = getChildrenCount();
-    if(cnt < 0)
+    if(getChildrenCount() < 0)
     {
-        return ERROR;
+        throw Exception("Invalid children count of index node.");
     }
     if(cnt == 0 || larger(key, getMaxKey(), keyType, keyLength))
     {
         setPageOfIndex(cnt, pid);
         setKeyOfIndex(cnt, key);
         setChildrenCount(cnt + 1);
-        return SUCCEED;
     }
     int i;
     for(i = 0; i < cnt; i++)
@@ -137,16 +137,15 @@ int DBIndexNodeSlot::insert(void* key, int pid)
     setKeyOfIndex(i, key);
     setPageOfIndex(i, pid);
     setChildrenCount(cnt + 1);
-    return SUCCEED;
 }
 
-int DBIndexNodeSlot::remove(void* key)
+void DBIndexNodeSlot::remove(void* key)
 {
-    if(getChildrenCount() <= 0)
-    {
-        return ERROR;
-    }
     int cnt = getChildrenCount();
+    if(getChildrenCount() < 0)
+    {
+        throw Exception("Invalid children count of index node.");
+    }
     for(int i = 0; i < cnt; i++)
     {
         if(equal(key, getKeyOfIndex(i), keyType, keyLength))
@@ -155,28 +154,24 @@ int DBIndexNodeSlot::remove(void* key)
             copyData(getKeyOfIndex(i + 1), buffer, len);
             copyData(buffer, getKeyOfIndex(i), len);
             setChildrenCount(cnt - 1);
-            return SUCCEED;
         }
     }
-    return NO_EQUAL_KEY;
 }
 
-int DBIndexNodeSlot::update(void* key, int pid)
+void DBIndexNodeSlot::update(void* key, int pid)
 {
-    if(getChildrenCount() <= 0)
-    {
-        return ERROR;
-    }
     int cnt = getChildrenCount();
+    if(getChildrenCount() < 0)
+    {
+        throw Exception("Invalid children count of index node.");
+    }
     for(int i = 0; i < cnt; i++)
     {
         if(equal(key, getKeyOfIndex(i), keyType, keyLength))
         {
             setPageOfIndex(i, pid);
-            return SUCCEED;
         }
     }
-    return NO_EQUAL_KEY;
 }
 
 BufType DBIndexNodeSlot::getMinKey()

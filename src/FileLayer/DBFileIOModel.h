@@ -20,13 +20,13 @@ class DBFileIOModel
 public:
     static DBFileIOModel* getInstance();
 
-    int createFile(const char* name);
+    void createFile(const char* name);
 
-    int openFile(const char* name, int& fileID);
+    void openFile(const char* name, int& fileID);
 
-    int closeFile(int fileID);
+    void closeFile(int fileID);
 
-    int deleteFile(const char* name);
+    void deleteFile(const char* name);
 
     BufType getPage(int fileID, int pageID, int& index);
 

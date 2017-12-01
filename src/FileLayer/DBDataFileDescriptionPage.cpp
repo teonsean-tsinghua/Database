@@ -57,20 +57,15 @@ int DBDataFileDescriptionPage::getPageNumber()
     return dfds->getPageNumber();
 }
 
-int DBDataFileDescriptionPage::setPrimaryKey(std::string name)
+void DBDataFileDescriptionPage::setPrimaryKey(std::string name)
 {
     int idx = ri->index(name);
     if(idx < 0)
     {
-        return FIELD_NOT_EXIST;
-    }
-    if(idx == dfds->getPrimaryKeyIndex())
-    {
-        return FIELD_IS_ALREADY_PRIMARY_KEY;
+        throw Exception("Field " + name + " does not exist.");
     }
     dfds->setPrimaryKeyIndex(idx);
     //TODO: rebuild the file?
-    return SUCCEED;
 }
 
 int DBDataFileDescriptionPage::maxRecordInfoLength()

@@ -8,8 +8,8 @@ class DBIndexNodePage: public DBPage
 {
 protected:
     DBIndexNodeSlot* ins;
-    int keyLength;
     int keyType;
+    int keyLength;
 
 public:
     DBIndexNodePage(BufType cache, int index, int pageID, int type, int mode, int keyType = -1, int keyLength = -1);
@@ -28,9 +28,9 @@ public:
 
     int searchEqual(void* key);
 
-    int insert(void* key, int pid);
+    void insert(void* key, int pid);
 
-    int remove(void* key);
+    void remove(void* key);
 
     void* getMaxKey();
 
@@ -42,7 +42,7 @@ public:
 
     int getMaxPage();
 
-    int update(void* key, int pid);
+    void update(void* key, int pid);
 
     void print();
 
