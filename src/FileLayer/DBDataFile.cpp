@@ -516,6 +516,156 @@ void DBDataFile::select(SearchInfo& si, SelectResult& sr)
 
         }
     }
+    if(si.fequals.size() > 0)
+    {
+        if(sr.results.empty())
+        {
+            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+            while(true)
+            {
+                if(dp == NULL)
+                {
+                    break;
+                }
+                dp->filterByFields(si.fequals, sr.results, 0);
+                dp = openDataPage(dp->getNextSameType());
+            }
+            DBPrint::printLine(sr.results.size());
+            if(sr.results.empty())
+            {
+                return;
+            }
+        }
+        else
+        {
+
+        }
+    }
+    if(si.fnotEquals.size() > 0)
+    {
+        if(sr.results.empty())
+        {
+            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+            while(true)
+            {
+                if(dp == NULL)
+                {
+                    break;
+                }
+                dp->filterByFields(si.fnotEquals, sr.results, 1);
+                dp = openDataPage(dp->getNextSameType());
+            }
+            DBPrint::printLine(sr.results.size());
+            if(sr.results.empty())
+            {
+                return;
+            }
+        }
+        else
+        {
+
+        }
+    }
+    if(si.fsmallerEquals.size() > 0)
+    {
+        if(sr.results.empty())
+        {
+            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+            while(true)
+            {
+                if(dp == NULL)
+                {
+                    break;
+                }
+                dp->filterByFields(si.fsmallerEquals, sr.results, 2);
+                dp = openDataPage(dp->getNextSameType());
+            }
+            DBPrint::printLine(sr.results.size());
+            if(sr.results.empty())
+            {
+                return;
+            }
+        }
+        else
+        {
+
+        }
+    }
+    if(si.flargerEquals.size() > 0)
+    {
+        if(sr.results.empty())
+        {
+            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+            while(true)
+            {
+                if(dp == NULL)
+                {
+                    break;
+                }
+                dp->filterByFields(si.flargerEquals, sr.results, 3);
+                dp = openDataPage(dp->getNextSameType());
+            }
+            DBPrint::printLine(sr.results.size());
+            if(sr.results.empty())
+            {
+                return;
+            }
+        }
+        else
+        {
+
+        }
+    }
+    if(si.fsmallers.size() > 0)
+    {
+        if(sr.results.empty())
+        {
+            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+            while(true)
+            {
+                if(dp == NULL)
+                {
+                    break;
+                }
+                dp->filterByFields(si.fsmallers, sr.results, 4);
+                dp = openDataPage(dp->getNextSameType());
+            }
+            DBPrint::printLine(sr.results.size());
+            if(sr.results.empty())
+            {
+                return;
+            }
+        }
+        else
+        {
+
+        }
+    }
+    if(si.flargers.size() > 0)
+    {
+        if(sr.results.empty())
+        {
+            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+            while(true)
+            {
+                if(dp == NULL)
+                {
+                    break;
+                }
+                dp->filterByFields(si.flargers, sr.results, 5);
+                dp = openDataPage(dp->getNextSameType());
+            }
+            DBPrint::printLine(sr.results.size());
+            if(sr.results.empty())
+            {
+                return;
+            }
+        }
+        else
+        {
+
+        }
+    }
 }
 
 void DBDataFile::findEqual(std::map<std::string, void*>& data, std::set<std::map<std::string, void*>*>& result)

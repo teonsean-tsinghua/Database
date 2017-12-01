@@ -97,7 +97,7 @@ int DBIndexNodeSlot::searchEqual(void* key)
     }
     for(int i = 0; i < cnt; i++)
     {
-        if(equal(key, getKeyOfIndex(i), keyType, keyLength))
+        if(Equal(key, getKeyOfIndex(i), keyType, keyLength))
         {
             return getPageOfIndex(i);
         }
@@ -148,7 +148,7 @@ void DBIndexNodeSlot::remove(void* key)
     }
     for(int i = 0; i < cnt; i++)
     {
-        if(equal(key, getKeyOfIndex(i), keyType, keyLength))
+        if(Equal(key, getKeyOfIndex(i), keyType, keyLength))
         {
             int len = (cnt - i - 1) * (sizeof(int) + keyLength);
             copyData(getKeyOfIndex(i + 1), buffer, len);
@@ -167,7 +167,7 @@ void DBIndexNodeSlot::update(void* key, int pid)
     }
     for(int i = 0; i < cnt; i++)
     {
-        if(equal(key, getKeyOfIndex(i), keyType, keyLength))
+        if(Equal(key, getKeyOfIndex(i), keyType, keyLength))
         {
             setPageOfIndex(i, pid);
         }

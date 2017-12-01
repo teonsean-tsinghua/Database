@@ -13,7 +13,7 @@ bool larger(void* a, void* b, int type, int length);
 
 bool smaller(void* a, void* b, int type, int length);
 
-bool equal(void* a, void* b, int type, int length);
+bool Equal(void* a, void* b, int type, int length);
 
 bool largerOrEqual(void* a, void* b, int type, int length);
 

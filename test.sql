@@ -1,3 +1,3 @@
 USE test;
 DESC ints;
-SELECT a FROM ints WHERE b <> 0;
+SELECT a FROM ints WHERE b > d;

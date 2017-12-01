@@ -38,10 +38,10 @@ void DBRecordSlot::checkValue(std::map<int, void*>& info, std::vector<std::vecto
         switch(op)
         {
         case 0:
-            flag = equal((*this)[offset + 1], iter->second, ri->type(idx), ri->length(idx));
+            flag = Equal((*this)[offset + 1], iter->second, ri->type(idx), ri->length(idx));
             break;
         case 1:
-            flag = !equal((*this)[offset + 1], iter->second, ri->type(idx), ri->length(idx));
+            flag = !Equal((*this)[offset + 1], iter->second, ri->type(idx), ri->length(idx));
             break;
         case 2:
             flag = smallerOrEqual((*this)[offset + 1], iter->second, ri->type(idx), ri->length(idx));
@@ -54,6 +54,63 @@ void DBRecordSlot::checkValue(std::map<int, void*>& info, std::vector<std::vecto
             break;
         case 5:
             flag = larger((*this)[offset + 1], iter->second, ri->type(idx), ri->length(idx));
+            break;
+        }
+        if(!flag)
+        {
+            return;
+        }
+    }
+    datas.push_back(std::vector<void*>());
+    read(datas.back());
+}
+
+void DBRecordSlot::checkFields(std::map<int, int>& info, std::vector<std::vector<void*> >& datas, int op)
+{
+    std::map<int, int>::iterator iter;
+    for(iter = info.begin(); iter != info.end(); iter++)
+    {
+        int lidx = iter->first;
+        int loffset = ri->offset(lidx);
+        int ridx = iter->second;
+        int roffset = ri->offset(ridx);
+        bool lnull, rnull;
+        readCharToBool((*this)[loffset], &lnull);
+        readCharToBool((*this)[roffset], &rnull);
+        if(lnull && rnull)
+        {
+            if(op != 0)
+            {
+                return;
+            }
+        }
+        if((lnull && !rnull) || (!lnull && rnull))
+        {
+            if(op != 1)
+            {
+                return;
+            }
+        }
+        bool flag = false;
+        switch(op)
+        {
+        case 0:
+            flag = Equal((*this)[loffset + 1], (*this)[roffset + 1], ri->type(lidx), ri->length(lidx));
+            break;
+        case 1:
+            flag = !Equal((*this)[loffset + 1], (*this)[roffset + 1], ri->type(lidx), ri->length(lidx));
+            break;
+        case 2:
+            flag = smallerOrEqual((*this)[loffset + 1], (*this)[roffset + 1], ri->type(lidx), ri->length(lidx));
+            break;
+        case 3:
+            flag = largerOrEqual((*this)[loffset + 1], (*this)[roffset + 1], ri->type(lidx), ri->length(lidx));
+            break;
+        case 4:
+            flag = smaller((*this)[loffset + 1], (*this)[roffset + 1], ri->type(lidx), ri->length(lidx));
+            break;
+        case 5:
+            flag = larger((*this)[loffset + 1], (*this)[roffset + 1], ri->type(lidx), ri->length(lidx));
             break;
         }
         if(!flag)

@@ -21,6 +21,8 @@ public:
 
     void checkValue(std::map<int, void*>& info, std::vector<std::vector<void*> >& datas, int op);
 
+    void checkFields(std::map<int, int>& info, std::vector<std::vector<void*> >& datas, int op);
+
     void update(std::map<int, void*>& data);
 
     bool compare_id(char* _id);

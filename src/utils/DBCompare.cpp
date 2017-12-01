@@ -40,7 +40,7 @@ bool smaller(void* a, void* b, int type, int length)
     return compare(a, b, type, length) == SMALLER;
 }
 
-bool equal(void* a, void* b, int type, int length)
+bool Equal(void* a, void* b, int type, int length)
 {
     return compare(a, b, type, length) == EQUAL;
 }

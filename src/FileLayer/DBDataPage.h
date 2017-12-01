@@ -26,6 +26,8 @@ public:
 
     void filterByValue(std::map<int, void*>& info, std::vector<std::vector<void*> >& datas, int op);
 
+    void filterByFields(std::map<int, int>& info, std::vector<std::vector<void*> >& datas, int op);
+
     void update(std::map<int, void*>& key_value, std::map<int, void*>& update_value);
 
     void findEqual(std::map<int, void*>& data, std::set<std::map<std::string, void*>*>& result);

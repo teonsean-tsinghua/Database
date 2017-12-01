@@ -125,6 +125,14 @@ void DBDataPage::filterByValue(std::map<int, void*>& info, std::vector<std::vect
     }
 }
 
+void DBDataPage::filterByFields(std::map<int, int>& info, std::vector<std::vector<void*> >& datas, int op)
+{
+    for(int i = 0; i < records.size(); i++)
+    {
+        records[i]->checkFields(info, datas, op);
+    }
+}
+
 void DBDataPage::print()
 {
     DBPage::print();
