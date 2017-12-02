@@ -28,7 +28,7 @@ public:
 
     void filterByFields(std::map<int, std::vector<int> >& info, std::list<std::vector<void*> >& datas, int op);
 
-    void update(std::map<int, void*>& key_value, std::map<int, void*>& update_value);
+    int update(SearchInfo& si, UpdateInfo& ui);
 
     const static int SUCCEED = 0;
     const static int PAGE_FULL = 1;

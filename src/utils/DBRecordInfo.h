@@ -15,6 +15,11 @@ struct SearchInfo
     SearchInfo();
 };
 
+struct UpdateInfo
+{
+    std::map<int, void*> data;
+};
+
 class DBRecordInfo
 {
 private:

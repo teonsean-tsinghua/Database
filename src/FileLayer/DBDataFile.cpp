@@ -409,63 +409,26 @@ int DBDataFile::remove(SearchInfo& si)
     return cnt;
 }
 
-void DBDataFile::update(std::map<std::string, void*>& key_value, std::map<std::string, void*>& update_value)
+int DBDataFile::update(SearchInfo& si, UpdateInfo& ui)
 {
-//    assert(open);
-//    std::map<int, void*> processed;
-//    std::vector<std::string> errors;
-//    processKeyValue(key_value, processed, errors);
-//    if(errors.empty())
-//    {
-//        std::map<int, void*> processed2;
-//        std::vector<std::string> errors2;
-//        processKeyValue(update_value, processed2, errors2);
-//        if(errors2.empty())
-//        {
-//            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
-//            while(true)
-//            {
-//                if(dp == NULL)
-//                {
-//                    break;
-//                }
-//                dp->update(processed, processed2);
-//                dp = openDataPage(dp->getNextSameType());
-//            }
-//        }
-//        else
-//        {
-//            for(int i = 0; i < errors.size(); i++)
-//            {
-//                DBPrint::printLine("This table does not contain field " + errors[i]);
-//            }
-//        }
-//    }
-//    else
-//    {
-//        for(int i = 0; i < errors.size(); i++)
-//        {
-//            DBPrint::printLine("This table does not contain field " + errors[i]);
-//        }
-//    }
+    assert(open);
+    DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+    int cnt = 0;
+    while(true)
+    {
+        if(dp == NULL)
+        {
+            break;
+        }
+        cnt += dp->update(si, ui);
+        dp = openDataPage(dp->getNextSameType());
+    }
+    return cnt;
 }
 
 void DBDataFile::select(SearchInfo& si, SelectResult& sr)
 {
     assert(open);
-//    int cnt = si.nulls.size();
-//    for(int i = 0; i < 6; i++)
-//    {
-//        for(std::map<int, std::vector<void*> >::iterator iter = si.values[i].begin(); iter != si.values[i].end(); iter++)
-//        {
-//            cnt += (iter->second).size();
-//        }
-//        for(std::map<int, std::vector<int> >::iterator iter = si.fields[i].begin(); iter != si.fields[i].end(); iter++)
-//        {
-//            cnt += (iter->second).size();
-//        }
-//    }
-//    DBPrint::print(cnt).printLine(" conditions.");
     if(si.nulls.size() > 0)
     {
         DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());

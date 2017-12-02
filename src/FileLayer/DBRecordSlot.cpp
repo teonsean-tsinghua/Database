@@ -201,10 +201,10 @@ void DBRecordSlot::copy(DBRecordSlot* src, DBRecordSlot* dest, int length)
     copyData(src->cache, dest->cache, length);
 }
 
-void DBRecordSlot::update(std::map<int, void*>& data)
+void DBRecordSlot::update(UpdateInfo& ui)
 {
     std::map<int, void*>::iterator iter;
-    for(iter = data.begin(); iter != data.end(); iter++)
+    for(iter = ui.data.begin(); iter != ui.data.end(); iter++)
     {
         int idx = iter->first;
         char* ptr = (char*)iter->second;
@@ -215,32 +215,6 @@ void DBRecordSlot::update(std::map<int, void*>& data)
         else
         {
             writeData((*this)[ri->offset(idx) + 1], ptr, ri->length(idx));
-        }
-    }
-}
-
-void DBRecordSlot::read(std::map<std::string, void*>& data)
-{
-    data.clear();
-    int cnt = ri->getFieldCount();
-    char* _id = new char[DBType::typeSize(DBType::_ID)];
-    read_id((*this)[1], _id);
-    data["_id"] = (void*)_id;
-    for(int i = 1; i < cnt; i++)
-    {
-        int offset = ri->offset(i);
-        bool isNull;
-        readCharToBool((*this)[offset], &isNull);
-        if(ri->nullable(i) && isNull)
-        {
-            data[ri->name(i)] = NULL;
-        }
-        else
-        {
-            int len = ri->length(i);
-            char* tmp = new char[len];
-            readData((*this)[offset + 1], tmp, len);
-            data[ri->name(i)] = (void*)tmp;
         }
     }
 }

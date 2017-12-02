@@ -30,6 +30,7 @@ extern "C"
 %type<m_bool> selector
 %type<m_where> whereClause
 %type<m_int> op
+%type<m_set> setClause
 
 %nonassoc ';'
 %left AND
@@ -59,7 +60,7 @@ tbStmt	: CREATE TABLE tbName '(' fieldList ')' { instance->createTable($3); }
 	| DESC tbName { instance->describeTable($2); }
 	| INSERT INTO tbName VALUES valueLists { instance->insert($3); }
 	| DELETE FROM tbName WHERE whereClause { instance->remove($3); }
-	| UPDATE tbName SET setClause WHERE whereClause
+	| UPDATE tbName SET setClause WHERE whereClause { instance->update($2); }
 	| SELECT selector FROM tableList WHERE whereClause { instance->select($2); } // unfinished
 	;
 
@@ -116,8 +117,8 @@ op	: '=' { $$ = 0; }
 	| '>' { $$ = 5; }
 	;
 
-setClause : colName '=' value
-	| setClause ',' colName '=' value
+setClause : colName '=' value { $$.field = $1; $$.value = $3; instance->addPendingSet($$); }
+	| setClause ',' colName '=' value { $$.field = $3; $$.value = $5; instance->addPendingSet($$); }
 	;
 
 selector : '*' { $$ = true; }

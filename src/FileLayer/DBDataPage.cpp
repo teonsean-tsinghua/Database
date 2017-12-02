@@ -22,15 +22,31 @@ DBDataPage::DBDataPage(BufType cache, int index, int pageID, int mode, DBRecordI
     }
 }
 
-void DBDataPage::update(std::map<int, void*>& key_value, std::map<int, void*>& update_value)
+int DBDataPage::update(SearchInfo& si, UpdateInfo& ui)
 {
+    int cnt = 0;
     for(int i = 0; i < records.size(); i++)
     {
-//        if(records[i]->equal(key_value))
-//        {
-//            records[i]->update(update_value);
-//        }
+        if(!records[i]->checkNull(si.nulls))
+        {
+            continue;
+        }
+        bool flag = true;
+        for(int j = 0; j < 6; j++)
+        {
+            if(!records[i]->checkValue(si.values[j], j) || !records[i]->checkFields(si.fields[j], j))
+            {
+                flag = false;
+                break;
+            }
+        }
+        if(flag)
+        {
+            records[i]->update(ui);
+            cnt++;
+        }
     }
+    return cnt;
 }
 
 int DBDataPage::remove(SearchInfo& si)

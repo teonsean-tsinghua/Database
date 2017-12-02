@@ -23,6 +23,7 @@ private:
     std::vector<std::string> pColumns;
     std::vector<Col> pCols;
     std::vector<Where> pWheres;
+    std::vector<Set> pSets;
 
     const std::string root;
     std::string name;
@@ -42,7 +43,9 @@ private:
 
     void selectMultiTable(bool all);
 
-    void processWheresWithOneTable(SearchInfo& si, DBRecordInfo* ri);
+    void processWheresWithOneTable(SearchInfo& si, DBRecordInfo* ri, std::string tbname);
+
+    void processSets(UpdateInfo& ui, DBRecordInfo* ri, std::string tbname);
 
     void printOneTableSelectResult(SelectResult& sr, std::vector<bool>& selected, DBRecordInfo* ri);
 
@@ -79,9 +82,13 @@ public:
 
     void addPendingWhere(Where& where);
 
+    void addPendingSet(Set& set_);
+
     void insert(std::string name);
 
     void remove(std::string name);
+
+    void update(std::string name);
 
     void select(bool all);
 

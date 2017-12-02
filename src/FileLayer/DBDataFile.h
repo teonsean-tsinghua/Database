@@ -72,7 +72,7 @@ public:
 
     int remove(SearchInfo& si);
 
-    void update(std::map<std::string, void*>& key_value, std::map<std::string, void*>& update_value);
+    int update(SearchInfo& si, UpdateInfo& ui);
 
     void setPrimaryKey(const char* name);
 

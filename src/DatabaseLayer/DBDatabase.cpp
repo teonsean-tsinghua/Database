@@ -68,39 +68,44 @@ void DBDatabase::addPendingWhere(Where& where)
     pWheres.push_back(where);
 }
 
+void DBDatabase::addPendingSet(Set& set_)
+{
+    pSets.push_back(set_);
+}
+
 void DBDatabase::addPendingValueList()
 {
     pValueLists.push_back(pValues);
     pValues.clear();
 }
 
-void DBDatabase::processWheresWithOneTable(SearchInfo& si, DBRecordInfo* ri)
+void DBDatabase::processWheresWithOneTable(SearchInfo& si, DBRecordInfo* ri, std::string tbname)
 {
     bool flag = true;
     for(int i = 0; i < pWheres.size(); i++)
     {
         Where& w = pWheres[i];
         if(w.left.table != "" &&
-           w.left.table != pTables[0])
+           w.left.table != tbname)
         {
             DBPrint::printLine("Table " + w.left.table + " is not selected.");
             flag = false;
         }
         else if(ri->index(w.left.field) < 0)
         {
-            DBPrint::printLine("Table " + pTables[0] + " does not have field" + w.left.field + ".");
+            DBPrint::printLine("Table " + tbname + " does not have field" + w.left.field + ".");
             flag = false;
         }
         if(w.type == 2 && w.opCol)
         {
-            if(w.col_r.table != "" && w.col_r.table != pTables[0])
+            if(w.col_r.table != "" && w.col_r.table != tbname)
             {
                 throw Exception("Table " + w.col_r.table + " is not selected.");
                 flag = false;
             }
             else if(ri->index(w.col_r.field) < 0)
             {
-                DBPrint::printLine("Table " + pTables[0] + " does not have field" + w.col_r.field + ".");
+                DBPrint::printLine("Table " + tbname + " does not have field" + w.col_r.field + ".");
                 flag = false;
             }
         }
@@ -156,7 +161,6 @@ void DBDatabase::processWheresWithOneTable(SearchInfo& si, DBRecordInfo* ri)
             }
         }
     }
-    pWheres.clear();
 }
 
 void DBDatabase::printOneTableSelectResult(SelectResult& sr, std::vector<bool>& selected, DBRecordInfo* ri)
@@ -241,6 +245,63 @@ void DBDatabase::printOneTableSelectResult(SelectResult& sr, std::vector<bool>& 
 
 }
 
+void DBDatabase::processSets(UpdateInfo& ui, DBRecordInfo* ri, std::string tbname)
+{
+    bool flag = true;
+    for(int i = 0; i < pSets.size(); i++)
+    {
+        Set& s = pSets[i];
+        if(ri->index(s.field) < 0)
+        {
+            DBPrint::printLine("Table " + tbname + " does not have field" + s.field + ".");
+            flag = false;
+        }
+    }
+    if(!flag)
+    {
+        pSets.clear();
+        throw Exception("Error in set clause.");
+    }
+    for(int i = 0; i < pSets.size(); i++)
+    {
+        Set& s = pSets[i];
+        if(s.value.type == 0)
+        {
+            ui.data[ri->index(s.field)] = NULL;
+        }
+        else if(s.value.type == 1)
+        {
+            ui.data[ri->index(s.field)] = &s.value.v_int;
+        }
+        else if(s.value.type == 2)
+        {
+            ui.data[ri->index(s.field)] = &s.value.v_str;
+        }
+    }
+}
+
+void DBDatabase::update(std::string name)
+{
+    DBDataFile* df = getDataFile(name);
+    if(df == NULL)
+    {
+        pWheres.clear();
+        pSets.clear();
+        return;
+    }
+    df->openFile();
+    DBRecordInfo* ri = df->getRecordInfo();
+    SearchInfo si;
+    processWheresWithOneTable(si, ri, name);
+    UpdateInfo ui;
+    processSets(ui, ri, name);
+    int cnt = df->update(si, ui);
+    DBPrint::print("Updated ").print(cnt).printLine(" records.");
+    pWheres.clear();
+    pSets.clear();
+    df->closeFile();
+}
+
 void DBDatabase::remove(std::string name)
 {
     DBDataFile* df = getDataFile(name);
@@ -252,9 +313,10 @@ void DBDatabase::remove(std::string name)
     df->openFile();
     DBRecordInfo* ri = df->getRecordInfo();
     SearchInfo si;
-    processWheresWithOneTable(si, ri);
+    processWheresWithOneTable(si, ri, name);
     int cnt = df->remove(si);
     DBPrint::print("Deleted ").print(cnt).printLine(" records.");
+    pWheres.clear();
     df->closeFile();
 }
 
@@ -270,7 +332,7 @@ void DBDatabase::selectOneTable(bool all)
     }
     std::vector<bool> selected;
     df->openFile();
-//    df->printAllRecords();
+    df->printAllRecords();
     DBRecordInfo* ri = df->getRecordInfo();
     if(all)
     {
@@ -308,10 +370,11 @@ void DBDatabase::selectOneTable(bool all)
         }
     }
     SearchInfo si;
-    processWheresWithOneTable(si, ri);
+    processWheresWithOneTable(si, ri, pTables[0]);
     SelectResult sr;
     df->select(si, sr);
     printOneTableSelectResult(sr, selected, ri);
+    pWheres.clear();
     pTables.clear();
     pCols.clear();
     df->closeFile();

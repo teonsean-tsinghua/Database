@@ -17,13 +17,11 @@ public:
 
     void read(std::vector<void*>& data);
 
-    void read(std::map<std::string, void*>& data);
-
     bool checkValue(std::map<int, std::vector<void*> >& info, int op);
 
     bool checkFields(std::map<int, std::vector<int> >& info, int op);
 
-    void update(std::map<int, void*>& data);
+    void update(UpdateInfo& ui);
 
     bool compare_id(char* _id);
 
