@@ -20,19 +20,15 @@ public:
 
     void printAllRecords();
 
-    void remove(std::map<int, void*>& data);
+    int remove(SearchInfo& si);
 
     void filterByNull(std::map<int, bool>& nulls, std::list<std::vector<void*> >& datas);
 
-    void filterByValue(std::map<int, void*>& info, std::list<std::vector<void*> >& datas, int op);
+    void filterByValue(std::map<int, std::vector<void*> >& info, std::list<std::vector<void*> >& datas, int op);
 
-    void filterByFields(std::map<int, int>& info, std::list<std::vector<void*> >& datas, int op);
+    void filterByFields(std::map<int, std::vector<int> >& info, std::list<std::vector<void*> >& datas, int op);
 
     void update(std::map<int, void*>& key_value, std::map<int, void*>& update_value);
-
-    void findEqual(std::map<int, void*>& data, std::set<std::map<std::string, void*>*>& result);
-
-    void findEqual(std::map<int, void*>& data, std::set<char*>& result);
 
     const static int SUCCEED = 0;
     const static int PAGE_FULL = 1;

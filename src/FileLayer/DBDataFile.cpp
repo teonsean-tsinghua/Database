@@ -5,13 +5,13 @@ SelectResult::SelectResult()
 
 }
 
-void SelectResult::filterByValue(std::map<int, void*>& info, int op, DBRecordInfo* ri)
+void SelectResult::filterByValue(std::map<int, std::vector<void*> >& info, int op, DBRecordInfo* ri)
 {
     std::list<std::vector<void*> >::iterator it;
     for(it = results.begin(); it != results.end(); )
     {
         std::vector<void*>& data = *it;
-        std::map<int, void*>::iterator iter;
+        std::map<int, std::vector<void*> >::iterator iter;
         bool flag = true;
         for(iter = info.begin(); iter != info.end(); iter++)
         {
@@ -21,26 +21,34 @@ void SelectResult::filterByValue(std::map<int, void*>& info, int op, DBRecordInf
                 flag = false;
                 break;
             }
-            switch(op)
+            std::vector<void*>& vecs = iter->second;
+            for(int i = 0; i < vecs.size(); i++)
             {
-            case 0:
-                flag = Equal(data[idx], iter->second, ri->type(idx), ri->length(idx));
-                break;
-            case 1:
-                flag = !Equal(data[idx], iter->second, ri->type(idx), ri->length(idx));
-                break;
-            case 2:
-                flag = smallerOrEqual(data[idx], iter->second, ri->type(idx), ri->length(idx));
-                break;
-            case 3:
-                flag = largerOrEqual(data[idx], iter->second, ri->type(idx), ri->length(idx));
-                break;
-            case 4:
-                flag = smaller(data[idx], iter->second, ri->type(idx), ri->length(idx));
-                break;
-            case 5:
-                flag = larger(data[idx], iter->second, ri->type(idx), ri->length(idx));
-                break;
+                switch(op)
+                {
+                case 0:
+                    flag = Equal(data[idx], vecs[i], ri->type(idx), ri->length(idx));
+                    break;
+                case 1:
+                    flag = !Equal(data[idx], vecs[i], ri->type(idx), ri->length(idx));
+                    break;
+                case 2:
+                    flag = smallerOrEqual(data[idx], vecs[i], ri->type(idx), ri->length(idx));
+                    break;
+                case 3:
+                    flag = largerOrEqual(data[idx], vecs[i], ri->type(idx), ri->length(idx));
+                    break;
+                case 4:
+                    flag = smaller(data[idx], vecs[i], ri->type(idx), ri->length(idx));
+                    break;
+                case 5:
+                    flag = larger(data[idx], vecs[i], ri->type(idx), ri->length(idx));
+                    break;
+                }
+                if(!flag)
+                {
+                    break;
+                }
             }
             if(!flag)
             {
@@ -58,56 +66,64 @@ void SelectResult::filterByValue(std::map<int, void*>& info, int op, DBRecordInf
     }
 }
 
-void SelectResult::filterByFields(std::map<int, int>& info, int op, DBRecordInfo* ri)
+void SelectResult::filterByFields(std::map<int, std::vector<int> >& info, int op, DBRecordInfo* ri)
 {
     std::list<std::vector<void*> >::iterator it;
     for(it = results.begin(); it != results.end(); )
     {
         std::vector<void*>& data = *it;
-        std::map<int, int>::iterator iter;
+        std::map<int, std::vector<int> >::iterator iter;
         bool flag = true;
         for(iter = info.begin(); iter != info.end(); iter++)
         {
-            int lidx = iter->first;
-            int ridx = iter->second;
-            bool lnull = (data[lidx] == NULL);
-            bool rnull = (data[ridx] == NULL);
-            if(lnull && rnull)
+            std::vector<int>& vecs = iter->second;
+            for(int i = 0; i < vecs.size(); i++)
             {
-                if(op != 0)
+                int lidx = iter->first;
+                int ridx = vecs[i];
+                bool lnull = (data[lidx] == NULL);
+                bool rnull = (data[ridx] == NULL);
+                if(lnull && rnull)
                 {
-                    flag = false;
+                    if(op != 0)
+                    {
+                        flag = false;
+                        break;
+                    }
+                }
+                if((lnull && !rnull) || (!lnull && rnull))
+                {
+                    if(op != 1)
+                    {
+                        flag = false;
+                        break;
+                    }
+                }
+                switch(op)
+                {
+                case 0:
+                    flag = Equal(data[lidx], data[ridx], ri->type(lidx), ri->length(lidx));
+                    break;
+                case 1:
+                    flag = !Equal(data[lidx], data[ridx], ri->type(lidx), ri->length(lidx));
+                    break;
+                case 2:
+                    flag = smallerOrEqual(data[lidx], data[ridx], ri->type(lidx), ri->length(lidx));
+                    break;
+                case 3:
+                    flag = largerOrEqual(data[lidx], data[ridx], ri->type(lidx), ri->length(lidx));
+                    break;
+                case 4:
+                    flag = smaller(data[lidx], data[ridx], ri->type(lidx), ri->length(lidx));
+                    break;
+                case 5:
+                    flag = larger(data[lidx], data[ridx], ri->type(lidx), ri->length(lidx));
                     break;
                 }
-            }
-            if((lnull && !rnull) || (!lnull && rnull))
-            {
-                if(op != 1)
+                if(!flag)
                 {
-                    flag = false;
                     break;
                 }
-            }
-            switch(op)
-            {
-            case 0:
-                flag = Equal(data[lidx], data[ridx], ri->type(lidx), ri->length(lidx));
-                break;
-            case 1:
-                flag = !Equal(data[lidx], data[ridx], ri->type(lidx), ri->length(lidx));
-                break;
-            case 2:
-                flag = smallerOrEqual(data[lidx], data[ridx], ri->type(lidx), ri->length(lidx));
-                break;
-            case 3:
-                flag = largerOrEqual(data[lidx], data[ridx], ri->type(lidx), ri->length(lidx));
-                break;
-            case 4:
-                flag = smaller(data[lidx], data[ridx], ri->type(lidx), ri->length(lidx));
-                break;
-            case 5:
-                flag = larger(data[lidx], data[ridx], ri->type(lidx), ri->length(lidx));
-                break;
             }
             if(!flag)
             {
@@ -376,32 +392,21 @@ void DBDataFile::addFields(std::vector<std::string>& name, std::vector<int>& typ
     dfdp->writeFields();
 }
 
-void DBDataFile::remove(std::map<std::string, void*>& data)
+int DBDataFile::remove(SearchInfo& si)
 {
-//    assert(open);
-//    std::map<int, void*> processed;
-//    std::vector<std::string> errors;
-//    processKeyValue(data, processed, errors);
-//    if(errors.empty())
-//    {
-//        DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
-//        while(true)
-//        {
-//            if(dp == NULL)
-//            {
-//                break;
-//            }
-//            dp->remove(processed);
-//            dp = openDataPage(dp->getNextSameType());
-//        }
-//    }
-//    else
-//    {
-//        for(int i = 0; i < errors.size(); i++)
-//        {
-//            DBPrint::printLine("This table does not contain field " + errors[i]);
-//        }
-//    }
+    assert(open);
+    DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+    int cnt = 0;
+    while(true)
+    {
+        if(dp == NULL)
+        {
+            break;
+        }
+        cnt += dp->remove(si);
+        dp = openDataPage(dp->getNextSameType());
+    }
+    return cnt;
 }
 
 void DBDataFile::update(std::map<std::string, void*>& key_value, std::map<std::string, void*>& update_value)
@@ -448,6 +453,19 @@ void DBDataFile::update(std::map<std::string, void*>& key_value, std::map<std::s
 void DBDataFile::select(SearchInfo& si, SelectResult& sr)
 {
     assert(open);
+//    int cnt = si.nulls.size();
+//    for(int i = 0; i < 6; i++)
+//    {
+//        for(std::map<int, std::vector<void*> >::iterator iter = si.values[i].begin(); iter != si.values[i].end(); iter++)
+//        {
+//            cnt += (iter->second).size();
+//        }
+//        for(std::map<int, std::vector<int> >::iterator iter = si.fields[i].begin(); iter != si.fields[i].end(); iter++)
+//        {
+//            cnt += (iter->second).size();
+//        }
+//    }
+//    DBPrint::print(cnt).printLine(" conditions.");
     if(si.nulls.size() > 0)
     {
         DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
@@ -509,6 +527,7 @@ void DBDataFile::select(SearchInfo& si, SelectResult& sr)
     {
         if(si.fields[i].size() > 0)
         {
+            DBPrint::printLine("checking fields");
             if(sr.results.empty())
             {
                 DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());

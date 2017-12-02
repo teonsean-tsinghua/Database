@@ -10,6 +10,7 @@ typedef struct TABLE {
   unsigned int col_num;
   unsigned int *col_max_width;
   const char ***content;
+  bool b;
 } table;
 
 extern void format_table(table *t, char *formated_out);

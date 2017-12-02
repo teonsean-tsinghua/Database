@@ -16,9 +16,9 @@ public:
 
     std::list<std::vector<void*> > results;
 
-    void filterByValue(std::map<int, void*>& info, int op, DBRecordInfo* ri);
+    void filterByValue(std::map<int, std::vector<void*> >& info, int op, DBRecordInfo* ri);
 
-    void filterByFields(std::map<int, int>& info, int op, DBRecordInfo* ri);
+    void filterByFields(std::map<int, std::vector<int> >& info, int op, DBRecordInfo* ri);
 
     void print();
 };
@@ -70,7 +70,7 @@ public:
 
     void select(SearchInfo& si, SelectResult& sr);
 
-    void remove(std::map<std::string, void*>& data);
+    int remove(SearchInfo& si);
 
     void update(std::map<std::string, void*>& key_value, std::map<std::string, void*>& update_value);
 

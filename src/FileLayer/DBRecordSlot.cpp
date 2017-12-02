@@ -22,9 +22,9 @@ bool DBRecordSlot::checkNull(std::map<int, bool>& nulls)
     return true;
 }
 
-bool DBRecordSlot::checkValue(std::map<int, void*>& info, int op)
+bool DBRecordSlot::checkValue(std::map<int, std::vector<void*> >& info, int op)
 {
-    std::map<int, void*>::iterator iter;
+    std::map<int, vector<void*> >::iterator iter;
     for(iter = info.begin(); iter != info.end(); iter++)
     {
         int idx = iter->first;
@@ -35,86 +35,94 @@ bool DBRecordSlot::checkValue(std::map<int, void*>& info, int op)
         {
             return false;
         }
-        switch(op)
+        std::vector<void*>& vecs = iter->second;
+        for(int i = 0; i < vecs.size(); i++)
         {
-        case 0:
-            flag = Equal((*this)[offset + 1], iter->second, ri->type(idx), ri->length(idx));
-            break;
-        case 1:
-            flag = !Equal((*this)[offset + 1], iter->second, ri->type(idx), ri->length(idx));
-            break;
-        case 2:
-            flag = smallerOrEqual((*this)[offset + 1], iter->second, ri->type(idx), ri->length(idx));
-            break;
-        case 3:
-            flag = largerOrEqual((*this)[offset + 1], iter->second, ri->type(idx), ri->length(idx));
-            break;
-        case 4:
-            flag = smaller((*this)[offset + 1], iter->second, ri->type(idx), ri->length(idx));
-            break;
-        case 5:
-            flag = larger((*this)[offset + 1], iter->second, ri->type(idx), ri->length(idx));
-            break;
-        }
-        if(!flag)
-        {
-            return false;
+            switch(op)
+            {
+            case 0:
+                flag = Equal((*this)[offset + 1], vecs[i], ri->type(idx), ri->length(idx));
+                break;
+            case 1:
+                flag = !Equal((*this)[offset + 1], vecs[i], ri->type(idx), ri->length(idx));
+                break;
+            case 2:
+                flag = smallerOrEqual((*this)[offset + 1], vecs[i], ri->type(idx), ri->length(idx));
+                break;
+            case 3:
+                flag = largerOrEqual((*this)[offset + 1], vecs[i], ri->type(idx), ri->length(idx));
+                break;
+            case 4:
+                flag = smaller((*this)[offset + 1], vecs[i], ri->type(idx), ri->length(idx));
+                break;
+            case 5:
+                flag = larger((*this)[offset + 1], vecs[i], ri->type(idx), ri->length(idx));
+                break;
+            }
+            if(!flag)
+            {
+                return false;
+            }
         }
     }
     return true;
 }
 
-bool DBRecordSlot::checkFields(std::map<int, int>& info, int op)
+bool DBRecordSlot::checkFields(std::map<int, std::vector<int> >& info, int op)
 {
-    std::map<int, int>::iterator iter;
+    std::map<int, std::vector<int> >::iterator iter;
     for(iter = info.begin(); iter != info.end(); iter++)
     {
-        int lidx = iter->first;
-        int loffset = ri->offset(lidx);
-        int ridx = iter->second;
-        int roffset = ri->offset(ridx);
-        bool lnull, rnull;
-        readCharToBool((*this)[loffset], &lnull);
-        readCharToBool((*this)[roffset], &rnull);
-        if(lnull && rnull)
+        std::vector<int>& vecs = iter->second;
+        for(int i = 0; i < vecs.size(); i++)
         {
-            if(op != 0)
+            int lidx = iter->first;
+            int loffset = ri->offset(lidx);
+            int ridx = vecs[i];
+            int roffset = ri->offset(ridx);
+            bool lnull, rnull;
+            readCharToBool((*this)[loffset], &lnull);
+            readCharToBool((*this)[roffset], &rnull);
+            if(lnull && rnull)
+            {
+                if(op != 0)
+                {
+                    return false;
+                }
+            }
+            if((lnull && !rnull) || (!lnull && rnull))
+            {
+                if(op != 1)
+                {
+                    return false;
+                }
+            }
+            bool flag = false;
+            switch(op)
+            {
+            case 0:
+                flag = Equal((*this)[loffset + 1], (*this)[roffset + 1], ri->type(lidx), ri->length(lidx));
+                break;
+            case 1:
+                flag = !Equal((*this)[loffset + 1], (*this)[roffset + 1], ri->type(lidx), ri->length(lidx));
+                break;
+            case 2:
+                flag = smallerOrEqual((*this)[loffset + 1], (*this)[roffset + 1], ri->type(lidx), ri->length(lidx));
+                break;
+            case 3:
+                flag = largerOrEqual((*this)[loffset + 1], (*this)[roffset + 1], ri->type(lidx), ri->length(lidx));
+                break;
+            case 4:
+                flag = smaller((*this)[loffset + 1], (*this)[roffset + 1], ri->type(lidx), ri->length(lidx));
+                break;
+            case 5:
+                flag = larger((*this)[loffset + 1], (*this)[roffset + 1], ri->type(lidx), ri->length(lidx));
+                break;
+            }
+            if(!flag)
             {
                 return false;
             }
-        }
-        if((lnull && !rnull) || (!lnull && rnull))
-        {
-            if(op != 1)
-            {
-                return false;
-            }
-        }
-        bool flag = false;
-        switch(op)
-        {
-        case 0:
-            flag = Equal((*this)[loffset + 1], (*this)[roffset + 1], ri->type(lidx), ri->length(lidx));
-            break;
-        case 1:
-            flag = !Equal((*this)[loffset + 1], (*this)[roffset + 1], ri->type(lidx), ri->length(lidx));
-            break;
-        case 2:
-            flag = smallerOrEqual((*this)[loffset + 1], (*this)[roffset + 1], ri->type(lidx), ri->length(lidx));
-            break;
-        case 3:
-            flag = largerOrEqual((*this)[loffset + 1], (*this)[roffset + 1], ri->type(lidx), ri->length(lidx));
-            break;
-        case 4:
-            flag = smaller((*this)[loffset + 1], (*this)[roffset + 1], ri->type(lidx), ri->length(lidx));
-            break;
-        case 5:
-            flag = larger((*this)[loffset + 1], (*this)[roffset + 1], ri->type(lidx), ri->length(lidx));
-            break;
-        }
-        if(!flag)
-        {
-            return false;
         }
     }
     return true;

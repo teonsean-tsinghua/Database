@@ -116,19 +116,43 @@ void DBDatabase::processWheresWithOneTable(SearchInfo& si, DBRecordInfo* ri)
         switch(w.type)
         {
         case 0:
+            if(si.nulls.count(ri->index(w.left.field)))
+            {
+                if(!si.nulls[ri->index(w.left.field)])
+                {
+                    pWheres.clear();
+                    throw Exception("Conflict in where clause.");
+                }
+            }
             si.nulls[ri->index(w.left.field)] = true;
             break;
         case 1:
+            if(si.nulls.count(ri->index(w.left.field)))
+            {
+                if(si.nulls[ri->index(w.left.field)])
+                {
+                    pWheres.clear();
+                    throw Exception("Conflict in where clause.");
+                }
+            }
             si.nulls[ri->index(w.left.field)] = false;
             break;
         case 2:
             if(w.opCol)
             {
-                si.fields[w.op][ri->index(w.left.field)] = ri->index(w.col_r.field);
+                if(!si.fields[w.op].count(ri->index(w.left.field)))
+                {
+                    si.fields[w.op][ri->index(w.left.field)] = std::vector<int>();
+                }
+                si.fields[w.op][ri->index(w.left.field)].push_back(ri->index(w.col_r.field));
             }
             else
             {
-                si.values[w.op][ri->index(w.left.field)] = (w.val_r.type == 1 ? (void*)&w.val_r.v_int : (void*)&w.val_r.v_str);
+                if(!si.values[w.op].count(ri->index(w.left.field)))
+                {
+                    si.values[w.op][ri->index(w.left.field)] = std::vector<void*>();
+                }
+                si.values[w.op][ri->index(w.left.field)].push_back((w.val_r.type == 1 ? (void*)&w.val_r.v_int : (void*)&w.val_r.v_str));
             }
         }
     }
@@ -175,6 +199,11 @@ void DBDatabase::printOneTableSelectResult(SelectResult& sr, std::vector<bool>& 
             }
             curRow = 1;
             index++;
+            t.b = true;
+        }
+        else
+        {
+            t.b = false;
         }
         for(; curRow < rows; curRow++)
         {
@@ -207,14 +236,14 @@ void DBDatabase::printOneTableSelectResult(SelectResult& sr, std::vector<bool>& 
         }
         memset(buffer, 0, 8192);
         format_table(&t, buffer);
-        DBPrint::printLine(buffer);
+        DBPrint::print(buffer);
     }
 
 }
 
 void DBDatabase::remove(std::string name)
 {
-    DBDataFile* df = getDataFile(pTables[0]);
+    DBDataFile* df = getDataFile(name);
     if(df == NULL)
     {
         pWheres.clear();
@@ -224,7 +253,8 @@ void DBDatabase::remove(std::string name)
     DBRecordInfo* ri = df->getRecordInfo();
     SearchInfo si;
     processWheresWithOneTable(si, ri);
-    //df->remove(si);
+    int cnt = df->remove(si);
+    DBPrint::print("Deleted ").print(cnt).printLine(" records.");
     df->closeFile();
 }
 
@@ -240,6 +270,7 @@ void DBDatabase::selectOneTable(bool all)
     }
     std::vector<bool> selected;
     df->openFile();
+//    df->printAllRecords();
     DBRecordInfo* ri = df->getRecordInfo();
     if(all)
     {

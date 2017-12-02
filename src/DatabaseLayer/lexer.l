@@ -59,7 +59,6 @@ BLANK_CHARS ([ \f\r\t\v]+)
 
 int yywrap(void)
 {
-puts("-----the file is end");
 return 1;
 }
 

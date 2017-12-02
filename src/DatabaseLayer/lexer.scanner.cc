@@ -1,5 +1,6 @@
+#line 2 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.scanner.cc"
 
-#line 3 "lex.yy.c"
+#line 4 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.scanner.cc"
 
 #define  YY_INT_ALIGNED short int
 
@@ -546,8 +547,8 @@ int yy_flex_debug = 0;
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
-#line 1 "lexer.l"
-#line 2 "lexer.l"
+#line 1 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
+#line 2 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 #include "DBBase.h"
 #include "y.tab.h"
 
@@ -556,7 +557,7 @@ extern "C"
 int yywrap(void);
 int yylex(void);
 }
-#line 560 "lex.yy.c"
+#line 561 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.scanner.cc"
 
 #define INITIAL 0
 
@@ -774,9 +775,9 @@ YY_DECL
 		}
 
 	{
-#line 18 "lexer.l"
+#line 18 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 
-#line 780 "lex.yy.c"
+#line 781 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.scanner.cc"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -835,206 +836,206 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 19 "lexer.l"
+#line 19 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { return DATABASE; }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 20 "lexer.l"
+#line 20 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { return DATABASES; }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 21 "lexer.l"
+#line 21 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { return TABLE; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 22 "lexer.l"
+#line 22 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { return TABLES; }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 23 "lexer.l"
+#line 23 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { return SHOW; }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 24 "lexer.l"
+#line 24 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { return CREATE; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 25 "lexer.l"
+#line 25 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { return DROP; }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 26 "lexer.l"
+#line 26 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { return USE; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 27 "lexer.l"
+#line 27 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { return PRIMARY; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 28 "lexer.l"
+#line 28 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { return KEY; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 29 "lexer.l"
+#line 29 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { return NOT; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 30 "lexer.l"
+#line 30 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { return NULL_; }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 31 "lexer.l"
+#line 31 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { return INSERT; }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 32 "lexer.l"
+#line 32 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { return INTO; }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 33 "lexer.l"
+#line 33 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { return VALUES; }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 34 "lexer.l"
+#line 34 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { return DELETE; }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 35 "lexer.l"
+#line 35 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { return FROM; }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 36 "lexer.l"
+#line 36 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { return WHERE; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 37 "lexer.l"
+#line 37 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { return UPDATE; }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 38 "lexer.l"
+#line 38 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { return SET; }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 39 "lexer.l"
+#line 39 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { return SELECT; }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 40 "lexer.l"
+#line 40 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { return IS; }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 41 "lexer.l"
+#line 41 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { return INT_; }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 42 "lexer.l"
+#line 42 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { return VARCHAR_; }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 43 "lexer.l"
+#line 43 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { return DESC; }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 44 "lexer.l"
+#line 44 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { return INDEX; }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 45 "lexer.l"
+#line 45 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { return AND; }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 46 "lexer.l"
+#line 46 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { return DATE_; }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 47 "lexer.l"
+#line 47 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { return FLOAT_; }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 48 "lexer.l"
+#line 48 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { return FOREIGN; }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 49 "lexer.l"
+#line 49 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { return REFERENCES; }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 50 "lexer.l"
+#line 50 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { return NOT_EQUAL; }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 51 "lexer.l"
+#line 51 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { return LESS_EQUAL; }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 52 "lexer.l"
+#line 52 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { return GREATER_EQUAL; }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 53 "lexer.l"
+#line 53 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { return *yytext; }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 54 "lexer.l"
+#line 54 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { yylval.m_string=yytext; return IDENTIFIER; }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 55 "lexer.l"
+#line 55 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { yylval.m_int=atoi(yytext); return VALUE_INT; }
 	YY_BREAK
 case 38:
 /* rule 38 can match eol */
 YY_RULE_SETUP
-#line 56 "lexer.l"
+#line 56 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 { yylval.m_string=yytext; return VALUE_STRING; }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 57 "lexer.l"
+#line 57 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 {}
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 58 "lexer.l"
+#line 58 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 ECHO;
 	YY_BREAK
-#line 1038 "lex.yy.c"
+#line 1039 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.scanner.cc"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2035,7 +2036,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 58 "lexer.l"
+#line 58 "/home/teon/Documents/DBMS/src/DatabaseLayer/lexer.l"
 
 
 

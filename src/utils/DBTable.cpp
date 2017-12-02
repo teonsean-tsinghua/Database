@@ -116,8 +116,11 @@ void format_table(table *t, char *formated_out){
   char row_txt[col_width + t->col_num];
   int i;
 
-  make_edge(t->col_max_width, t->col_num, row_txt);
-  strcat(formated_out, row_txt);
+  if(t->b)
+  {
+    make_edge(t->col_max_width, t->col_num, row_txt);
+    strcat(formated_out, row_txt);
+  }
 
   for( i = 0; i < t->row_num; i++){
     make_row(i, t, row_txt);

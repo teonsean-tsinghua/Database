@@ -9,8 +9,8 @@
 struct SearchInfo
 {
     std::map<int, bool> nulls;
-    std::map<int, void*> values[6];
-    std::map<int, int> fields[6];
+    std::map<int, std::vector<void*> > values[6];
+    std::map<int, std::vector<int> > fields[6];
 
     SearchInfo();
 };
