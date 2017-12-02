@@ -11,7 +11,7 @@ protected:
 public:
     DBRecordSlot(BufType cache, DBRecordInfo* ri);
 
-    void checkNull(std::map<int, bool>& nulls, std::list<std::vector<void*> >& datas);
+    bool checkNull(std::map<int, bool>& nulls);
 
     void write(std::vector<void*>& data);
 
@@ -19,9 +19,9 @@ public:
 
     void read(std::map<std::string, void*>& data);
 
-    void checkValue(std::map<int, void*>& info, std::list<std::vector<void*> >& datas, int op);
+    bool checkValue(std::map<int, void*>& info, int op);
 
-    void checkFields(std::map<int, int>& info, std::list<std::vector<void*> >& datas, int op);
+    bool checkFields(std::map<int, int>& info, int op);
 
     void update(std::map<int, void*>& data);
 

@@ -1,3 +1,3 @@
 USE test;
 DESC ints;
-SELECT a FROM ints WHERE b > d AND b > c;
+SELECT a, b, c, d FROM ints WHERE b > d AND b > c;

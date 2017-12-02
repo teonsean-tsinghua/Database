@@ -465,447 +465,83 @@ void DBDataFile::select(SearchInfo& si, SelectResult& sr)
             return;
         }
     }
-    if(si.equals.size() > 0)
+    for(int i = 0; i < 6; i++)
     {
-        if(sr.results.empty())
+        if(si.values[i].size() > 0)
         {
-            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
-            while(true)
-            {
-                if(dp == NULL)
-                {
-                    break;
-                }
-                dp->filterByValue(si.equals, sr.results, 0);
-                dp = openDataPage(dp->getNextSameType());
-            }
             if(sr.results.empty())
             {
-                return;
-            }
-        }
-        else
-        {
-            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
-            while(true)
-            {
-                if(dp == NULL)
+                DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+                while(true)
                 {
-                    break;
+                    if(dp == NULL)
+                    {
+                        break;
+                    }
+                    dp->filterByValue(si.values[i], sr.results, i);
+                    dp = openDataPage(dp->getNextSameType());
                 }
-                sr.filterByValue(si.equals, 0, ri);
-                dp = openDataPage(dp->getNextSameType());
+                if(sr.results.empty())
+                {
+                    return;
+                }
             }
-            if(sr.results.empty())
+            else
             {
-                return;
+                DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+                while(true)
+                {
+                    if(dp == NULL)
+                    {
+                        break;
+                    }
+                    sr.filterByValue(si.values[i], i, ri);
+                    dp = openDataPage(dp->getNextSameType());
+                }
+                if(sr.results.empty())
+                {
+                    return;
+                }
             }
         }
     }
-    if(si.notEquals.size() > 0)
+    for(int i = 0; i < 6; i++)
     {
-        if(sr.results.empty())
+        if(si.fields[i].size() > 0)
         {
-            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
-            while(true)
-            {
-                if(dp == NULL)
-                {
-                    break;
-                }
-                dp->filterByValue(si.notEquals, sr.results, 1);
-                dp = openDataPage(dp->getNextSameType());
-            }
             if(sr.results.empty())
             {
-                return;
-            }
-        }
-        else
-        {
-            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
-            while(true)
-            {
-                if(dp == NULL)
+                DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+                while(true)
                 {
-                    break;
+                    if(dp == NULL)
+                    {
+                        break;
+                    }
+                    dp->filterByFields(si.fields[i], sr.results, i);
+                    dp = openDataPage(dp->getNextSameType());
                 }
-                sr.filterByValue(si.notEquals, 1, ri);
-                dp = openDataPage(dp->getNextSameType());
-            }
-            if(sr.results.empty())
-            {
-                return;
-            }
-        }
-    }
-    if(si.smallerEquals.size() > 0)
-    {
-        if(sr.results.empty())
-        {
-            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
-            while(true)
-            {
-                if(dp == NULL)
+                if(sr.results.empty())
                 {
-                    break;
+                    return;
                 }
-                dp->filterByValue(si.smallerEquals, sr.results, 2);
-                dp = openDataPage(dp->getNextSameType());
             }
-            if(sr.results.empty())
+            else
             {
-                return;
-            }
-        }
-        else
-        {
-            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
-            while(true)
-            {
-                if(dp == NULL)
+                DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
+                while(true)
                 {
-                    break;
+                    if(dp == NULL)
+                    {
+                        break;
+                    }
+                    sr.filterByFields(si.fields[i], i, ri);
+                    dp = openDataPage(dp->getNextSameType());
                 }
-                sr.filterByValue(si.smallerEquals, 2, ri);
-                dp = openDataPage(dp->getNextSameType());
-            }
-            if(sr.results.empty())
-            {
-                return;
-            }
-        }
-    }
-    if(si.largerEquals.size() > 0)
-    {
-        if(sr.results.empty())
-        {
-            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
-            while(true)
-            {
-                if(dp == NULL)
+                if(sr.results.empty())
                 {
-                    break;
+                    return;
                 }
-                dp->filterByValue(si.largerEquals, sr.results, 3);
-                dp = openDataPage(dp->getNextSameType());
-            }
-            if(sr.results.empty())
-            {
-                return;
-            }
-        }
-        else
-        {
-            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
-            while(true)
-            {
-                if(dp == NULL)
-                {
-                    break;
-                }
-                sr.filterByValue(si.largerEquals, 3, ri);
-                dp = openDataPage(dp->getNextSameType());
-            }
-            if(sr.results.empty())
-            {
-                return;
-            }
-        }
-    }
-    if(si.smallers.size() > 0)
-    {
-        if(sr.results.empty())
-        {
-            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
-            while(true)
-            {
-                if(dp == NULL)
-                {
-                    break;
-                }
-                dp->filterByValue(si.smallers, sr.results, 4);
-                dp = openDataPage(dp->getNextSameType());
-            }
-            if(sr.results.empty())
-            {
-                return;
-            }
-        }
-        else
-        {
-            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
-            while(true)
-            {
-                if(dp == NULL)
-                {
-                    break;
-                }
-                sr.filterByValue(si.smallers, 4, ri);
-                dp = openDataPage(dp->getNextSameType());
-            }
-            if(sr.results.empty())
-            {
-                return;
-            }
-        }
-    }
-    if(si.largers.size() > 0)
-    {
-        if(sr.results.empty())
-        {
-            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
-            while(true)
-            {
-                if(dp == NULL)
-                {
-                    break;
-                }
-                dp->filterByValue(si.largers, sr.results, 5);
-                dp = openDataPage(dp->getNextSameType());
-            }
-            if(sr.results.empty())
-            {
-                return;
-            }
-        }
-        else
-        {
-            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
-            while(true)
-            {
-                if(dp == NULL)
-                {
-                    break;
-                }
-                sr.filterByValue(si.largers, 5, ri);
-                dp = openDataPage(dp->getNextSameType());
-            }
-            if(sr.results.empty())
-            {
-                return;
-            }
-        }
-    }
-    if(si.fequals.size() > 0)
-    {
-        if(sr.results.empty())
-        {
-            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
-            while(true)
-            {
-                if(dp == NULL)
-                {
-                    break;
-                }
-                dp->filterByFields(si.fequals, sr.results, 0);
-                dp = openDataPage(dp->getNextSameType());
-            }
-            if(sr.results.empty())
-            {
-                return;
-            }
-        }
-        else
-        {
-            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
-            while(true)
-            {
-                if(dp == NULL)
-                {
-                    break;
-                }
-                sr.filterByFields(si.fequals, 0, ri);
-                dp = openDataPage(dp->getNextSameType());
-            }
-            if(sr.results.empty())
-            {
-                return;
-            }
-        }
-    }
-    if(si.fnotEquals.size() > 0)
-    {
-        if(sr.results.empty())
-        {
-            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
-            while(true)
-            {
-                if(dp == NULL)
-                {
-                    break;
-                }
-                dp->filterByFields(si.fnotEquals, sr.results, 1);
-                dp = openDataPage(dp->getNextSameType());
-            }
-            if(sr.results.empty())
-            {
-                return;
-            }
-        }
-        else
-        {
-            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
-            while(true)
-            {
-                if(dp == NULL)
-                {
-                    break;
-                }
-                sr.filterByFields(si.fnotEquals, 1, ri);
-                dp = openDataPage(dp->getNextSameType());
-            }
-            if(sr.results.empty())
-            {
-                return;
-            }
-        }
-    }
-    if(si.fsmallerEquals.size() > 0)
-    {
-        if(sr.results.empty())
-        {
-            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
-            while(true)
-            {
-                if(dp == NULL)
-                {
-                    break;
-                }
-                dp->filterByFields(si.fsmallerEquals, sr.results, 2);
-                dp = openDataPage(dp->getNextSameType());
-            }
-            if(sr.results.empty())
-            {
-                return;
-            }
-        }
-        else
-        {
-            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
-            while(true)
-            {
-                if(dp == NULL)
-                {
-                    break;
-                }
-                sr.filterByFields(si.fsmallerEquals, 2, ri);
-                dp = openDataPage(dp->getNextSameType());
-            }
-            if(sr.results.empty())
-            {
-                return;
-            }
-        }
-    }
-    if(si.flargerEquals.size() > 0)
-    {
-        if(sr.results.empty())
-        {
-            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
-            while(true)
-            {
-                if(dp == NULL)
-                {
-                    break;
-                }
-                dp->filterByFields(si.flargerEquals, sr.results, 3);
-                dp = openDataPage(dp->getNextSameType());
-            }
-            if(sr.results.empty())
-            {
-                return;
-            }
-        }
-        else
-        {
-            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
-            while(true)
-            {
-                if(dp == NULL)
-                {
-                    break;
-                }
-                sr.filterByFields(si.flargerEquals, 3, ri);
-                dp = openDataPage(dp->getNextSameType());
-            }
-            if(sr.results.empty())
-            {
-                return;
-            }
-        }
-    }
-    if(si.fsmallers.size() > 0)
-    {
-        if(sr.results.empty())
-        {
-            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
-            while(true)
-            {
-                if(dp == NULL)
-                {
-                    break;
-                }
-                dp->filterByFields(si.fsmallers, sr.results, 4);
-                dp = openDataPage(dp->getNextSameType());
-            }
-            if(sr.results.empty())
-            {
-                return;
-            }
-        }
-        else
-        {
-            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
-            while(true)
-            {
-                if(dp == NULL)
-                {
-                    break;
-                }
-                sr.filterByFields(si.fsmallers, 4, ri);
-                dp = openDataPage(dp->getNextSameType());
-            }
-            if(sr.results.empty())
-            {
-                return;
-            }
-        }
-    }
-    if(si.flargers.size() > 0)
-    {
-        if(sr.results.empty())
-        {
-            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
-            while(true)
-            {
-                if(dp == NULL)
-                {
-                    break;
-                }
-                dp->filterByFields(si.flargers, sr.results, 5);
-                dp = openDataPage(dp->getNextSameType());
-            }
-            if(sr.results.empty())
-            {
-                return;
-            }
-        }
-        else
-        {
-            DBDataPage* dp = openDataPage(dfdp->getFirstDataPage());
-            while(true)
-            {
-                if(dp == NULL)
-                {
-                    break;
-                }
-                sr.filterByFields(si.flargers, 5, ri);
-                dp = openDataPage(dp->getNextSameType());
-            }
-            if(sr.results.empty())
-            {
-                return;
             }
         }
     }

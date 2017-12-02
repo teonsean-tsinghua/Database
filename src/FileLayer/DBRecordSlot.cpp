@@ -6,7 +6,7 @@ DBRecordSlot::DBRecordSlot(BufType cache, DBRecordInfo* ri):
 
 }
 
-void DBRecordSlot::checkNull(std::map<int, bool>& nulls, std::list<std::vector<void*> >& datas)
+bool DBRecordSlot::checkNull(std::map<int, bool>& nulls)
 {
     std::map<int, bool>::iterator iter;
     bool b;
@@ -14,15 +14,15 @@ void DBRecordSlot::checkNull(std::map<int, bool>& nulls, std::list<std::vector<v
     {
         int idx = iter->first;
         readCharToBool((*this)[ri->offset(idx)], &b);
-        if(b == iter->second)
+        if(b != iter->second)
         {
-            datas.push_back(std::vector<void*>());
-            read(datas.back());
+            return false;
         }
     }
+    return true;
 }
 
-void DBRecordSlot::checkValue(std::map<int, void*>& info, std::list<std::vector<void*> >& datas, int op)
+bool DBRecordSlot::checkValue(std::map<int, void*>& info, int op)
 {
     std::map<int, void*>::iterator iter;
     for(iter = info.begin(); iter != info.end(); iter++)
@@ -33,7 +33,7 @@ void DBRecordSlot::checkValue(std::map<int, void*>& info, std::list<std::vector<
         readCharToBool((*this)[offset], &flag);
         if(flag)
         {
-            return;
+            return false;
         }
         switch(op)
         {
@@ -58,14 +58,13 @@ void DBRecordSlot::checkValue(std::map<int, void*>& info, std::list<std::vector<
         }
         if(!flag)
         {
-            return;
+            return false;
         }
     }
-    datas.push_back(std::vector<void*>());
-    read(datas.back());
+    return true;
 }
 
-void DBRecordSlot::checkFields(std::map<int, int>& info, std::list<std::vector<void*> >& datas, int op)
+bool DBRecordSlot::checkFields(std::map<int, int>& info, int op)
 {
     std::map<int, int>::iterator iter;
     for(iter = info.begin(); iter != info.end(); iter++)
@@ -81,14 +80,14 @@ void DBRecordSlot::checkFields(std::map<int, int>& info, std::list<std::vector<v
         {
             if(op != 0)
             {
-                return;
+                return false;
             }
         }
         if((lnull && !rnull) || (!lnull && rnull))
         {
             if(op != 1)
             {
-                return;
+                return false;
             }
         }
         bool flag = false;
@@ -115,11 +114,10 @@ void DBRecordSlot::checkFields(std::map<int, int>& info, std::list<std::vector<v
         }
         if(!flag)
         {
-            return;
+            return false;
         }
     }
-    datas.push_back(std::vector<void*>());
-    read(datas.back());
+    return true;
 }
 
 void DBRecordSlot::write(std::vector<void*>& data)

@@ -62,7 +62,7 @@
 
 
 /* Copy the first part of user declarations.  */
-#line 1 "parser.y" /* yacc.c:339  */
+#line 1 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:339  */
 
 #include "DBBase.h"
 #include "DBDatabase.h"
@@ -76,7 +76,7 @@ extern "C"
 }
 
 
-#line 80 "y.tab.c" /* yacc.c:339  */
+#line 80 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -95,9 +95,9 @@ extern "C"
 #endif
 
 /* In a future release of Bison, this section will be replaced
-   by #include "y.tab.h".  */
-#ifndef YY_YY_Y_TAB_H_INCLUDED
-# define YY_YY_Y_TAB_H_INCLUDED
+   by #include "parser.parser.hh".  */
+#ifndef YY_YY_HOME_TEON_DOCUMENTS_DBMS_SRC_DATABASELAYER_PARSER_PARSER_HH_INCLUDED
+# define YY_YY_HOME_TEON_DOCUMENTS_DBMS_SRC_DATABASELAYER_PARSER_PARSER_HH_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
@@ -150,44 +150,6 @@ extern int yydebug;
     LESS_EQUAL = 294
   };
 #endif
-/* Tokens.  */
-#define DATABASE 258
-#define DATABASES 259
-#define TABLE 260
-#define TABLES 261
-#define SHOW 262
-#define CREATE 263
-#define DROP 264
-#define USE 265
-#define PRIMARY 266
-#define KEY 267
-#define NOT 268
-#define NULL_ 269
-#define INSERT 270
-#define INTO 271
-#define VALUES 272
-#define DELETE 273
-#define FROM 274
-#define WHERE 275
-#define UPDATE 276
-#define SET 277
-#define SELECT 278
-#define IS 279
-#define INT_ 280
-#define VARCHAR_ 281
-#define DESC 282
-#define INDEX 283
-#define AND 284
-#define DATE_ 285
-#define FLOAT_ 286
-#define FOREIGN 287
-#define REFERENCES 288
-#define IDENTIFIER 289
-#define VALUE_STRING 290
-#define VALUE_INT 291
-#define NOT_EQUAL 292
-#define GREATER_EQUAL 293
-#define LESS_EQUAL 294
 
 /* Value type.  */
 
@@ -196,11 +158,11 @@ extern YYSTYPE yylval;
 
 int yyparse (void);
 
-#endif /* !YY_YY_Y_TAB_H_INCLUDED  */
+#endif /* !YY_YY_HOME_TEON_DOCUMENTS_DBMS_SRC_DATABASELAYER_PARSER_PARSER_HH_INCLUDED  */
 
 /* Copy the second part of user declarations.  */
 
-#line 204 "y.tab.c" /* yacc.c:358  */
+#line 166 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -1373,349 +1335,349 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 38 "parser.y" /* yacc.c:1646  */
+#line 38 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     {}
-#line 1379 "y.tab.c" /* yacc.c:1646  */
+#line 1341 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 3:
-#line 39 "parser.y" /* yacc.c:1646  */
+#line 39 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     {}
-#line 1385 "y.tab.c" /* yacc.c:1646  */
+#line 1347 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 4:
-#line 42 "parser.y" /* yacc.c:1646  */
+#line 42 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     {}
-#line 1391 "y.tab.c" /* yacc.c:1646  */
+#line 1353 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 43 "parser.y" /* yacc.c:1646  */
+#line 43 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     {}
-#line 1397 "y.tab.c" /* yacc.c:1646  */
+#line 1359 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 44 "parser.y" /* yacc.c:1646  */
+#line 44 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     {}
-#line 1403 "y.tab.c" /* yacc.c:1646  */
+#line 1365 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 45 "parser.y" /* yacc.c:1646  */
+#line 45 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     {}
-#line 1409 "y.tab.c" /* yacc.c:1646  */
+#line 1371 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 48 "parser.y" /* yacc.c:1646  */
+#line 48 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { instance->showDatabases(); }
-#line 1415 "y.tab.c" /* yacc.c:1646  */
+#line 1377 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 51 "parser.y" /* yacc.c:1646  */
+#line 51 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { instance->createDatabase((yyvsp[0].m_string)); }
-#line 1421 "y.tab.c" /* yacc.c:1646  */
+#line 1383 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 52 "parser.y" /* yacc.c:1646  */
+#line 52 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { instance->dropDatabase((yyvsp[0].m_string)); }
-#line 1427 "y.tab.c" /* yacc.c:1646  */
+#line 1389 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 53 "parser.y" /* yacc.c:1646  */
+#line 53 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { instance->useDatabase((yyvsp[0].m_string)); }
-#line 1433 "y.tab.c" /* yacc.c:1646  */
+#line 1395 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 54 "parser.y" /* yacc.c:1646  */
+#line 54 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { instance->showTables(); }
-#line 1439 "y.tab.c" /* yacc.c:1646  */
+#line 1401 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 57 "parser.y" /* yacc.c:1646  */
+#line 57 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { instance->createTable((yyvsp[-3].m_string)); }
-#line 1445 "y.tab.c" /* yacc.c:1646  */
+#line 1407 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 58 "parser.y" /* yacc.c:1646  */
+#line 58 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { instance->dropTable((yyvsp[0].m_string)); }
-#line 1451 "y.tab.c" /* yacc.c:1646  */
+#line 1413 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 59 "parser.y" /* yacc.c:1646  */
+#line 59 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { instance->describeTable((yyvsp[0].m_string)); }
-#line 1457 "y.tab.c" /* yacc.c:1646  */
+#line 1419 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 60 "parser.y" /* yacc.c:1646  */
+#line 60 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { instance->insert((yyvsp[-2].m_string)); }
-#line 1463 "y.tab.c" /* yacc.c:1646  */
+#line 1425 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 61 "parser.y" /* yacc.c:1646  */
+#line 61 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { instance->remove((yyvsp[-2].m_string)); }
-#line 1469 "y.tab.c" /* yacc.c:1646  */
+#line 1431 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 63 "parser.y" /* yacc.c:1646  */
+#line 63 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { instance->select((yyvsp[-4].m_bool)); }
-#line 1475 "y.tab.c" /* yacc.c:1646  */
+#line 1437 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 70 "parser.y" /* yacc.c:1646  */
+#line 70 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { instance->addPendingField((yyvsp[0].m_field).name, (yyvsp[0].m_field).type, (yyvsp[0].m_field).nullable, (yyvsp[0].m_field).extra); }
-#line 1481 "y.tab.c" /* yacc.c:1646  */
+#line 1443 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 71 "parser.y" /* yacc.c:1646  */
+#line 71 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { instance->addPendingField((yyvsp[0].m_field).name, (yyvsp[0].m_field).type, (yyvsp[0].m_field).nullable, (yyvsp[0].m_field).extra); }
-#line 1487 "y.tab.c" /* yacc.c:1646  */
+#line 1449 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 74 "parser.y" /* yacc.c:1646  */
+#line 74 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { (yyval.m_field).type = (yyvsp[0].m_type).type; (yyval.m_field).extra = (yyvsp[0].m_type).extra; (yyval.m_field).nullable = true; (yyval.m_field).name = (yyvsp[-1].m_string); }
-#line 1493 "y.tab.c" /* yacc.c:1646  */
+#line 1455 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 75 "parser.y" /* yacc.c:1646  */
+#line 75 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { (yyval.m_field).type = (yyvsp[-2].m_type).type; (yyval.m_field).extra = (yyvsp[-2].m_type).extra; (yyval.m_field).nullable = false; (yyval.m_field).name = (yyvsp[-3].m_string); }
-#line 1499 "y.tab.c" /* yacc.c:1646  */
+#line 1461 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 80 "parser.y" /* yacc.c:1646  */
+#line 80 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { (yyval.m_type).type = DBType::INT; (yyval.m_type).extra = (yyvsp[-1].m_int); }
-#line 1505 "y.tab.c" /* yacc.c:1646  */
+#line 1467 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 81 "parser.y" /* yacc.c:1646  */
+#line 81 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { (yyval.m_type).type = DBType::INT; (yyval.m_type).extra = 0; }
-#line 1511 "y.tab.c" /* yacc.c:1646  */
+#line 1473 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 82 "parser.y" /* yacc.c:1646  */
+#line 82 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { (yyval.m_type).type = DBType::VARCHAR; (yyval.m_type).extra = (yyvsp[-1].m_int); }
-#line 1517 "y.tab.c" /* yacc.c:1646  */
+#line 1479 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 83 "parser.y" /* yacc.c:1646  */
+#line 83 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { (yyval.m_type).type = DBType::DATE; (yyval.m_type).extra = 0; }
-#line 1523 "y.tab.c" /* yacc.c:1646  */
+#line 1485 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 84 "parser.y" /* yacc.c:1646  */
+#line 84 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { (yyval.m_type).type = DBType::FLOAT; (yyval.m_type).extra = 0; }
-#line 1529 "y.tab.c" /* yacc.c:1646  */
+#line 1491 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 87 "parser.y" /* yacc.c:1646  */
+#line 87 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { instance->addPendingValueList(); }
-#line 1535 "y.tab.c" /* yacc.c:1646  */
+#line 1497 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 88 "parser.y" /* yacc.c:1646  */
+#line 88 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { instance->addPendingValueList(); }
-#line 1541 "y.tab.c" /* yacc.c:1646  */
+#line 1503 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 35:
-#line 91 "parser.y" /* yacc.c:1646  */
+#line 91 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { instance->addPendingValue((yyvsp[0].m_value)); }
-#line 1547 "y.tab.c" /* yacc.c:1646  */
+#line 1509 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 36:
-#line 92 "parser.y" /* yacc.c:1646  */
+#line 92 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { instance->addPendingValue((yyvsp[0].m_value)); }
-#line 1553 "y.tab.c" /* yacc.c:1646  */
+#line 1515 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 95 "parser.y" /* yacc.c:1646  */
+#line 95 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { (yyval.m_value).type = 1; (yyval.m_value).v_int = (yyvsp[0].m_int); }
-#line 1559 "y.tab.c" /* yacc.c:1646  */
+#line 1521 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 96 "parser.y" /* yacc.c:1646  */
+#line 96 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { (yyval.m_value).type = 2; (yyval.m_value).v_str = (yyvsp[0].m_string); }
-#line 1565 "y.tab.c" /* yacc.c:1646  */
+#line 1527 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 97 "parser.y" /* yacc.c:1646  */
+#line 97 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { (yyval.m_value).type = 0; }
-#line 1571 "y.tab.c" /* yacc.c:1646  */
+#line 1533 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 100 "parser.y" /* yacc.c:1646  */
+#line 100 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { (yyval.m_where).type = 2; (yyval.m_where).op = (yyvsp[-1].m_int); (yyval.m_where).opCol = false; (yyval.m_where).left = (yyvsp[-2].m_col); (yyval.m_where).val_r = (yyvsp[0].m_value); instance->addPendingWhere((yyval.m_where)); }
-#line 1577 "y.tab.c" /* yacc.c:1646  */
+#line 1539 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 41:
-#line 101 "parser.y" /* yacc.c:1646  */
+#line 101 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { (yyval.m_where).type = 2; (yyval.m_where).op = (yyvsp[-1].m_int); (yyval.m_where).opCol = true; (yyval.m_where).left = (yyvsp[-2].m_col); (yyval.m_where).col_r = (yyvsp[0].m_col); instance->addPendingWhere((yyval.m_where)); }
-#line 1583 "y.tab.c" /* yacc.c:1646  */
+#line 1545 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 102 "parser.y" /* yacc.c:1646  */
+#line 102 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { (yyval.m_where).type = 0; (yyval.m_where).left = (yyvsp[-2].m_col); instance->addPendingWhere((yyval.m_where)); }
-#line 1589 "y.tab.c" /* yacc.c:1646  */
+#line 1551 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 103 "parser.y" /* yacc.c:1646  */
+#line 103 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { (yyval.m_where).type = 1; (yyval.m_where).left = (yyvsp[-3].m_col); instance->addPendingWhere((yyval.m_where)); }
-#line 1595 "y.tab.c" /* yacc.c:1646  */
+#line 1557 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 104 "parser.y" /* yacc.c:1646  */
+#line 104 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     {}
-#line 1601 "y.tab.c" /* yacc.c:1646  */
+#line 1563 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 107 "parser.y" /* yacc.c:1646  */
+#line 107 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { (yyval.m_col).table = (yyvsp[-2].m_string); (yyval.m_col).field = (yyvsp[0].m_string); }
-#line 1607 "y.tab.c" /* yacc.c:1646  */
+#line 1569 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 108 "parser.y" /* yacc.c:1646  */
+#line 108 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { (yyval.m_col).table = ""; (yyval.m_col).field = (yyvsp[0].m_string); }
-#line 1613 "y.tab.c" /* yacc.c:1646  */
+#line 1575 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 111 "parser.y" /* yacc.c:1646  */
+#line 111 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { (yyval.m_int) = 0; }
-#line 1619 "y.tab.c" /* yacc.c:1646  */
+#line 1581 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 48:
-#line 112 "parser.y" /* yacc.c:1646  */
+#line 112 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { (yyval.m_int) = 1; }
-#line 1625 "y.tab.c" /* yacc.c:1646  */
+#line 1587 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 49:
-#line 113 "parser.y" /* yacc.c:1646  */
+#line 113 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { (yyval.m_int) = 2; }
-#line 1631 "y.tab.c" /* yacc.c:1646  */
+#line 1593 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 50:
-#line 114 "parser.y" /* yacc.c:1646  */
+#line 114 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { (yyval.m_int) = 3; }
-#line 1637 "y.tab.c" /* yacc.c:1646  */
+#line 1599 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 51:
-#line 115 "parser.y" /* yacc.c:1646  */
+#line 115 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { (yyval.m_int) = 4; }
-#line 1643 "y.tab.c" /* yacc.c:1646  */
+#line 1605 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 52:
-#line 116 "parser.y" /* yacc.c:1646  */
+#line 116 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { (yyval.m_int) = 5; }
-#line 1649 "y.tab.c" /* yacc.c:1646  */
+#line 1611 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 55:
-#line 123 "parser.y" /* yacc.c:1646  */
+#line 123 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { (yyval.m_bool) = true; }
-#line 1655 "y.tab.c" /* yacc.c:1646  */
+#line 1617 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 56:
-#line 124 "parser.y" /* yacc.c:1646  */
+#line 124 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { (yyval.m_bool) = false; }
-#line 1661 "y.tab.c" /* yacc.c:1646  */
+#line 1623 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 57:
-#line 127 "parser.y" /* yacc.c:1646  */
+#line 127 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { instance->addPendingCol((yyvsp[0].m_col)); }
-#line 1667 "y.tab.c" /* yacc.c:1646  */
+#line 1629 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 58:
-#line 128 "parser.y" /* yacc.c:1646  */
+#line 128 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { instance->addPendingCol((yyvsp[0].m_col)); }
-#line 1673 "y.tab.c" /* yacc.c:1646  */
+#line 1635 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 59:
-#line 131 "parser.y" /* yacc.c:1646  */
+#line 131 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { instance->addPendingTable((yyvsp[0].m_string)); }
-#line 1679 "y.tab.c" /* yacc.c:1646  */
+#line 1641 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 60:
-#line 132 "parser.y" /* yacc.c:1646  */
+#line 132 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { instance->addPendingTable((yyvsp[0].m_string)); }
-#line 1685 "y.tab.c" /* yacc.c:1646  */
+#line 1647 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 61:
-#line 135 "parser.y" /* yacc.c:1646  */
+#line 135 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { instance->addPendingColumn((yyvsp[0].m_string)); }
-#line 1691 "y.tab.c" /* yacc.c:1646  */
+#line 1653 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 62:
-#line 136 "parser.y" /* yacc.c:1646  */
+#line 136 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { instance->addPendingColumn((yyvsp[0].m_string)); }
-#line 1697 "y.tab.c" /* yacc.c:1646  */
+#line 1659 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 63:
-#line 139 "parser.y" /* yacc.c:1646  */
+#line 139 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { (yyval.m_string) = (yyvsp[0].m_string); }
-#line 1703 "y.tab.c" /* yacc.c:1646  */
+#line 1665 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 64:
-#line 142 "parser.y" /* yacc.c:1646  */
+#line 142 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { (yyval.m_string) = (yyvsp[0].m_string); }
-#line 1709 "y.tab.c" /* yacc.c:1646  */
+#line 1671 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
   case 65:
-#line 145 "parser.y" /* yacc.c:1646  */
+#line 145 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1646  */
     { (yyval.m_string) = (yyvsp[0].m_string); }
-#line 1715 "y.tab.c" /* yacc.c:1646  */
+#line 1677 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
     break;
 
 
-#line 1719 "y.tab.c" /* yacc.c:1646  */
+#line 1681 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.parser.cc" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1943,7 +1905,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 148 "parser.y" /* yacc.c:1906  */
+#line 148 "/home/teon/Documents/DBMS/src/DatabaseLayer/parser.y" /* yacc.c:1906  */
 
 
 void yyerror(const char *s)

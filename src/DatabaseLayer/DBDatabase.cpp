@@ -110,7 +110,6 @@ void DBDatabase::processWheresWithOneTable(SearchInfo& si, DBRecordInfo* ri)
         pWheres.clear();
         throw Exception("Error in where clause.");
     }
-    si.init();
     for(int i = 0; i < pWheres.size(); i++)
     {
         Where& w = pWheres[i];
@@ -123,68 +122,13 @@ void DBDatabase::processWheresWithOneTable(SearchInfo& si, DBRecordInfo* ri)
             si.nulls[ri->index(w.left.field)] = false;
             break;
         case 2:
-            switch(w.op)
+            if(w.opCol)
             {
-            case 0:
-                if(w.opCol)
-                {
-                    si.fequals[ri->index(w.left.field)] = ri->index(w.col_r.field);
-                }
-                else
-                {
-                    si.equals[ri->index(w.left.field)] = (w.val_r.type == 1 ? (void*)&w.val_r.v_int : (void*)&w.val_r.v_str);
-                }
-                break;
-            case 1:
-                if(w.opCol)
-                {
-                    si.fnotEquals[ri->index(w.left.field)] = ri->index(w.col_r.field);
-                }
-                else
-                {
-                    si.notEquals[ri->index(w.left.field)] = (w.val_r.type == 1 ? (void*)&w.val_r.v_int : (void*)&w.val_r.v_str);
-                }
-                break;
-            case 2:
-                if(w.opCol)
-                {
-                    si.fsmallerEquals[ri->index(w.left.field)] = ri->index(w.col_r.field);
-                }
-                else
-                {
-                    si.smallerEquals[ri->index(w.left.field)] = (w.val_r.type == 1 ? (void*)&w.val_r.v_int : (void*)&w.val_r.v_str);
-                }
-                break;
-            case 3:
-                if(w.opCol)
-                {
-                    si.flargerEquals[ri->index(w.left.field)] = ri->index(w.col_r.field);
-                }
-                else
-                {
-                    si.largerEquals[ri->index(w.left.field)] = (w.val_r.type == 1 ? (void*)&w.val_r.v_int : (void*)&w.val_r.v_str);
-                }
-                break;
-            case 4:
-                if(w.opCol)
-                {
-                    si.fsmallers[ri->index(w.left.field)] = ri->index(w.col_r.field);
-                }
-                else
-                {
-                    si.smallers[ri->index(w.left.field)] = (w.val_r.type == 1 ? (void*)&w.val_r.v_int : (void*)&w.val_r.v_str);
-                }
-                break;
-            case 5:
-                if(w.opCol)
-                {
-                    si.flargers[ri->index(w.left.field)] = ri->index(w.col_r.field);
-                }
-                else
-                {
-                    si.largers[ri->index(w.left.field)] = (w.val_r.type == 1 ? (void*)&w.val_r.v_int : (void*)&w.val_r.v_str);
-                }
-                break;
+                si.fields[w.op][ri->index(w.left.field)] = ri->index(w.col_r.field);
+            }
+            else
+            {
+                si.values[w.op][ri->index(w.left.field)] = (w.val_r.type == 1 ? (void*)&w.val_r.v_int : (void*)&w.val_r.v_str);
             }
         }
     }
@@ -239,14 +183,21 @@ void DBDatabase::printOneTableSelectResult(SelectResult& sr, std::vector<bool>& 
             {
                 if(selected[i])
                 {
-                    ss.str("");
-                    switch(ri->type(i))
+                    if(dat[i] == NULL)
                     {
-                    case DBType::INT:
-                        ss << *(int*)(dat[i]);
-                        break;
+                        content[curRow][j] = "NULL";
                     }
-                    content[curRow][j] = ss.str();
+                    else
+                    {
+                        ss.str("");
+                        switch(ri->type(i))
+                        {
+                        case DBType::INT:
+                            ss << *(int*)(dat[i]);
+                            break;
+                        }
+                        content[curRow][j] = ss.str();
+                    }
                     t.content[curRow][j] = content[curRow][j].c_str();
                     j++;
                 }
@@ -259,6 +210,22 @@ void DBDatabase::printOneTableSelectResult(SelectResult& sr, std::vector<bool>& 
         DBPrint::printLine(buffer);
     }
 
+}
+
+void DBDatabase::remove(std::string name)
+{
+    DBDataFile* df = getDataFile(pTables[0]);
+    if(df == NULL)
+    {
+        pWheres.clear();
+        return;
+    }
+    df->openFile();
+    DBRecordInfo* ri = df->getRecordInfo();
+    SearchInfo si;
+    processWheresWithOneTable(si, ri);
+    //df->remove(si);
+    df->closeFile();
 }
 
 void DBDatabase::selectOneTable(bool all)

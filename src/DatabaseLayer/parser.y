@@ -58,7 +58,7 @@ tbStmt	: CREATE TABLE tbName '(' fieldList ')' { instance->createTable($3); }
 	| DROP TABLE tbName { instance->dropTable($3); }
 	| DESC tbName { instance->describeTable($2); }
 	| INSERT INTO tbName VALUES valueLists { instance->insert($3); }
-	| DELETE FROM tbName WHERE whereClause
+	| DELETE FROM tbName WHERE whereClause { instance->remove($3); }
 	| UPDATE tbName SET setClause WHERE whereClause
 	| SELECT selector FROM tableList WHERE whereClause { instance->select($2); } // unfinished
 	;

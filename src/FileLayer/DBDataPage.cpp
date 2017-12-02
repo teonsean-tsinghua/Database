@@ -113,7 +113,11 @@ void DBDataPage::filterByNull(std::map<int, bool>& nulls, std::list<std::vector<
 {
     for(int i = 0; i < records.size(); i++)
     {
-        records[i]->checkNull(nulls, datas);
+        if(records[i]->checkNull(nulls))
+        {
+            datas.push_back(std::vector<void*>());
+            records[i]->read(datas.back());
+        }
     }
 }
 
@@ -121,7 +125,11 @@ void DBDataPage::filterByValue(std::map<int, void*>& info, std::list<std::vector
 {
     for(int i = 0; i < records.size(); i++)
     {
-        records[i]->checkValue(info, datas, op);
+        if(records[i]->checkValue(info, op))
+        {
+            datas.push_back(std::vector<void*>());
+            records[i]->read(datas.back());
+        }
     }
 }
 
@@ -129,7 +137,11 @@ void DBDataPage::filterByFields(std::map<int, int>& info, std::list<std::vector<
 {
     for(int i = 0; i < records.size(); i++)
     {
-        records[i]->checkFields(info, datas, op);
+        if(records[i]->checkFields(info, op))
+        {
+            datas.push_back(std::vector<void*>());
+            records[i]->read(datas.back());
+        }
     }
 }
 

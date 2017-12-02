@@ -81,6 +81,8 @@ public:
 
     void insert(std::string name);
 
+    void remove(std::string name);
+
     void select(bool all);
 
     static void test();

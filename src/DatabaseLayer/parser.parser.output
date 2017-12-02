@@ -1,0 +1,1458 @@
+Grammar
+
+    0 $accept: program $end
+
+    1 program: program stmt
+    2        | %empty
+
+    3 stmt: sysStmt ';'
+    4     | dbStmt ';'
+    5     | tbStmt ';'
+    6     | idxStmt ';'
+
+    7 sysStmt: SHOW DATABASES
+
+    8 dbStmt: CREATE DATABASE dbName
+    9       | DROP DATABASE dbName
+   10       | USE dbName
+   11       | SHOW TABLES
+
+   12 tbStmt: CREATE TABLE tbName '(' fieldList ')'
+   13       | DROP TABLE tbName
+   14       | DESC tbName
+   15       | INSERT INTO tbName VALUES valueLists
+   16       | DELETE FROM tbName WHERE whereClause
+   17       | UPDATE tbName SET setClause WHERE whereClause
+   18       | SELECT selector FROM tableList WHERE whereClause
+
+   19 idxStmt: CREATE INDEX tbName '(' colName ')'
+   20        | DROP INDEX tbName '(' colName ')'
+
+   21 fieldList: field
+   22          | fieldList ',' field
+
+   23 field: colName type
+   24      | colName type NOT NULL_
+   25      | PRIMARY KEY '(' columnList ')'
+   26      | FOREIGN KEY '(' colName ')' REFERENCES tbName '(' colName ')'
+
+   27 type: INT_ '(' VALUE_INT ')'
+   28     | INT_
+   29     | VARCHAR_ '(' VALUE_INT ')'
+   30     | DATE_
+   31     | FLOAT_
+
+   32 valueLists: '(' valueList ')'
+   33           | valueLists ',' '(' valueList ')'
+
+   34 valueList: value
+   35          | valueList ',' value
+
+   36 value: VALUE_INT
+   37      | VALUE_STRING
+   38      | NULL_
+
+   39 whereClause: col op value
+   40            | col op col
+   41            | col IS NULL_
+   42            | col IS NOT NULL_
+   43            | whereClause AND whereClause
+
+   44 col: tbName '.' colName
+   45    | colName
+
+   46 op: '='
+   47   | NOT_EQUAL
+   48   | LESS_EQUAL
+   49   | GREATER_EQUAL
+   50   | '<'
+   51   | '>'
+
+   52 setClause: colName '=' value
+   53          | setClause ',' colName '=' value
+
+   54 selector: '*'
+   55         | colList
+
+   56 colList: colList ',' col
+   57        | col
+
+   58 tableList: tbName
+   59          | tableList ',' tbName
+
+   60 columnList: colName
+   61           | columnList ',' colName
+
+   62 dbName: IDENTIFIER
+
+   63 tbName: IDENTIFIER
+
+   64 colName: IDENTIFIER
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+'(' (40) 12 19 20 25 26 27 29 32 33
+')' (41) 12 19 20 25 26 27 29 32 33
+'*' (42) 54
+',' (44) 22 33 35 53 56 59 61
+'.' (46) 44
+';' (59) 3 4 5 6
+'<' (60) 50
+'=' (61) 46 52 53
+'>' (62) 51
+error (256)
+DATABASE (258) 8 9
+DATABASES (259) 7
+TABLE (260) 12 13
+TABLES (261) 11
+SHOW (262) 7 11
+CREATE (263) 8 12 19
+DROP (264) 9 13 20
+USE (265) 10
+PRIMARY (266) 25
+KEY (267) 25 26
+NOT (268) 24 42
+NULL_ (269) 24 38 41 42
+INSERT (270) 15
+INTO (271) 15
+VALUES (272) 15
+DELETE (273) 16
+FROM (274) 16 18
+WHERE (275) 16 17 18
+UPDATE (276) 17
+SET (277) 17
+SELECT (278) 18
+IS (279) 41 42
+INT_ (280) 27 28
+VARCHAR_ (281) 29
+DESC (282) 14
+INDEX (283) 19 20
+AND (284) 43
+DATE_ (285) 30
+FLOAT_ (286) 31
+FOREIGN (287) 26
+REFERENCES (288) 26
+IDENTIFIER (289) 62 63 64
+VALUE_STRING (290) 37
+VALUE_INT (291) 27 29 36
+NOT_EQUAL (292) 47
+GREATER_EQUAL (293) 49
+LESS_EQUAL (294) 48
+
+
+Nonterminals, with rules where they appear
+
+$accept (49)
+    on left: 0
+program (50)
+    on left: 1 2, on right: 0 1
+stmt (51)
+    on left: 3 4 5 6, on right: 1
+sysStmt (52)
+    on left: 7, on right: 3
+dbStmt (53)
+    on left: 8 9 10 11, on right: 4
+tbStmt (54)
+    on left: 12 13 14 15 16 17 18, on right: 5
+idxStmt (55)
+    on left: 19 20, on right: 6
+fieldList (56)
+    on left: 21 22, on right: 12 22
+field (57)
+    on left: 23 24 25 26, on right: 21 22
+type (58)
+    on left: 27 28 29 30 31, on right: 23 24
+valueLists (59)
+    on left: 32 33, on right: 15 33
+valueList (60)
+    on left: 34 35, on right: 32 33 35
+value (61)
+    on left: 36 37 38, on right: 34 35 39 52 53
+whereClause (62)
+    on left: 39 40 41 42 43, on right: 16 17 18 43
+col (63)
+    on left: 44 45, on right: 39 40 41 42 56 57
+op (64)
+    on left: 46 47 48 49 50 51, on right: 39 40
+setClause (65)
+    on left: 52 53, on right: 17 53
+selector (66)
+    on left: 54 55, on right: 18
+colList (67)
+    on left: 56 57, on right: 55 56
+tableList (68)
+    on left: 58 59, on right: 18 59
+columnList (69)
+    on left: 60 61, on right: 25 61
+dbName (70)
+    on left: 62, on right: 8 9 10
+tbName (71)
+    on left: 63, on right: 12 13 14 15 16 17 19 20 26 44 58 59
+colName (72)
+    on left: 64, on right: 19 20 23 24 26 44 45 52 53 60 61
+
+
+State 0
+
+    0 $accept: . program $end
+
+    $default  reduce using rule 2 (program)
+
+    program  go to state 1
+
+
+State 1
+
+    0 $accept: program . $end
+    1 program: program . stmt
+
+    $end    shift, and go to state 2
+    SHOW    shift, and go to state 3
+    CREATE  shift, and go to state 4
+    DROP    shift, and go to state 5
+    USE     shift, and go to state 6
+    INSERT  shift, and go to state 7
+    DELETE  shift, and go to state 8
+    UPDATE  shift, and go to state 9
+    SELECT  shift, and go to state 10
+    DESC    shift, and go to state 11
+
+    stmt     go to state 12
+    sysStmt  go to state 13
+    dbStmt   go to state 14
+    tbStmt   go to state 15
+    idxStmt  go to state 16
+
+
+State 2
+
+    0 $accept: program $end .
+
+    $default  accept
+
+
+State 3
+
+    7 sysStmt: SHOW . DATABASES
+   11 dbStmt: SHOW . TABLES
+
+    DATABASES  shift, and go to state 17
+    TABLES     shift, and go to state 18
+
+
+State 4
+
+    8 dbStmt: CREATE . DATABASE dbName
+   12 tbStmt: CREATE . TABLE tbName '(' fieldList ')'
+   19 idxStmt: CREATE . INDEX tbName '(' colName ')'
+
+    DATABASE  shift, and go to state 19
+    TABLE     shift, and go to state 20
+    INDEX     shift, and go to state 21
+
+
+State 5
+
+    9 dbStmt: DROP . DATABASE dbName
+   13 tbStmt: DROP . TABLE tbName
+   20 idxStmt: DROP . INDEX tbName '(' colName ')'
+
+    DATABASE  shift, and go to state 22
+    TABLE     shift, and go to state 23
+    INDEX     shift, and go to state 24
+
+
+State 6
+
+   10 dbStmt: USE . dbName
+
+    IDENTIFIER  shift, and go to state 25
+
+    dbName  go to state 26
+
+
+State 7
+
+   15 tbStmt: INSERT . INTO tbName VALUES valueLists
+
+    INTO  shift, and go to state 27
+
+
+State 8
+
+   16 tbStmt: DELETE . FROM tbName WHERE whereClause
+
+    FROM  shift, and go to state 28
+
+
+State 9
+
+   17 tbStmt: UPDATE . tbName SET setClause WHERE whereClause
+
+    IDENTIFIER  shift, and go to state 29
+
+    tbName  go to state 30
+
+
+State 10
+
+   18 tbStmt: SELECT . selector FROM tableList WHERE whereClause
+
+    IDENTIFIER  shift, and go to state 31
+    '*'         shift, and go to state 32
+
+    col       go to state 33
+    selector  go to state 34
+    colList   go to state 35
+    tbName    go to state 36
+    colName   go to state 37
+
+
+State 11
+
+   14 tbStmt: DESC . tbName
+
+    IDENTIFIER  shift, and go to state 29
+
+    tbName  go to state 38
+
+
+State 12
+
+    1 program: program stmt .
+
+    $default  reduce using rule 1 (program)
+
+
+State 13
+
+    3 stmt: sysStmt . ';'
+
+    ';'  shift, and go to state 39
+
+
+State 14
+
+    4 stmt: dbStmt . ';'
+
+    ';'  shift, and go to state 40
+
+
+State 15
+
+    5 stmt: tbStmt . ';'
+
+    ';'  shift, and go to state 41
+
+
+State 16
+
+    6 stmt: idxStmt . ';'
+
+    ';'  shift, and go to state 42
+
+
+State 17
+
+    7 sysStmt: SHOW DATABASES .
+
+    $default  reduce using rule 7 (sysStmt)
+
+
+State 18
+
+   11 dbStmt: SHOW TABLES .
+
+    $default  reduce using rule 11 (dbStmt)
+
+
+State 19
+
+    8 dbStmt: CREATE DATABASE . dbName
+
+    IDENTIFIER  shift, and go to state 25
+
+    dbName  go to state 43
+
+
+State 20
+
+   12 tbStmt: CREATE TABLE . tbName '(' fieldList ')'
+
+    IDENTIFIER  shift, and go to state 29
+
+    tbName  go to state 44
+
+
+State 21
+
+   19 idxStmt: CREATE INDEX . tbName '(' colName ')'
+
+    IDENTIFIER  shift, and go to state 29
+
+    tbName  go to state 45
+
+
+State 22
+
+    9 dbStmt: DROP DATABASE . dbName
+
+    IDENTIFIER  shift, and go to state 25
+
+    dbName  go to state 46
+
+
+State 23
+
+   13 tbStmt: DROP TABLE . tbName
+
+    IDENTIFIER  shift, and go to state 29
+
+    tbName  go to state 47
+
+
+State 24
+
+   20 idxStmt: DROP INDEX . tbName '(' colName ')'
+
+    IDENTIFIER  shift, and go to state 29
+
+    tbName  go to state 48
+
+
+State 25
+
+   62 dbName: IDENTIFIER .
+
+    $default  reduce using rule 62 (dbName)
+
+
+State 26
+
+   10 dbStmt: USE dbName .
+
+    $default  reduce using rule 10 (dbStmt)
+
+
+State 27
+
+   15 tbStmt: INSERT INTO . tbName VALUES valueLists
+
+    IDENTIFIER  shift, and go to state 29
+
+    tbName  go to state 49
+
+
+State 28
+
+   16 tbStmt: DELETE FROM . tbName WHERE whereClause
+
+    IDENTIFIER  shift, and go to state 29
+
+    tbName  go to state 50
+
+
+State 29
+
+   63 tbName: IDENTIFIER .
+
+    $default  reduce using rule 63 (tbName)
+
+
+State 30
+
+   17 tbStmt: UPDATE tbName . SET setClause WHERE whereClause
+
+    SET  shift, and go to state 51
+
+
+State 31
+
+   63 tbName: IDENTIFIER .
+   64 colName: IDENTIFIER .
+
+    '.'       reduce using rule 63 (tbName)
+    $default  reduce using rule 64 (colName)
+
+
+State 32
+
+   54 selector: '*' .
+
+    $default  reduce using rule 54 (selector)
+
+
+State 33
+
+   57 colList: col .
+
+    $default  reduce using rule 57 (colList)
+
+
+State 34
+
+   18 tbStmt: SELECT selector . FROM tableList WHERE whereClause
+
+    FROM  shift, and go to state 52
+
+
+State 35
+
+   55 selector: colList .
+   56 colList: colList . ',' col
+
+    ','  shift, and go to state 53
+
+    $default  reduce using rule 55 (selector)
+
+
+State 36
+
+   44 col: tbName . '.' colName
+
+    '.'  shift, and go to state 54
+
+
+State 37
+
+   45 col: colName .
+
+    $default  reduce using rule 45 (col)
+
+
+State 38
+
+   14 tbStmt: DESC tbName .
+
+    $default  reduce using rule 14 (tbStmt)
+
+
+State 39
+
+    3 stmt: sysStmt ';' .
+
+    $default  reduce using rule 3 (stmt)
+
+
+State 40
+
+    4 stmt: dbStmt ';' .
+
+    $default  reduce using rule 4 (stmt)
+
+
+State 41
+
+    5 stmt: tbStmt ';' .
+
+    $default  reduce using rule 5 (stmt)
+
+
+State 42
+
+    6 stmt: idxStmt ';' .
+
+    $default  reduce using rule 6 (stmt)
+
+
+State 43
+
+    8 dbStmt: CREATE DATABASE dbName .
+
+    $default  reduce using rule 8 (dbStmt)
+
+
+State 44
+
+   12 tbStmt: CREATE TABLE tbName . '(' fieldList ')'
+
+    '('  shift, and go to state 55
+
+
+State 45
+
+   19 idxStmt: CREATE INDEX tbName . '(' colName ')'
+
+    '('  shift, and go to state 56
+
+
+State 46
+
+    9 dbStmt: DROP DATABASE dbName .
+
+    $default  reduce using rule 9 (dbStmt)
+
+
+State 47
+
+   13 tbStmt: DROP TABLE tbName .
+
+    $default  reduce using rule 13 (tbStmt)
+
+
+State 48
+
+   20 idxStmt: DROP INDEX tbName . '(' colName ')'
+
+    '('  shift, and go to state 57
+
+
+State 49
+
+   15 tbStmt: INSERT INTO tbName . VALUES valueLists
+
+    VALUES  shift, and go to state 58
+
+
+State 50
+
+   16 tbStmt: DELETE FROM tbName . WHERE whereClause
+
+    WHERE  shift, and go to state 59
+
+
+State 51
+
+   17 tbStmt: UPDATE tbName SET . setClause WHERE whereClause
+
+    IDENTIFIER  shift, and go to state 60
+
+    setClause  go to state 61
+    colName    go to state 62
+
+
+State 52
+
+   18 tbStmt: SELECT selector FROM . tableList WHERE whereClause
+
+    IDENTIFIER  shift, and go to state 29
+
+    tableList  go to state 63
+    tbName     go to state 64
+
+
+State 53
+
+   56 colList: colList ',' . col
+
+    IDENTIFIER  shift, and go to state 31
+
+    col      go to state 65
+    tbName   go to state 36
+    colName  go to state 37
+
+
+State 54
+
+   44 col: tbName '.' . colName
+
+    IDENTIFIER  shift, and go to state 60
+
+    colName  go to state 66
+
+
+State 55
+
+   12 tbStmt: CREATE TABLE tbName '(' . fieldList ')'
+
+    PRIMARY     shift, and go to state 67
+    FOREIGN     shift, and go to state 68
+    IDENTIFIER  shift, and go to state 60
+
+    fieldList  go to state 69
+    field      go to state 70
+    colName    go to state 71
+
+
+State 56
+
+   19 idxStmt: CREATE INDEX tbName '(' . colName ')'
+
+    IDENTIFIER  shift, and go to state 60
+
+    colName  go to state 72
+
+
+State 57
+
+   20 idxStmt: DROP INDEX tbName '(' . colName ')'
+
+    IDENTIFIER  shift, and go to state 60
+
+    colName  go to state 73
+
+
+State 58
+
+   15 tbStmt: INSERT INTO tbName VALUES . valueLists
+
+    '('  shift, and go to state 74
+
+    valueLists  go to state 75
+
+
+State 59
+
+   16 tbStmt: DELETE FROM tbName WHERE . whereClause
+
+    IDENTIFIER  shift, and go to state 31
+
+    whereClause  go to state 76
+    col          go to state 77
+    tbName       go to state 36
+    colName      go to state 37
+
+
+State 60
+
+   64 colName: IDENTIFIER .
+
+    $default  reduce using rule 64 (colName)
+
+
+State 61
+
+   17 tbStmt: UPDATE tbName SET setClause . WHERE whereClause
+   53 setClause: setClause . ',' colName '=' value
+
+    WHERE  shift, and go to state 78
+    ','    shift, and go to state 79
+
+
+State 62
+
+   52 setClause: colName . '=' value
+
+    '='  shift, and go to state 80
+
+
+State 63
+
+   18 tbStmt: SELECT selector FROM tableList . WHERE whereClause
+   59 tableList: tableList . ',' tbName
+
+    WHERE  shift, and go to state 81
+    ','    shift, and go to state 82
+
+
+State 64
+
+   58 tableList: tbName .
+
+    $default  reduce using rule 58 (tableList)
+
+
+State 65
+
+   56 colList: colList ',' col .
+
+    $default  reduce using rule 56 (colList)
+
+
+State 66
+
+   44 col: tbName '.' colName .
+
+    $default  reduce using rule 44 (col)
+
+
+State 67
+
+   25 field: PRIMARY . KEY '(' columnList ')'
+
+    KEY  shift, and go to state 83
+
+
+State 68
+
+   26 field: FOREIGN . KEY '(' colName ')' REFERENCES tbName '(' colName ')'
+
+    KEY  shift, and go to state 84
+
+
+State 69
+
+   12 tbStmt: CREATE TABLE tbName '(' fieldList . ')'
+   22 fieldList: fieldList . ',' field
+
+    ')'  shift, and go to state 85
+    ','  shift, and go to state 86
+
+
+State 70
+
+   21 fieldList: field .
+
+    $default  reduce using rule 21 (fieldList)
+
+
+State 71
+
+   23 field: colName . type
+   24      | colName . type NOT NULL_
+
+    INT_      shift, and go to state 87
+    VARCHAR_  shift, and go to state 88
+    DATE_     shift, and go to state 89
+    FLOAT_    shift, and go to state 90
+
+    type  go to state 91
+
+
+State 72
+
+   19 idxStmt: CREATE INDEX tbName '(' colName . ')'
+
+    ')'  shift, and go to state 92
+
+
+State 73
+
+   20 idxStmt: DROP INDEX tbName '(' colName . ')'
+
+    ')'  shift, and go to state 93
+
+
+State 74
+
+   32 valueLists: '(' . valueList ')'
+
+    NULL_         shift, and go to state 94
+    VALUE_STRING  shift, and go to state 95
+    VALUE_INT     shift, and go to state 96
+
+    valueList  go to state 97
+    value      go to state 98
+
+
+State 75
+
+   15 tbStmt: INSERT INTO tbName VALUES valueLists .
+   33 valueLists: valueLists . ',' '(' valueList ')'
+
+    ','  shift, and go to state 99
+
+    $default  reduce using rule 15 (tbStmt)
+
+
+State 76
+
+   16 tbStmt: DELETE FROM tbName WHERE whereClause .
+   43 whereClause: whereClause . AND whereClause
+
+    AND  shift, and go to state 100
+
+    $default  reduce using rule 16 (tbStmt)
+
+
+State 77
+
+   39 whereClause: col . op value
+   40            | col . op col
+   41            | col . IS NULL_
+   42            | col . IS NOT NULL_
+
+    IS             shift, and go to state 101
+    NOT_EQUAL      shift, and go to state 102
+    GREATER_EQUAL  shift, and go to state 103
+    LESS_EQUAL     shift, and go to state 104
+    '<'            shift, and go to state 105
+    '>'            shift, and go to state 106
+    '='            shift, and go to state 107
+
+    op  go to state 108
+
+
+State 78
+
+   17 tbStmt: UPDATE tbName SET setClause WHERE . whereClause
+
+    IDENTIFIER  shift, and go to state 31
+
+    whereClause  go to state 109
+    col          go to state 77
+    tbName       go to state 36
+    colName      go to state 37
+
+
+State 79
+
+   53 setClause: setClause ',' . colName '=' value
+
+    IDENTIFIER  shift, and go to state 60
+
+    colName  go to state 110
+
+
+State 80
+
+   52 setClause: colName '=' . value
+
+    NULL_         shift, and go to state 94
+    VALUE_STRING  shift, and go to state 95
+    VALUE_INT     shift, and go to state 96
+
+    value  go to state 111
+
+
+State 81
+
+   18 tbStmt: SELECT selector FROM tableList WHERE . whereClause
+
+    IDENTIFIER  shift, and go to state 31
+
+    whereClause  go to state 112
+    col          go to state 77
+    tbName       go to state 36
+    colName      go to state 37
+
+
+State 82
+
+   59 tableList: tableList ',' . tbName
+
+    IDENTIFIER  shift, and go to state 29
+
+    tbName  go to state 113
+
+
+State 83
+
+   25 field: PRIMARY KEY . '(' columnList ')'
+
+    '('  shift, and go to state 114
+
+
+State 84
+
+   26 field: FOREIGN KEY . '(' colName ')' REFERENCES tbName '(' colName ')'
+
+    '('  shift, and go to state 115
+
+
+State 85
+
+   12 tbStmt: CREATE TABLE tbName '(' fieldList ')' .
+
+    $default  reduce using rule 12 (tbStmt)
+
+
+State 86
+
+   22 fieldList: fieldList ',' . field
+
+    PRIMARY     shift, and go to state 67
+    FOREIGN     shift, and go to state 68
+    IDENTIFIER  shift, and go to state 60
+
+    field    go to state 116
+    colName  go to state 71
+
+
+State 87
+
+   27 type: INT_ . '(' VALUE_INT ')'
+   28     | INT_ .
+
+    '('  shift, and go to state 117
+
+    $default  reduce using rule 28 (type)
+
+
+State 88
+
+   29 type: VARCHAR_ . '(' VALUE_INT ')'
+
+    '('  shift, and go to state 118
+
+
+State 89
+
+   30 type: DATE_ .
+
+    $default  reduce using rule 30 (type)
+
+
+State 90
+
+   31 type: FLOAT_ .
+
+    $default  reduce using rule 31 (type)
+
+
+State 91
+
+   23 field: colName type .
+   24      | colName type . NOT NULL_
+
+    NOT  shift, and go to state 119
+
+    $default  reduce using rule 23 (field)
+
+
+State 92
+
+   19 idxStmt: CREATE INDEX tbName '(' colName ')' .
+
+    $default  reduce using rule 19 (idxStmt)
+
+
+State 93
+
+   20 idxStmt: DROP INDEX tbName '(' colName ')' .
+
+    $default  reduce using rule 20 (idxStmt)
+
+
+State 94
+
+   38 value: NULL_ .
+
+    $default  reduce using rule 38 (value)
+
+
+State 95
+
+   37 value: VALUE_STRING .
+
+    $default  reduce using rule 37 (value)
+
+
+State 96
+
+   36 value: VALUE_INT .
+
+    $default  reduce using rule 36 (value)
+
+
+State 97
+
+   32 valueLists: '(' valueList . ')'
+   35 valueList: valueList . ',' value
+
+    ')'  shift, and go to state 120
+    ','  shift, and go to state 121
+
+
+State 98
+
+   34 valueList: value .
+
+    $default  reduce using rule 34 (valueList)
+
+
+State 99
+
+   33 valueLists: valueLists ',' . '(' valueList ')'
+
+    '('  shift, and go to state 122
+
+
+State 100
+
+   43 whereClause: whereClause AND . whereClause
+
+    IDENTIFIER  shift, and go to state 31
+
+    whereClause  go to state 123
+    col          go to state 77
+    tbName       go to state 36
+    colName      go to state 37
+
+
+State 101
+
+   41 whereClause: col IS . NULL_
+   42            | col IS . NOT NULL_
+
+    NOT    shift, and go to state 124
+    NULL_  shift, and go to state 125
+
+
+State 102
+
+   47 op: NOT_EQUAL .
+
+    $default  reduce using rule 47 (op)
+
+
+State 103
+
+   49 op: GREATER_EQUAL .
+
+    $default  reduce using rule 49 (op)
+
+
+State 104
+
+   48 op: LESS_EQUAL .
+
+    $default  reduce using rule 48 (op)
+
+
+State 105
+
+   50 op: '<' .
+
+    $default  reduce using rule 50 (op)
+
+
+State 106
+
+   51 op: '>' .
+
+    $default  reduce using rule 51 (op)
+
+
+State 107
+
+   46 op: '=' .
+
+    $default  reduce using rule 46 (op)
+
+
+State 108
+
+   39 whereClause: col op . value
+   40            | col op . col
+
+    NULL_         shift, and go to state 94
+    IDENTIFIER    shift, and go to state 31
+    VALUE_STRING  shift, and go to state 95
+    VALUE_INT     shift, and go to state 96
+
+    value    go to state 126
+    col      go to state 127
+    tbName   go to state 36
+    colName  go to state 37
+
+
+State 109
+
+   17 tbStmt: UPDATE tbName SET setClause WHERE whereClause .
+   43 whereClause: whereClause . AND whereClause
+
+    AND  shift, and go to state 100
+
+    $default  reduce using rule 17 (tbStmt)
+
+
+State 110
+
+   53 setClause: setClause ',' colName . '=' value
+
+    '='  shift, and go to state 128
+
+
+State 111
+
+   52 setClause: colName '=' value .
+
+    $default  reduce using rule 52 (setClause)
+
+
+State 112
+
+   18 tbStmt: SELECT selector FROM tableList WHERE whereClause .
+   43 whereClause: whereClause . AND whereClause
+
+    AND  shift, and go to state 100
+
+    $default  reduce using rule 18 (tbStmt)
+
+
+State 113
+
+   59 tableList: tableList ',' tbName .
+
+    $default  reduce using rule 59 (tableList)
+
+
+State 114
+
+   25 field: PRIMARY KEY '(' . columnList ')'
+
+    IDENTIFIER  shift, and go to state 60
+
+    columnList  go to state 129
+    colName     go to state 130
+
+
+State 115
+
+   26 field: FOREIGN KEY '(' . colName ')' REFERENCES tbName '(' colName ')'
+
+    IDENTIFIER  shift, and go to state 60
+
+    colName  go to state 131
+
+
+State 116
+
+   22 fieldList: fieldList ',' field .
+
+    $default  reduce using rule 22 (fieldList)
+
+
+State 117
+
+   27 type: INT_ '(' . VALUE_INT ')'
+
+    VALUE_INT  shift, and go to state 132
+
+
+State 118
+
+   29 type: VARCHAR_ '(' . VALUE_INT ')'
+
+    VALUE_INT  shift, and go to state 133
+
+
+State 119
+
+   24 field: colName type NOT . NULL_
+
+    NULL_  shift, and go to state 134
+
+
+State 120
+
+   32 valueLists: '(' valueList ')' .
+
+    $default  reduce using rule 32 (valueLists)
+
+
+State 121
+
+   35 valueList: valueList ',' . value
+
+    NULL_         shift, and go to state 94
+    VALUE_STRING  shift, and go to state 95
+    VALUE_INT     shift, and go to state 96
+
+    value  go to state 135
+
+
+State 122
+
+   33 valueLists: valueLists ',' '(' . valueList ')'
+
+    NULL_         shift, and go to state 94
+    VALUE_STRING  shift, and go to state 95
+    VALUE_INT     shift, and go to state 96
+
+    valueList  go to state 136
+    value      go to state 98
+
+
+State 123
+
+   43 whereClause: whereClause . AND whereClause
+   43            | whereClause AND whereClause .
+
+    $default  reduce using rule 43 (whereClause)
+
+
+State 124
+
+   42 whereClause: col IS NOT . NULL_
+
+    NULL_  shift, and go to state 137
+
+
+State 125
+
+   41 whereClause: col IS NULL_ .
+
+    $default  reduce using rule 41 (whereClause)
+
+
+State 126
+
+   39 whereClause: col op value .
+
+    $default  reduce using rule 39 (whereClause)
+
+
+State 127
+
+   40 whereClause: col op col .
+
+    $default  reduce using rule 40 (whereClause)
+
+
+State 128
+
+   53 setClause: setClause ',' colName '=' . value
+
+    NULL_         shift, and go to state 94
+    VALUE_STRING  shift, and go to state 95
+    VALUE_INT     shift, and go to state 96
+
+    value  go to state 138
+
+
+State 129
+
+   25 field: PRIMARY KEY '(' columnList . ')'
+   61 columnList: columnList . ',' colName
+
+    ')'  shift, and go to state 139
+    ','  shift, and go to state 140
+
+
+State 130
+
+   60 columnList: colName .
+
+    $default  reduce using rule 60 (columnList)
+
+
+State 131
+
+   26 field: FOREIGN KEY '(' colName . ')' REFERENCES tbName '(' colName ')'
+
+    ')'  shift, and go to state 141
+
+
+State 132
+
+   27 type: INT_ '(' VALUE_INT . ')'
+
+    ')'  shift, and go to state 142
+
+
+State 133
+
+   29 type: VARCHAR_ '(' VALUE_INT . ')'
+
+    ')'  shift, and go to state 143
+
+
+State 134
+
+   24 field: colName type NOT NULL_ .
+
+    $default  reduce using rule 24 (field)
+
+
+State 135
+
+   35 valueList: valueList ',' value .
+
+    $default  reduce using rule 35 (valueList)
+
+
+State 136
+
+   33 valueLists: valueLists ',' '(' valueList . ')'
+   35 valueList: valueList . ',' value
+
+    ')'  shift, and go to state 144
+    ','  shift, and go to state 121
+
+
+State 137
+
+   42 whereClause: col IS NOT NULL_ .
+
+    $default  reduce using rule 42 (whereClause)
+
+
+State 138
+
+   53 setClause: setClause ',' colName '=' value .
+
+    $default  reduce using rule 53 (setClause)
+
+
+State 139
+
+   25 field: PRIMARY KEY '(' columnList ')' .
+
+    $default  reduce using rule 25 (field)
+
+
+State 140
+
+   61 columnList: columnList ',' . colName
+
+    IDENTIFIER  shift, and go to state 60
+
+    colName  go to state 145
+
+
+State 141
+
+   26 field: FOREIGN KEY '(' colName ')' . REFERENCES tbName '(' colName ')'
+
+    REFERENCES  shift, and go to state 146
+
+
+State 142
+
+   27 type: INT_ '(' VALUE_INT ')' .
+
+    $default  reduce using rule 27 (type)
+
+
+State 143
+
+   29 type: VARCHAR_ '(' VALUE_INT ')' .
+
+    $default  reduce using rule 29 (type)
+
+
+State 144
+
+   33 valueLists: valueLists ',' '(' valueList ')' .
+
+    $default  reduce using rule 33 (valueLists)
+
+
+State 145
+
+   61 columnList: columnList ',' colName .
+
+    $default  reduce using rule 61 (columnList)
+
+
+State 146
+
+   26 field: FOREIGN KEY '(' colName ')' REFERENCES . tbName '(' colName ')'
+
+    IDENTIFIER  shift, and go to state 29
+
+    tbName  go to state 147
+
+
+State 147
+
+   26 field: FOREIGN KEY '(' colName ')' REFERENCES tbName . '(' colName ')'
+
+    '('  shift, and go to state 148
+
+
+State 148
+
+   26 field: FOREIGN KEY '(' colName ')' REFERENCES tbName '(' . colName ')'
+
+    IDENTIFIER  shift, and go to state 60
+
+    colName  go to state 149
+
+
+State 149
+
+   26 field: FOREIGN KEY '(' colName ')' REFERENCES tbName '(' colName . ')'
+
+    ')'  shift, and go to state 150
+
+
+State 150
+
+   26 field: FOREIGN KEY '(' colName ')' REFERENCES tbName '(' colName ')' .
+
+    $default  reduce using rule 26 (field)
