@@ -20,6 +20,7 @@ DBDatabase::DBDatabase(std::string root):
     pColumns.clear();
     pCols.clear();
     pWheres.clear();
+    buffer = new char[8192];
 }
 
 void DBDatabase::createDatabase(std::string name_)
@@ -192,6 +193,71 @@ void DBDatabase::processWheresWithOneTable(SearchInfo& si, DBRecordInfo* ri)
 
 void DBDatabase::printOneTableSelectResult(SelectResult& sr, std::vector<bool>& selected, DBRecordInfo* ri)
 {
+    int columns = 0;
+    for(int i = 0; i < selected.size(); i++)
+    {
+        if(selected[i])
+        {
+            columns++;
+        }
+    }
+    int index = 0;
+    std::list<std::vector<void*> >::iterator iter = sr.results.begin();
+    std::stringstream ss;
+    while(index <= sr.results.size())
+    {
+        int rows = std::min(40, (int)sr.results.size() + 1 - index);
+        table t;
+        t.row_num = rows;
+        t.col_num = columns;
+        t.col_max_width = (unsigned int *)malloc(sizeof(int) * t.col_num);
+        t.content = (const char ***)malloc(sizeof(const char **) * t.row_num);
+        for(int i = 0; i < rows; i++)
+        {
+            t.content[i] = (const char **)malloc(sizeof(const char *) * t.col_num);
+        }
+        int curRow = 0;
+        std::string content[rows][columns];
+        if(index == 0)
+        {
+            for(int i = 0, j = 0; i < selected.size(); i++)
+            {
+                if(selected[i])
+                {
+                    content[0][j] = ri->name(i);
+                    t.content[0][j] = content[0][j].c_str();
+                    j++;
+                }
+            }
+            curRow = 1;
+            index++;
+        }
+        for(; curRow < rows; curRow++)
+        {
+            std::vector<void*>& dat =  *iter;
+            for(int i = 0, j = 0; i < selected.size(); i++)
+            {
+                if(selected[i])
+                {
+                    ss.str("");
+                    switch(ri->type(i))
+                    {
+                    case DBType::INT:
+                        ss << *(int*)(dat[i]);
+                        break;
+                    }
+                    content[curRow][j] = ss.str();
+                    t.content[curRow][j] = content[curRow][j].c_str();
+                    j++;
+                }
+            }
+            index++;
+            iter++;
+        }
+        memset(buffer, 0, 8192);
+        format_table(&t, buffer);
+        DBPrint::printLine(buffer);
+    }
 
 }
 

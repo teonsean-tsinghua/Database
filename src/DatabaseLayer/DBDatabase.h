@@ -26,6 +26,7 @@ private:
 
     const std::string root;
     std::string name;
+    char* buffer;
 
     DBDatabase(std::string root = "/home/teon/Documents/Database");
 

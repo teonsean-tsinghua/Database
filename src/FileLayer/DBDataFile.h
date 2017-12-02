@@ -10,20 +10,17 @@ class DBDataFile;
 
 class SelectResult
 {
-private:
-    std::list<std::vector<void*> > results;
 
 public:
     SelectResult();
+
+    std::list<std::vector<void*> > results;
 
     void filterByValue(std::map<int, void*>& info, int op, DBRecordInfo* ri);
 
     void filterByFields(std::map<int, int>& info, int op, DBRecordInfo* ri);
 
     void print();
-
-    friend DBRecordSlot;
-    friend DBDataFile;
 };
 
 class DBDataFile

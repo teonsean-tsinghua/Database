@@ -6,6 +6,7 @@
 #include"utils/DBRecordInfo.h"
 #include"utils/DBCompare.h"
 #include"utils/DBException.h"
+#include"utils/DBTable.h"
 #include<ctime>
 #include<unistd.h>
 #include<string>
