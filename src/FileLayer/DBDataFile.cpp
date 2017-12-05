@@ -359,7 +359,26 @@ void DBDataFile::printFileDescription()
 void DBDataFile::printRecordDescription()
 {
     assert(open);
-    dfdp->printRecordDescription();
+    int cnt = ri->getFieldCount();
+    std::ostringstream oss;
+    for(int i = 1; i < cnt; i++)
+    {
+        oss << "    " << ri->name(i) << " " << DBType::typeName(ri->type(i));
+        if(ri->extra(i) > 0)
+        {
+            oss << "(" << ri->extra(i) << ")";
+        }
+        if(!ri->nullable(i))
+        {
+            oss << " NOT NULL";
+        }
+        if(i != cnt - 1)
+        {
+            oss << ",";
+        }
+        oss << "\n";
+    }
+    DBPrint::print(oss.str());
 }
 
 void DBDataFile::addFields(std::vector<std::string>& name, std::vector<int>& type,
@@ -567,8 +586,8 @@ void DBDataFile::insert(std::vector<void*>& fields)
 
 void DBDataFile::setPrimaryKey(const char* name)
 {
-    assert(open);
-    dfdp->setPrimaryKey(name);
+//    assert(open);
+//    dfdp->setPrimaryKey(name);
 }
 
 void DBDataFile::openFile()

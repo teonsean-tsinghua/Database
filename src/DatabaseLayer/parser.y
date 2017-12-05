@@ -61,11 +61,11 @@ tbStmt	: CREATE TABLE tbName '(' fieldList ')' { instance->createTable($3); }
 	| INSERT INTO tbName VALUES valueLists { instance->insert($3); }
 	| DELETE FROM tbName WHERE whereClause { instance->remove($3); }
 	| UPDATE tbName SET setClause WHERE whereClause { instance->update($2); }
-	| SELECT selector FROM tableList WHERE whereClause { instance->select($2); } // unfinished
+	| SELECT selector FROM tableList WHERE whereClause { instance->select($2); } //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	;
 
-idxStmt	: CREATE INDEX tbName '(' colName ')'
-	| DROP INDEX tbName '(' colName ')'
+idxStmt	: CREATE INDEX tbName '(' colName ')' //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	| DROP INDEX tbName '(' colName ')' //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	;
 
 fieldList : field { instance->addPendingField($1.name, $1.type, $1.nullable, $1.extra); }
@@ -74,8 +74,8 @@ fieldList : field { instance->addPendingField($1.name, $1.type, $1.nullable, $1.
 
 field	: colName type { $$.type = $2.type; $$.extra = $2.extra; $$.nullable = true; $$.name = $1; }
 	| colName type NOT NULL_ { $$.type = $2.type; $$.extra = $2.extra; $$.nullable = false; $$.name = $1; }
-	| PRIMARY KEY '(' columnList ')'
-	| FOREIGN KEY '(' colName ')' REFERENCES tbName '(' colName ')'
+	| PRIMARY KEY '(' columnList ')'        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	| FOREIGN KEY '(' colName ')' REFERENCES tbName '(' colName ')' //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	;
 
 type	: INT_ '(' VALUE_INT ')' { $$.type = DBType::INT; $$.extra = $3; }
