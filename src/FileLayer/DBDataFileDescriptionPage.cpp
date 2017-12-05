@@ -9,12 +9,12 @@ DBDataFileDescriptionPage::DBDataFileDescriptionPage(BufType cache, int index, i
         pis->setPageType(DBType::DATA_FILE_DESCRIPTION_PAGE);
         pis->setNextSamePage(-1);
         pis->setLengthFixed(false);
-        pis->setFirstAvailableByte(pis->size() + dfds->size());
         setFirstDataPage(-1);
         setFirstUsagePage(-1);
         setPageNumber(1);
         setRecordInfoLength(0);
         setPrimaryKeyIndex(0);
+        updateFirstAvailable();
     }
     else if(mode == MODE_PARSE)
     {
@@ -34,6 +34,11 @@ DBDataFileDescriptionPage::DBDataFileDescriptionPage(BufType cache, int index, i
             cache += name_length;
         }
     }
+}
+
+void DBDataFileDescriptionPage::updateFirstAvailable()
+{
+    pis->setFirstAvailableByte(pis->size() + sizeof(int) * 5 + ri->getRecordInfoLength());
 }
 
 void DBDataFileDescriptionPage::incrementPageNumber(int type)
@@ -78,7 +83,7 @@ void DBDataFileDescriptionPage::writeFields()
         writeString(cache, name, name_length);
         cache += name_length;
     }
-    pis->setFirstAvailableByte(pis->size() + dfds->size() + ri->getRecordInfoLength());
+    updateFirstAvailable();
 }
 
 void DBDataFileDescriptionPage::print()
@@ -170,9 +175,4 @@ DBDataFileDescriptionPage::DBDataFileDescriptionSlot::DBDataFileDescriptionSlot(
     DBSlot(cache)
 {
 
-}
-
-int DBDataFileDescriptionPage::DBDataFileDescriptionSlot::size()
-{
-    return sizeof(int) * 5;
 }

@@ -1,18 +1,25 @@
 #include"DBIndexNodePage.h"
 
+BufType DBIndexNodePage::buffer = (BufType)(new char[PAGE_SIZE]);
+
 DBIndexNodePage::DBIndexNodePage(BufType cache, int index, int pageID, int type, int mode, int keyType, int keyLength):
     DBPage(cache, index, pageID, type, mode), keyType(keyType), keyLength(keyLength)
 {
-    ins = new DBIndexNodeSlot((*this)[PAGE_INFO_SLOT_OFFSET + pis->size()], keyType, keyLength);
+    ins = new DBIndexNodeSlot((*this)[PAGE_INFO_SLOT_OFFSET + pis->size()]);
     if(mode == MODE_CREATE)
     {
-        ins->setChildrenCount(0);
-        ins->setParentNode(0);
+        setChildrenCount(0);
+        setParentNode(0);
         pis->setLengthFixed(false);
         pis->setPageType(type);
-        pis->setFirstAvailableByte(pis->size() + ins->size());
         pis->setNextSamePage(-1);
+        updateFirstAvailable();
     }
+}
+
+void DBIndexNodePage::updateFirstAvailable()
+{
+    pis->setFirstAvailableByte(pis->size() + sizeof(int) * 2 + (keyLength + sizeof(int)) * getChildrenCount());
 }
 
 void DBIndexNodePage::calcDegree(int& minDgr, int& maxDgr)
@@ -27,53 +34,137 @@ void DBIndexNodePage::split(DBIndexNodePage* src, DBIndexNodePage* dest)
     int cnt = src->getChildrenCount();
     int mid = cnt / 2;
     int len = (cnt - mid) * (sizeof(int) + src->keyLength);
-    copyData(src->ins->getKeyOfIndex(mid), dest->ins->getKeyOfIndex(0), len);
-    src->ins->setChildrenCount(mid);
-    src->pis->setFirstAvailableByte(src->pis->size() + src->ins->size());
-    dest->ins->setChildrenCount(cnt - mid);
-    dest->pis->setFirstAvailableByte(dest->pis->size() + dest->ins->size());
+    copyData(src->getKeyOfIndex(mid), dest->getKeyOfIndex(0), len);
+    src->setChildrenCount(mid);
+    src->updateFirstAvailable();
+    dest->setChildrenCount(cnt - mid);
+    dest->updateFirstAvailable();
 }
 
 void DBIndexNodePage::update(void* key, int pid)
 {
-    ins->update(key, pid);
+    int cnt = getChildrenCount();
+    if(getChildrenCount() < 0)
+    {
+        throw Exception("Invalid children count of index node.");
+    }
+    for(int i = 0; i < cnt; i++)
+    {
+        if(Equal(key, getKeyOfIndex(i), keyType, keyLength))
+        {
+            setPageOfIndex(i, pid);
+        }
+    }
 }
 
 int DBIndexNodePage::search(void* key)
 {
-    return ins->search(key);
+    int cnt = getChildrenCount();
+    if(getChildrenCount() < 0)
+    {
+        throw Exception("Invalid children count of index node.");
+    }
+    if(larger(key, getMaxKey(), keyType, keyLength))
+    {
+        return -1;
+    }
+    int i;
+    for(i = 0; i < cnt; i++)
+    {
+        if(!larger(key, getKeyOfIndex(i), keyType, keyLength))
+        {
+            break;
+        }
+    }
+    return getPageOfIndex(i);
 }
 
 int DBIndexNodePage::searchEqual(void* key)
 {
-    return ins->searchEqual(key);
+    int cnt = getChildrenCount();
+    if(getChildrenCount() < 0)
+    {
+        throw Exception("Invalid children count of index node.");
+    }
+    for(int i = 0; i < cnt; i++)
+    {
+        if(Equal(key, getKeyOfIndex(i), keyType, keyLength))
+        {
+            return getPageOfIndex(i);
+        }
+    }
+    return -1;
 }
 
 void DBIndexNodePage::setMaxKey(void* key)
 {
-    ins->setKeyOfIndex(ins->getChildrenCount() - 1, key);
+    setKeyOfIndex(getChildrenCount() - 1, key);
 }
 
 void DBIndexNodePage::insert(void* key, int pid)
 {
-    ins->insert(key, pid);
-    pis->setFirstAvailableByte(pis->getFirstAvailableByte() + keyLength + sizeof(int));
+    if(searchEqual(key) > 0)
+    {
+        //TODO:
+        throw Exception("Attempted to insert duplicate key into unique index.");
+    }
+    int cnt = getChildrenCount();
+    if(getChildrenCount() < 0)
+    {
+        throw Exception("Invalid children count of index node.");
+    }
+    if(cnt == 0 || larger(key, getMaxKey(), keyType, keyLength))
+    {
+        setPageOfIndex(cnt, pid);
+        setKeyOfIndex(cnt, key);
+        setChildrenCount(cnt + 1);
+    }
+    int i;
+    for(i = 0; i < cnt; i++)
+    {
+        if(!larger(key, getKeyOfIndex(i), keyType, keyLength))
+        {
+            break;
+        }
+    }
+    int len = (cnt - i) * (sizeof(int) + keyLength);
+    copyData(getKeyOfIndex(i), buffer, len);
+    copyData(buffer, getKeyOfIndex(i + 1), len);
+    setKeyOfIndex(i, key);
+    setPageOfIndex(i, pid);
+    setChildrenCount(cnt + 1);
+    updateFirstAvailable();
 }
 
 void DBIndexNodePage::remove(void* key)
 {
-    ins->remove(key);
-    pis->setFirstAvailableByte(pis->getFirstAvailableByte() - keyLength - sizeof(int));
+    int cnt = getChildrenCount();
+    if(getChildrenCount() < 0)
+    {
+        throw Exception("Invalid children count of index node.");
+    }
+    for(int i = 0; i < cnt; i++)
+    {
+        if(Equal(key, getKeyOfIndex(i), keyType, keyLength))
+        {
+            int len = (cnt - i - 1) * (sizeof(int) + keyLength);
+            copyData(getKeyOfIndex(i + 1), buffer, len);
+            copyData(buffer, getKeyOfIndex(i), len);
+            setChildrenCount(cnt - 1);
+            break;
+        }
+    }
+    updateFirstAvailable();
 }
 
 void DBIndexNodePage::changeKeyOfPage(int page, void* key)
 {
-    int cnt = ins->getChildrenCount();
+    int cnt = getChildrenCount();
     for(int i = 0; i < cnt; i++)
     {
-        if(ins->getPageOfIndex(i) == page)
+        if(getPageOfIndex(i) == page)
         {
-            ins->setKeyOfIndex(i, key);
+            setKeyOfIndex(i, key);
             return;
         }
     }
@@ -81,34 +172,67 @@ void DBIndexNodePage::changeKeyOfPage(int page, void* key)
 
 int DBIndexNodePage::getChildrenCount()
 {
-    return ins->getChildrenCount();
+    int re;
+	readInt((*ins)[CHILDREN_COUNT_OFFSET], &re);
+	return re;
+}
+
+void DBIndexNodePage::setChildrenCount(int n){
+	writeInt((*ins)[CHILDREN_COUNT_OFFSET], n);
+}
+
+int DBIndexNodePage::getPageOfIndex(int index)
+{
+    int re;
+    readInt((*ins)[DATA_OFFSET + index * (keyLength + sizeof(int)) + keyLength], &re);
+    return re;
+}
+
+void DBIndexNodePage::setPageOfIndex(int index, int pid)
+{
+    writeInt((*ins)[DATA_OFFSET + index * (keyLength + sizeof(int)) + keyLength], pid);
+}
+
+BufType DBIndexNodePage::getKeyOfIndex(int index)
+{
+    return (*ins)[DATA_OFFSET + index * (keyLength + sizeof(int))];
+}
+
+void DBIndexNodePage::setKeyOfIndex(int index, void* key)
+{
+    writeData((*ins)[DATA_OFFSET + index * (keyLength + sizeof(int))], (char*)key, keyLength);
 }
 
 void* DBIndexNodePage::getMaxKey()
 {
-    if(ins->getChildrenCount() <= 0)
+    if(getChildrenCount() <= 0)
     {
         return NULL;
     }
-    return (void*)(ins->getMaxKey());
+    return (*ins)[DATA_OFFSET + (sizeof(int) + keyLength) * (getChildrenCount() - 1)];
+}
+
+void* DBIndexNodePage::getMinKey()
+{
+    return (*ins)[DATA_OFFSET];
 }
 
 int DBIndexNodePage::getMinPage()
 {
-    if(ins->getChildrenCount() <= 0)
+    if(getChildrenCount() <= 0)
     {
         return -1;
     }
-    return ins->getPageOfIndex(0);
+    return getPageOfIndex(0);
 }
 
 int DBIndexNodePage::getMaxPage()
 {
-    if(ins->getChildrenCount() <= 0)
+    if(getChildrenCount() <= 0)
     {
         return -1;
     }
-    return ins->getPageOfIndex(ins->getChildrenCount() - 1);
+    return getPageOfIndex(getChildrenCount() - 1);
 }
 
 bool DBIndexNodePage::isLeaf()
@@ -116,14 +240,16 @@ bool DBIndexNodePage::isLeaf()
     return pis->getPageType() == DBType::INDEX_LEAF_PAGE;
 }
 
-void DBIndexNodePage::setParent(int pid)
+void DBIndexNodePage::setParentNode(int pid)
 {
-    ins->setParentNode(pid);
+    writeInt((*ins)[PARENT_NODE_OFFSET], pid);
 }
 
-int DBIndexNodePage::getParent()
+int DBIndexNodePage::getParentNode()
 {
-    return ins->getParentNode();
+    int re;
+	readInt((*ins)[PARENT_NODE_OFFSET], &re);
+	return re;
 }
 
 void DBIndexNodePage::print()
@@ -138,5 +264,29 @@ void DBIndexNodePage::print()
         DBPrint::printLine("This is a leaf node.");
     }
     DBPrint::print("Keys are of length ").printLine(keyLength);
-    ins->print();
+    DBPrint::print("Parent node is at ").printLine(getParentNode())
+            .print("This node has children of number ").printLine(getChildrenCount());
+    for(int i = 0; i < getChildrenCount(); i++)
+    {
+        BufType key = getKeyOfIndex(i);
+        int page = getPageOfIndex(i);
+        int re;
+        readInt(key, &re);
+        DBPrint::log("Key: ").log(re).log(", page: ").logLine(page);
+    }
+}
+
+DBIndexNodePage::DBIndexNodeSlot::DBIndexNodeSlot(BufType cache):
+    DBSlot(cache)
+{
+};
+
+DBIndexInternalPage::DBIndexInternalPage(BufType cache, int index, int pageID, int mode, int keyType, int keyLength):
+    DBIndexNodePage(cache, index, pageID, DBType::INDEX_INTERNAL_PAGE, mode, keyType, keyLength)
+{
+}
+
+DBIndexLeafPage::DBIndexLeafPage(BufType cache, int index, int pageID, int mode, int keyType, int keyLength):
+    DBIndexNodePage(cache, index, pageID, DBType::INDEX_LEAF_PAGE, mode, keyType, keyLength)
+{
 }

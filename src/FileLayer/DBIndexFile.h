@@ -2,8 +2,7 @@
 #define DBINDEXFILE_H_INCLUDED
 #include "../DBInclude.h"
 #include "DBIndexFileDescriptionPage.h"
-#include "DBIndexLeafPage.h"
-#include "DBIndexInternalPage.h"
+#include "DBIndexNodePage.h"
 #include "DBUsagePage.h"
 
 class DBIndexFile{

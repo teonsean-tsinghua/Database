@@ -2,12 +2,18 @@
 #define DBUSAGEPAGE_H_INCLUDED
 
 #include"DBPage.h"
-#include"DBUsageSlot.h"
+#include"DBSlot.h"
 #include"../DBInclude.h"
 
 class DBUsagePage: public DBPage
 {
 protected:
+    class DBUsageSlot:public DBSlot
+    {
+    public:
+        DBUsageSlot(BufType cache);
+    };
+
     DBUsageSlot* us;
 
 public:
@@ -20,8 +26,6 @@ public:
     bool withinRange(int pageID);
 
     int findFirstAvailable();
-
-    int visibleSize();
 };
 
 #endif // DBUSAGEPAGE_H_INCLUDED

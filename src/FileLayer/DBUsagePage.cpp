@@ -3,6 +3,7 @@
 DBUsagePage::DBUsagePage(BufType cache, int index, int pid, int mode):
     DBPage(cache, index, pid, DBType::USAGE_PAGE, mode)
 {
+    us = new DBUsageSlot((*this)[pis->size()]);
     if(mode == MODE_CREATE)
     {
         pis->setFirstAvailableByte(PAGE_SIZE);
@@ -11,16 +12,17 @@ DBUsagePage::DBUsagePage(BufType cache, int index, int pid, int mode):
         pis->setPageType(DBType::USAGE_PAGE);
         memset((char*)(*this)[pis->size()], 0, PAGE_SIZE - pis->size());
     }
-    us = new DBUsageSlot((*this)[pis->size()]);
 }
 
 int DBUsagePage::findFirstAvailable()
 {
-    for(int i = pis->size(); i < PAGE_SIZE; i++)
+    int head = pageID + 1;
+    int end = pageID + PAGE_SIZE - pis->size();
+    for(int i = head; i <= end; i++)
     {
-        if(us->isAvailable(i - pis->size()))
+        if(isAvailable(i))
         {
-            return pageID + i - pis->size() + 1;
+            return i;
         }
     }
     return -1;
@@ -28,7 +30,9 @@ int DBUsagePage::findFirstAvailable()
 
 bool DBUsagePage::isAvailable(int pid)
 {
-    return us->isAvailable(pid - this->pageID - 1);
+    bool re = false;
+    readCharToBool((*us)[pid - pageID - 1], &re);
+    return re;
 }
 
 bool DBUsagePage::withinRange(int pid)
@@ -42,9 +46,11 @@ bool DBUsagePage::withinRange(int pid)
 
 void DBUsagePage::setAvailable(int pid, bool available)
 {
-    us->setAvailable(pid - this->pageID - 1, available);
+    writeBoolToChar((*us)[pid - pageID - 1], available);
 }
 
-int DBUsagePage::visibleSize(){
-    return PAGE_SIZE - pis -> size();
+DBUsagePage::DBUsageSlot::DBUsageSlot(BufType cache):
+    DBSlot(cache)
+{
+
 }

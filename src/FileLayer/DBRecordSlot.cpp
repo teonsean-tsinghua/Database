@@ -147,14 +147,7 @@ void DBRecordSlot::write(std::vector<void*>& data)
         else
         {
             writeBoolToChar((*this)[offset], false);
-            switch(ri->type(i))
-            {
-            case DBType::INT:
-                writeInt((*this)[offset + 1], *(int*)data[i]);
-                break;
-            default:
-                writeData((*this)[offset + 1], ptr, ri->length(i));
-            }
+            writeData((*this)[offset + 1], ptr, ri->length(i));
         }
     }
 }
@@ -214,23 +207,10 @@ void DBRecordSlot::update(UpdateInfo& ui)
         }
         else
         {
+            writeBoolToChar((*this)[ri->offset(idx)], false);
             writeData((*this)[ri->offset(idx) + 1], ptr, ri->length(idx));
         }
     }
-}
-
-bool DBRecordSlot::compare_id(char* _id)
-{
-    if(strncmp(_id, (char*)((*this)[1]), DBType::typeSize(DBType::_ID)) == 0)
-    {
-        return true;
-    }
-    return false;
-}
-
-void DBRecordSlot::get_id(char* _id)
-{
-    read_id((*this)[1], _id);
 }
 
 void DBRecordSlot::read(std::vector<void*>& data)

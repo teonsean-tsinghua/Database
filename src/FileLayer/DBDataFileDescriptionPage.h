@@ -11,8 +11,6 @@ protected:
     {
     public:
         DBDataFileDescriptionSlot(BufType cache);
-
-        int size();
     };
 
     DBDataFileDescriptionSlot* dfds;
@@ -46,6 +44,8 @@ public:
     void writeFields();
 
     void print();
+
+    void updateFirstAvailable();
 
     static int maxRecordInfoLength();
 

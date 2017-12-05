@@ -13,10 +13,6 @@ protected:
 public:
     DBSlot(BufType cache);
 
-    int size();
-
-    virtual void print();
-
     BufType operator[](const int offset) const;
 };
 

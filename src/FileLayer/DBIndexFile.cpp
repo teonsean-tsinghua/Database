@@ -110,12 +110,12 @@ void DBIndexFile::split(DBIndexNodePage* cur)
                 {
                     throw Exception("Error in index node linked lists.");
                 }
-                tmp->setParent(new_pid);
+                tmp->setParentNode(new_pid);
                 curPage = tmp->getNextSameType();
             }
-            openNode(curPage)->setParent(new_pid);
+            openNode(curPage)->setParentNode(new_pid);
         }
-        if(cur->getParent() <= 0)
+        if(cur->getParentNode() <= 0)
         {
             int new_root = allocateNewInternalNode();
             rootNode = new_root;
@@ -123,13 +123,13 @@ void DBIndexFile::split(DBIndexNodePage* cur)
             DBIndexNodePage* new_root_node = openNode(new_root);
             new_root_node->insert(cur->getMaxKey(), cur->getPageID());
             new_root_node->insert(new_page->getMaxKey(), new_page->getPageID());
-            cur->setParent(new_root);
-            new_page->setParent(new_root);
+            cur->setParentNode(new_root);
+            new_page->setParentNode(new_root);
         }
         else
         {
-            DBIndexNodePage* parent = openNode(cur->getParent());
-            new_page->setParent(cur->getParent());
+            DBIndexNodePage* parent = openNode(cur->getParentNode());
+            new_page->setParentNode(cur->getParentNode());
             parent->changeKeyOfPage(cur->getPageID(), cur->getMaxKey());
             parent->insert(new_page->getMaxKey(), new_page->getPageID());
             split(parent);

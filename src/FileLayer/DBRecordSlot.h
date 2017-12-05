@@ -23,10 +23,6 @@ public:
 
     void update(UpdateInfo& ui);
 
-    bool compare_id(char* _id);
-
-    void get_id(char* _id);
-
     static void copy(DBRecordSlot* src, DBRecordSlot* dest, int length);
 
     void print();
