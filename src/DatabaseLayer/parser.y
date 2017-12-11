@@ -1,8 +1,8 @@
 %{
-#include "DBBase.h"
-#include "DBDatabase.h"
+#include "Base.h"
+#include "Database.h"
 
-DBDatabase* instance = DBDatabase::getInstance();
+Database* instance = Database::getInstance();
 
 extern "C"
 {
@@ -22,7 +22,7 @@ extern "C"
 %token  NOT_EQUAL GREATER_EQUAL LESS_EQUAL
 %token  ';' 	'('	')' 	','	'.' '<' '>' '=' '*'
 
-%type<m_string> dbName tbName colName
+%type<m_string> Name tbName colName
 %type<m_type> type
 %type<m_field> field
 %type<m_value> value
@@ -41,7 +41,7 @@ program	: program stmt {}
 	;
 
 stmt	: sysStmt ';' {}
-	| dbStmt ';' {}
+	| Stmt ';' {}
 	| tbStmt ';' {}
 	| idxStmt ';' {}
 	;
@@ -49,9 +49,9 @@ stmt	: sysStmt ';' {}
 sysStmt	: SHOW DATABASES { instance->showDatabases(); }
 	;
 
-dbStmt	: CREATE DATABASE dbName { instance->createDatabase($3); }
-	| DROP DATABASE dbName { instance->dropDatabase($3); }
-	| USE dbName { instance->useDatabase($2); }
+Stmt	: CREATE DATABASE Name { instance->createDatabase($3); }
+	| DROP DATABASE Name { instance->dropDatabase($3); }
+	| USE Name { instance->useDatabase($2); }
 	| SHOW TABLES { instance->showTables(); }
 	;
 
@@ -78,11 +78,11 @@ field	: colName type { $$.type = $2.type; $$.extra = $2.extra; $$.nullable = tru
 	| FOREIGN KEY '(' colName ')' REFERENCES tbName '(' colName ')' //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	;
 
-type	: INT_ '(' VALUE_INT ')' { $$.type = DBType::INT; $$.extra = $3; }
-    | INT_ { $$.type = DBType::INT; $$.extra = 0; }
-	| VARCHAR_ '(' VALUE_INT ')' { $$.type = DBType::VARCHAR; $$.extra = $3; }
-	| DATE_ { $$.type = DBType::DATE; $$.extra = 0; }
-	| FLOAT_ { $$.type = DBType::FLOAT; $$.extra = 0; }
+type	: INT_ '(' VALUE_INT ')' { $$.type = Type::INT; $$.extra = $3; }
+    | INT_ { $$.type = Type::INT; $$.extra = 0; }
+	| VARCHAR_ '(' VALUE_INT ')' { $$.type = Type::VARCHAR; $$.extra = $3; }
+	| DATE_ { $$.type = Type::DATE; $$.extra = 0; }
+	| FLOAT_ { $$.type = Type::FLOAT; $$.extra = 0; }
 	;
 
 valueLists : '(' valueList ')' { instance->addPendingValueList(); }
@@ -137,7 +137,7 @@ columnList : colName { instance->addPendingColumn($1); }
 	| columnList ',' colName { instance->addPendingColumn($3); }
 	;
 
-dbName	: IDENTIFIER { $$ = $1; }
+Name	: IDENTIFIER { $$ = $1; }
 	;
 
 tbName	: IDENTIFIER { $$ = $1; }

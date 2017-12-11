@@ -64,10 +64,10 @@
 /* Copy the first part of user declarations.  */
 #line 1 "parser.y" /* yacc.c:339  */
 
-#include "DBBase.h"
-#include "DBDatabase.h"
+#include "Base.h"
+#include "Database.h"
 
-DBDatabase* instance = DBDatabase::getInstance();
+Database* instance = Database::getInstance();
 
 extern "C"
 {
@@ -523,9 +523,9 @@ static const char *const yytname[] =
   "DATE_", "FLOAT_", "FOREIGN", "REFERENCES", "IDENTIFIER", "VALUE_STRING",
   "VALUE_INT", "NOT_EQUAL", "GREATER_EQUAL", "LESS_EQUAL", "';'", "'('",
   "')'", "','", "'.'", "'<'", "'>'", "'='", "'*'", "$accept", "program",
-  "stmt", "sysStmt", "dbStmt", "tbStmt", "idxStmt", "fieldList", "field",
+  "stmt", "sysStmt", "Stmt", "tbStmt", "idxStmt", "fieldList", "field",
   "type", "valueLists", "valueList", "value", "whereClause", "col", "op",
-  "setClause", "selector", "colList", "tableList", "columnList", "dbName",
+  "setClause", "selector", "colList", "tableList", "columnList", "Name",
   "tbName", "colName", YY_NULLPTR
 };
 #endif
@@ -1506,31 +1506,31 @@ yyreduce:
 
   case 28:
 #line 81 "parser.y" /* yacc.c:1646  */
-    { (yyval.m_type).type = DBType::INT; (yyval.m_type).extra = (yyvsp[-1].m_int); }
+    { (yyval.m_type).type = Type::INT; (yyval.m_type).extra = (yyvsp[-1].m_int); }
 #line 1511 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 29:
 #line 82 "parser.y" /* yacc.c:1646  */
-    { (yyval.m_type).type = DBType::INT; (yyval.m_type).extra = 0; }
+    { (yyval.m_type).type = Type::INT; (yyval.m_type).extra = 0; }
 #line 1517 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
 #line 83 "parser.y" /* yacc.c:1646  */
-    { (yyval.m_type).type = DBType::VARCHAR; (yyval.m_type).extra = (yyvsp[-1].m_int); }
+    { (yyval.m_type).type = Type::VARCHAR; (yyval.m_type).extra = (yyvsp[-1].m_int); }
 #line 1523 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 31:
 #line 84 "parser.y" /* yacc.c:1646  */
-    { (yyval.m_type).type = DBType::DATE; (yyval.m_type).extra = 0; }
+    { (yyval.m_type).type = Type::DATE; (yyval.m_type).extra = 0; }
 #line 1529 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
 #line 85 "parser.y" /* yacc.c:1646  */
-    { (yyval.m_type).type = DBType::FLOAT; (yyval.m_type).extra = 0; }
+    { (yyval.m_type).type = Type::FLOAT; (yyval.m_type).extra = 0; }
 #line 1535 "y.tab.c" /* yacc.c:1646  */
     break;
 

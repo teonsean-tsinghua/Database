@@ -1,16 +1,15 @@
-#include"DBInclude.h"
-#include"FileLayer/DBFileInclude.h"
-#include"DatabaseLayer/DBDatabaseInclude.h"
+#include"Include.h"
+#include"DatabaseLayer/Database.h"
 using namespace std;
 
 int main()
 {
     srand((unsigned)time(NULL));
 //    freopen("test.out", "w", stdout);
-//    DBIndexFile::test();
+//    IndexFile::test();
     try
     {
-        DBDatabase::test();
+        Database::test();
     }
     catch(Exception& e)
     {
@@ -18,3 +17,4 @@ int main()
     }
     return 0;
 }
+
