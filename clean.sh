@@ -1,3 +1,3 @@
 #! /bin/bash
-rm */*.o
-rm */*/*.o
+find . -name "*.o"  | xargs rm -f
+rm dbms
