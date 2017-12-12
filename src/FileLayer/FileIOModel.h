@@ -1,8 +1,7 @@
 #ifndef FILEIOMODEL_H_INCLUDED
 #define FILEIOMODEL_H_INCLUDED
 
-#include"../external/bufmanager/BufPageManager.h"
-#include"../Include.h"
+#include"Include.h"
 
 /*
  * All the methods needed to process file IO are provided here.

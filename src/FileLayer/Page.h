@@ -2,7 +2,7 @@
 #define PAGE_H_INCLUDED
 
 #include"PageInfoSlot.h"
-#include"../Include.h"
+#include"Include.h"
 
 class Page
 {

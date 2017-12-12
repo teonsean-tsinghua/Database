@@ -1,6 +1,6 @@
 #ifndef INDEXFILE_H_INCLUDED
 #define INDEXFILE_H_INCLUDED
-#include "../Include.h"
+#include "Include.h"
 #include "IndexFileDescriptionPage.h"
 #include "IndexNodePage.h"
 #include "UsagePage.h"

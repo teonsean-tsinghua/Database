@@ -1,9 +1,7 @@
 #ifndef DATABASE_H_INCLUDED
 #define DATABASE_H_INCLUDED
 
-#include"../Include.h"
-#include"../FileLayer/DataFile.h"
-#include"../FileLayer/IndexFile.h"
+#include"Include.h"
 #include"Base.h"
 #include"y.tab.h"
 

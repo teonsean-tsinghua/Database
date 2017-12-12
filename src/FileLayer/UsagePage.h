@@ -3,7 +3,7 @@
 
 #include"Page.h"
 #include"Slot.h"
-#include"../Include.h"
+#include"Include.h"
 
 class UsagePage: public Page
 {

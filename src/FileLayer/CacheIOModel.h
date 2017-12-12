@@ -1,7 +1,7 @@
 #ifndef CACHEIOMODEL_H_INCLUDED
 #define CACHEIOMODEL_H_INCLUDED
 
-#include"../Include.h"
+#include"Include.h"
 #include"FileIOModel.h"
 
 void readInt(BufType cache, int *n);
