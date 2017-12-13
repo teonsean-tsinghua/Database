@@ -42,7 +42,7 @@ struct Set
 struct Where
 {
     int type; // 0-is null, 1-not null, 2-op
-    int op; // 0-=, 1-!=, 2-<=, 3->=, 4-<, 5->
+    int op; // 0-=, 1-<=, 2->=, 3-<, 4->, 5-<>
     bool opCol;
     Col left;
     Col col_r;

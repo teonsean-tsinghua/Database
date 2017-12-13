@@ -1,23 +1,23 @@
-#ifndef DATAFILEDESCRIPTIONPAGE_H_INCLUDED
-#define DATAFILEDESCRIPTIONPAGE_H_INCLUDED
+#ifndef DATAFILEDESCPAGE_H_INCLUDED
+#define DATAFILEDESCPAGE_H_INCLUDED
 
 #include"Page.h"
 #include"Slot.h"
 
-class DataFileDescriptionPage: public Page
+class DataFileDescPage: public Page
 {
 protected:
-    class DataFileDescriptionSlot:public Slot
+    class DataFileDescSlot:public Slot
     {
     public:
-        DataFileDescriptionSlot(BufType cache);
+        DataFileDescSlot(BufType cache);
     };
 
-    DataFileDescriptionSlot* dfds;
+    DataFileDescSlot* dfds;
     RecordInfo* ri;
 
 public:
-    DataFileDescriptionPage(BufType cache, int index, int pageID, bool parse, RecordInfo* ri);
+    DataFileDescPage(BufType cache, int index, int pageID, bool parse, RecordInfo* ri);
 
     int getFirstDataPage();
 
@@ -63,4 +63,4 @@ public:
     const static int RECORD_INFO_NAME_OFFSET = RECORD_INFO_NAME_LENGTH_OFFSET + sizeof(int);
 };
 
-#endif // DATAFILEDESCRIPTIONPAGE_H_INCLUDED
+#endif // DATAFILEDESCPAGE_H_INCLUDED

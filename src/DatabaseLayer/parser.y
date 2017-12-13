@@ -110,11 +110,11 @@ col	: tbName '.' colName { $$.table = $1; $$.field = $3; }
 	;
 
 op	: '=' { $$ = 0; }
-	| NOT_EQUAL { $$ = 1; }
-	| LESS_EQUAL { $$ = 2; }
-	| GREATER_EQUAL { $$ = 3; }
-	| '<' { $$ = 4; }
-	| '>' { $$ = 5; }
+	| NOT_EQUAL { $$ = 5; }
+	| LESS_EQUAL { $$ = 1; }
+	| GREATER_EQUAL { $$ = 2; }
+	| '<' { $$ = 3; }
+	| '>' { $$ = 4; }
 	;
 
 setClause : colName '=' value { $$.field = $1; $$.value = $3; instance->addPendingSet($$); }

@@ -1,12 +1,12 @@
-#include"DataFileDescriptionPage.h"
+#include"DataFileDescPage.h"
 
-DataFileDescriptionPage::DataFileDescriptionPage(BufType cache, int index, int pageID, bool parse, RecordInfo* ri):
-    Page(cache, index, pageID, Type::DATA_FILE_DESCRIPTION_PAGE)
+DataFileDescPage::DataFileDescPage(BufType cache, int index, int pageID, bool parse, RecordInfo* ri):
+    Page(cache, index, pageID, Type::DATA_FILE_DESC_PAGE)
 {
-    dfds = new DataFileDescriptionSlot((*this)[PAGE_INFO_SLOT_OFFSET + pis->size()]);
+    dfds = new DataFileDescSlot((*this)[PAGE_INFO_SLOT_OFFSET + pis->size()]);
     if(!parse)
     {
-        pis->setPageType(Type::DATA_FILE_DESCRIPTION_PAGE);
+        pis->setPageType(Type::DATA_FILE_DESC_PAGE);
         pis->setNextSamePage(-1);
         pis->setLengthFixed(false);
         setFirstDataPage(-1);
@@ -36,12 +36,12 @@ DataFileDescriptionPage::DataFileDescriptionPage(BufType cache, int index, int p
     }
 }
 
-void DataFileDescriptionPage::updateFirstAvailable()
+void DataFileDescPage::updateFirstAvailable()
 {
     pis->setFirstAvailableByte(pis->size() + sizeof(int) * 5 + ri->getRecordInfoLength());
 }
 
-void DataFileDescriptionPage::incrementPageNumber(int type)
+void DataFileDescPage::incrementPageNumber(int type)
 {
     setPageNumber(getPageNumber() + 1);
     switch(type)
@@ -61,12 +61,12 @@ void DataFileDescriptionPage::incrementPageNumber(int type)
     }
 }
 
-int DataFileDescriptionPage::maxRecordInfoLength()
+int DataFileDescPage::maxRecordInfoLength()
 {
     return PAGE_SIZE - PageInfoSlot::size();
 }
 
-void DataFileDescriptionPage::writeFields()
+void DataFileDescPage::writeFields()
 {
     setRecordInfoLength(ri->getRecordInfoLength());
     char* cache = (char*)((*dfds)[RECORD_INFO_OFFSET]);
@@ -86,7 +86,7 @@ void DataFileDescriptionPage::writeFields()
     updateFirstAvailable();
 }
 
-void DataFileDescriptionPage::print()
+void DataFileDescPage::print()
 {
     Page::print();
     int cnt = ri->getFieldCount();
@@ -111,67 +111,67 @@ void DataFileDescriptionPage::print()
     }
 }
 
-int DataFileDescriptionPage::getFirstDataPage()
+int DataFileDescPage::getFirstDataPage()
 {
     int re;
     readInt((*dfds)[FIRST_DATA_PAGE_OFFSET], &re);
     return re;
 }
 
-int DataFileDescriptionPage::getFirstUsagePage()
+int DataFileDescPage::getFirstUsagePage()
 {
     int re;
     readInt((*dfds)[FIRST_USAGE_PAGE_OFFSET], &re);
     return re;
 }
 
-int DataFileDescriptionPage::getPageNumber()
+int DataFileDescPage::getPageNumber()
 {
     int re;
     readInt((*dfds)[PAGE_NUMBER_OFFSET], &re);
     return re;
 }
 
-int DataFileDescriptionPage::getRecordInfoLength()
+int DataFileDescPage::getRecordInfoLength()
 {
     int re;
     readInt((*dfds)[RECORD_INFO_LENGTH_OFFSET], &re);
     return re;
 }
 
-int DataFileDescriptionPage::getPrimaryKeyIndex()
+int DataFileDescPage::getPrimaryKeyIndex()
 {
     int re;
     readInt((*dfds)[PRIMARY_KEY_INDEX_OFFSET], &re);
     return re;
 }
 
-void DataFileDescriptionPage::setFirstDataPage(int n)
+void DataFileDescPage::setFirstDataPage(int n)
 {
     writeInt((*dfds)[FIRST_DATA_PAGE_OFFSET], n);
 }
 
-void DataFileDescriptionPage::setFirstUsagePage(int n)
+void DataFileDescPage::setFirstUsagePage(int n)
 {
     writeInt((*dfds)[FIRST_USAGE_PAGE_OFFSET], n);
 }
 
-void DataFileDescriptionPage::setPageNumber(int n)
+void DataFileDescPage::setPageNumber(int n)
 {
     writeInt((*dfds)[PAGE_NUMBER_OFFSET], n);
 }
 
-void DataFileDescriptionPage::setRecordInfoLength(int n)
+void DataFileDescPage::setRecordInfoLength(int n)
 {
     writeInt((*dfds)[RECORD_INFO_LENGTH_OFFSET], n);
 }
 
-void DataFileDescriptionPage::setPrimaryKeyIndex(int n)
+void DataFileDescPage::setPrimaryKeyIndex(int n)
 {
     writeInt((*dfds)[PRIMARY_KEY_INDEX_OFFSET], n);
 }
 
-DataFileDescriptionPage::DataFileDescriptionSlot::DataFileDescriptionSlot(BufType cache):
+DataFileDescPage::DataFileDescSlot::DataFileDescSlot(BufType cache):
     Slot(cache)
 {
 

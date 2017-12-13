@@ -3,7 +3,7 @@
 
 #include"../utils/Print.h"
 #include"../utils/Type.h"
-#include"../utils/RecordInfo.h"
+#include"../utils/Info.h"
 #include"../utils/Compare.h"
 #include"../utils/Exception.h"
 #include"../utils/Table.h"

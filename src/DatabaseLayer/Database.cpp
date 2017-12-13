@@ -20,7 +20,6 @@ Database::Database(std::string root):
     pColumns.clear();
     pCols.clear();
     pWheres.clear();
-    buffer = new char[8192];
 }
 
 void Database::createDatabase(std::string name_)
@@ -79,172 +78,6 @@ void Database::addPendingValueList()
     pValues.clear();
 }
 
-bool Database::processWheresWithOneTable(SearchInfo& si, RecordInfo* ri, std::string tbname)
-{
-    bool flag = true;
-    for(int i = 0; i < pWheres.size(); i++)
-    {
-        Where& w = pWheres[i];
-        if(w.left.table != "" &&
-           w.left.table != tbname)
-        {
-            Print::printLine("Table " + w.left.table + " is not selected.");
-            flag = false;
-        }
-        else if(ri->index(w.left.field) < 0)
-        {
-            Print::printLine("Table " + tbname + " does not have field" + w.left.field + ".");
-            flag = false;
-        }
-        if(w.type == 2 && w.opCol)
-        {
-            if(w.col_r.table != "" && w.col_r.table != tbname)
-            {
-                throw Exception("Table " + w.col_r.table + " is not selected.");
-                flag = false;
-            }
-            else if(ri->index(w.col_r.field) < 0)
-            {
-                Print::printLine("Table " + tbname + " does not have field" + w.col_r.field + ".");
-                flag = false;
-            }
-        }
-    }
-    if(!flag)
-    {
-        pWheres.clear();
-        return false;
-    }
-    for(int i = 0; i < pWheres.size(); i++)
-    {
-        Where& w = pWheres[i];
-        switch(w.type)
-        {
-        case 0:
-            if(si.nulls.count(ri->index(w.left.field)))
-            {
-                if(!si.nulls[ri->index(w.left.field)])
-                {
-                    pWheres.clear();
-                    return false;
-                }
-            }
-            si.nulls[ri->index(w.left.field)] = true;
-            break;
-        case 1:
-            if(si.nulls.count(ri->index(w.left.field)))
-            {
-                if(si.nulls[ri->index(w.left.field)])
-                {
-                    pWheres.clear();
-                    return false;
-                }
-            }
-            si.nulls[ri->index(w.left.field)] = false;
-            break;
-        case 2:
-            if(w.opCol)
-            {
-                if(!si.fields[w.op].count(ri->index(w.left.field)))
-                {
-                    si.fields[w.op][ri->index(w.left.field)] = std::vector<int>();
-                }
-                si.fields[w.op][ri->index(w.left.field)].push_back(ri->index(w.col_r.field));
-            }
-            else
-            {
-                if(!si.values[w.op].count(ri->index(w.left.field)))
-                {
-                    si.values[w.op][ri->index(w.left.field)] = std::vector<void*>();
-                }
-                si.values[w.op][ri->index(w.left.field)].push_back((w.val_r.type == 1 ? (void*)&w.val_r.v_int : (void*)&w.val_r.v_str));
-            }
-        }
-    }
-}
-
-void Database::printOneTableSelectResult(SelectResult& sr, std::vector<bool>& selected, RecordInfo* ri)
-{
-    int columns = 0;
-    for(int i = 0; i < selected.size(); i++)
-    {
-        if(selected[i])
-        {
-            columns++;
-        }
-    }
-    int index = 0;
-    std::list<std::vector<void*> >::iterator iter = sr.results.begin();
-    std::stringstream ss;
-    while(index <= sr.results.size())
-    {
-        int rows = std::min(40, (int)sr.results.size() + 1 - index);
-        table t;
-        t.row_num = rows;
-        t.col_num = columns;
-        t.col_max_width = (unsigned int *)malloc(sizeof(int) * t.col_num);
-        t.content = (const char ***)malloc(sizeof(const char **) * t.row_num);
-        for(int i = 0; i < rows; i++)
-        {
-            t.content[i] = (const char **)malloc(sizeof(const char *) * t.col_num);
-        }
-        int curRow = 0;
-        std::string content[rows][columns];
-        if(index == 0)
-        {
-            for(int i = 0, j = 0; i < selected.size(); i++)
-            {
-                if(selected[i])
-                {
-                    content[0][j] = ri->name(i);
-                    t.content[0][j] = content[0][j].c_str();
-                    j++;
-                }
-            }
-            curRow = 1;
-            index++;
-            t.b = true;
-        }
-        else
-        {
-            t.b = false;
-        }
-        for(; curRow < rows; curRow++)
-        {
-            std::vector<void*>& dat =  *iter;
-            for(int i = 0, j = 0; i < selected.size(); i++)
-            {
-                if(selected[i])
-                {
-                    if(dat[i] == NULL)
-                    {
-                        content[curRow][j] = "NULL";
-                    }
-                    else
-                    {
-                        ss.str("");
-                        switch(ri->type(i))
-                        {
-                        case Type::INT:
-                            ss << *(int*)(dat[i]);
-                            break;
-                        }
-                        content[curRow][j] = ss.str();
-                    }
-                    t.content[curRow][j] = content[curRow][j].c_str();
-                    j++;
-                }
-            }
-            index++;
-            iter++;
-        }
-        memset(buffer, 0, 8192);
-        format_table(&t, buffer);
-        Print::print(buffer);
-    }
-
-}
-
 void Database::processSets(UpdateInfo& ui, RecordInfo* ri, std::string tbname)
 {
     bool flag = true;
@@ -292,9 +125,8 @@ void Database::update(std::string name)
     df->openFile();
     RecordInfo* ri = df->getRecordInfo();
     SearchInfo si;
-    processWheresWithOneTable(si, ri, name);
     UpdateInfo ui;
-    if(!processWheresWithOneTable(si, ri, name))
+    if(!si.processWheresWithOneTable(pWheres, ri, name))
     {
         pWheres.clear();
         throw Exception("Conflict in where clauses.");
@@ -317,7 +149,7 @@ void Database::remove(std::string name)
     df->openFile();
     RecordInfo* ri = df->getRecordInfo();
     SearchInfo si;
-    if(!processWheresWithOneTable(si, ri, name))
+    if(!si.processWheresWithOneTable(pWheres, ri, name))
     {
         throw Exception("Conflict in where clauses.");
     }
@@ -339,7 +171,6 @@ void Database::selectOneTable(bool all)
     }
     std::vector<bool> selected;
     df->openFile();
-    df->printAllRecords();
     RecordInfo* ri = df->getRecordInfo();
     if(all)
     {
@@ -377,14 +208,14 @@ void Database::selectOneTable(bool all)
         }
     }
     SearchInfo si;
-    if(!processWheresWithOneTable(si, ri, pTables[0]))
+    if(!si.processWheresWithOneTable(pWheres, ri, pTables[0]))
     {
         pWheres.clear();
         throw Exception("Conflict in where clauses.");
     }
     SelectResult sr;
     df->select(si, sr);
-    printOneTableSelectResult(sr, selected, ri);
+    Table::print(selected, ri, sr, df);
     pWheres.clear();
     pTables.clear();
     pCols.clear();
@@ -548,7 +379,7 @@ void Database::useDatabase(std::string name_)
     }
     if (opendir(path.c_str()) == NULL)
     {
-        throw Exception(" is not a Database.");
+        throw Exception(" is not a database.");
     }
     name = name_;
     data.clear();
@@ -605,7 +436,7 @@ void Database::describeTable(std::string name_)
     }
     df->openFile();
     Print::printLine("TABLE " + name_ + "(");
-    df->printRecordDescription();
+    df->printRecordDesc();
     Print::printLine(")");
     df->closeFile();
 }

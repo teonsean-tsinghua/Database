@@ -1,12 +1,12 @@
-#include"IndexFileDescriptionPage.h"
+#include"IndexFileDescPage.h"
 
-IndexFileDescriptionPage::IndexFileDescriptionPage(BufType cache, int index, int pageID, bool parse, int type, int length):
-    Page(cache, index, pageID, Type::INDEX_FILE_DESCRIPTION_PAGE)
+IndexFileDescPage::IndexFileDescPage(BufType cache, int index, int pageID, bool parse, int type, int length):
+    Page(cache, index, pageID, Type::INDEX_FILE_DESC_PAGE)
 {
-    ifds = new IndexFileDescriptionSlot((*this)[PAGE_INFO_SLOT_OFFSET + pis->size()]);
+    ifds = new IndexFileDescSlot((*this)[PAGE_INFO_SLOT_OFFSET + pis->size()]);
     if(!parse)
     {
-        pis->setPageType(Type::INDEX_FILE_DESCRIPTION_PAGE);
+        pis->setPageType(Type::INDEX_FILE_DESC_PAGE);
         pis->setNextSamePage(-1);
         pis->setLengthFixed(false);
         pis->setFirstAvailableByte(pis->size() + ifds->size());
@@ -18,12 +18,12 @@ IndexFileDescriptionPage::IndexFileDescriptionPage(BufType cache, int index, int
     }
 }
 
-void IndexFileDescriptionPage::incrementPageNumber()
+void IndexFileDescPage::incrementPageNumber()
 {
     setPageNumber(getPageNumber() + 1);
 }
 
-void IndexFileDescriptionPage::print()
+void IndexFileDescPage::print()
 {
     Page::print();
     Print::print("This file has pages of number ").printLine(getPageNumber())
@@ -32,73 +32,73 @@ void IndexFileDescriptionPage::print()
             .print("Keys are of type ").printLine(Type::typeName(getKeyType()));
 }
 
-IndexFileDescriptionPage::IndexFileDescriptionSlot::IndexFileDescriptionSlot(BufType cache):
+IndexFileDescPage::IndexFileDescSlot::IndexFileDescSlot(BufType cache):
     Slot(cache)
 {
 
 }
 
-int IndexFileDescriptionPage::IndexFileDescriptionSlot::size()
+int IndexFileDescPage::IndexFileDescSlot::size()
 {
     return sizeof(int) * 4;
 }
 
-int IndexFileDescriptionPage::getFirstLeafPage()
+int IndexFileDescPage::getFirstLeafPage()
 {
     int re;
     readInt((*ifds)[FIRST_LEAF_PAGE_OFFSET], &re);
     return re;
 }
 
-int IndexFileDescriptionPage::getPageNumber()
+int IndexFileDescPage::getPageNumber()
 {
     int re;
     readInt((*ifds)[PAGE_NUMBER_OFFSET], &re);
     return re;
 }
 
-int IndexFileDescriptionPage::getRootPage()
+int IndexFileDescPage::getRootPage()
 {
     int re;
     readInt((*ifds)[ROOT_PAGE_OFFSET], &re);
     return re;
 }
 
-int IndexFileDescriptionPage::getKeyType()
+int IndexFileDescPage::getKeyType()
 {
     int re;
     readInt((*ifds)[KEY_TYPE_OFFSET], &re);
     return re;
 }
 
-int IndexFileDescriptionPage::getKeyLength()
+int IndexFileDescPage::getKeyLength()
 {
     int re;
     readInt((*ifds)[KEY_LENGTH_OFFSET], &re);
     return re;
 }
 
-void IndexFileDescriptionPage::setFirstLeafPage(int n)
+void IndexFileDescPage::setFirstLeafPage(int n)
 {
     writeInt((*ifds)[FIRST_LEAF_PAGE_OFFSET], n);
 }
 
-void IndexFileDescriptionPage::setPageNumber(int n)
+void IndexFileDescPage::setPageNumber(int n)
 {
     writeInt((*ifds)[PAGE_NUMBER_OFFSET], n);
 }
 
-void IndexFileDescriptionPage::setRootPage(int n)
+void IndexFileDescPage::setRootPage(int n)
 {
     writeInt((*ifds)[ROOT_PAGE_OFFSET], n);
 }
 
-void IndexFileDescriptionPage::setKeyType(int n)
+void IndexFileDescPage::setKeyType(int n)
 {
     writeInt((*ifds)[KEY_TYPE_OFFSET], n);
 }
 
-void IndexFileDescriptionPage::setKeyLength(int n)
+void IndexFileDescPage::setKeyLength(int n)
 {
     writeInt((*ifds)[KEY_LENGTH_OFFSET], n);
 }

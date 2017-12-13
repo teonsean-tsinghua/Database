@@ -22,6 +22,11 @@ DataPage::DataPage(BufType cache, int index, int pageID, bool parse, RecordInfo*
     }
 }
 
+void DataPage::read(int i, std::vector<void*>& data)
+{
+    records[i]->read(data);
+}
+
 int DataPage::update(SearchInfo& si, UpdateInfo& ui)
 {
     int cnt = 0;
@@ -113,38 +118,13 @@ int DataPage::remove(SearchInfo& si)
     return cnt;
 }
 
-void DataPage::filterByNull(std::map<int, bool>& nulls, std::list<std::vector<void*> >& datas)
+void DataPage::select(SearchInfo& si, SelectResult& sr)
 {
     for(int i = 0; i < records.size(); i++)
     {
-        if(records[i]->checkNull(nulls))
+        if(records[i]->check(si))
         {
-            datas.push_back(std::vector<void*>());
-            records[i]->read(datas.back());
-        }
-    }
-}
-
-void DataPage::filterByValue(std::map<int, vector<void*> >& info, std::list<std::vector<void*> >& datas, int op)
-{
-    for(int i = 0; i < records.size(); i++)
-    {
-        if(records[i]->checkValue(info, op))
-        {
-            datas.push_back(std::vector<void*>());
-            records[i]->read(datas.back());
-        }
-    }
-}
-
-void DataPage::filterByFields(std::map<int, vector<int> >& info, std::list<std::vector<void*> >& datas, int op)
-{
-    for(int i = 0; i < records.size(); i++)
-    {
-        if(records[i]->checkFields(info, op))
-        {
-            datas.push_back(std::vector<void*>());
-            records[i]->read(datas.back());
+            sr.results.push_back(PAGE_SIZE * pageID + i);
         }
     }
 }

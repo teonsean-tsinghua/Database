@@ -1,24 +1,24 @@
-#ifndef INDEXFILEDESCRIPTIONPAGE_H_INCLUDED
-#define INDEXFILEDESCRIPTIONPAGE_H_INCLUDED
+#ifndef INDEXFILEDESCPAGE_H_INCLUDED
+#define INDEXFILEDESCPAGE_H_INCLUDED
 
 #include"Page.h"
 #include"Slot.h"
 
-class IndexFileDescriptionPage: public Page
+class IndexFileDescPage: public Page
 {
 protected:
-    class IndexFileDescriptionSlot: public Slot
+    class IndexFileDescSlot: public Slot
     {
     public:
-        IndexFileDescriptionSlot(BufType cache);
+        IndexFileDescSlot(BufType cache);
 
         int size();
     };
 
-    IndexFileDescriptionSlot* ifds;
+    IndexFileDescSlot* ifds;
 
 public:
-    IndexFileDescriptionPage(BufType cache, int index, int pageID, bool parse, int type = -1, int length = -1);
+    IndexFileDescPage(BufType cache, int index, int pageID, bool parse, int type = -1, int length = -1);
 
     void incrementPageNumber();
 
@@ -51,4 +51,4 @@ public:
     const static int KEY_LENGTH_OFFSET = KEY_TYPE_OFFSET + sizeof(int);
 };
 
-#endif // INDEXFILEDESCRIPTIONPAGE_H_INCLUDED
+#endif // INDEXFILEDESCPAGE_H_INCLUDED

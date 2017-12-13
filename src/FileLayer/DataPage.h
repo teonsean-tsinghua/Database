@@ -18,15 +18,13 @@ public:
 
     void print();
 
+    void read(int i, std::vector<void*>& data);
+
     void printAllRecords();
 
     int remove(SearchInfo& si);
 
-    void filterByNull(std::map<int, bool>& nulls, std::list<std::vector<void*> >& datas);
-
-    void filterByValue(std::map<int, std::vector<void*> >& info, std::list<std::vector<void*> >& datas, int op);
-
-    void filterByFields(std::map<int, std::vector<int> >& info, std::list<std::vector<void*> >& datas, int op);
+    void select(SearchInfo& si, SelectResult& sr);
 
     int update(SearchInfo& si, UpdateInfo& ui);
 

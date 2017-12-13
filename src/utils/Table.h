@@ -1,18 +1,18 @@
 #ifndef TABLE_H_INCLUDED
 #define TABLE_H_INCLUDED
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <memory.h>
-#include <string.h>
-typedef struct TABLE {
-  unsigned int row_num;
-  unsigned int col_num;
-  unsigned int *col_max_width;
-  const char ***content;
-  bool b;
-} table;
+#include"Info.h"
+#include"Type.h"
+#include<iostream>
+#include<iomanip>
 
-extern void format_table(table *t, char *formated_out);
+class DataFile;
+
+class Table
+{
+public:
+	static void print(std::vector<bool>& selected, RecordInfo* ri, SelectResult& sr, DataFile* df);
+
+};
 
 #endif // TABLE_H_INCLUDED

@@ -1,7 +1,7 @@
 #ifndef INDEXFILE_H_INCLUDED
 #define INDEXFILE_H_INCLUDED
 #include "Include.h"
-#include "IndexFileDescriptionPage.h"
+#include "IndexFileDescPage.h"
 #include "IndexNodePage.h"
 #include "UsagePage.h"
 
@@ -11,7 +11,7 @@ private:
     int keyLength;
     int keyType;
     FileIOModel* fm;
-    IndexFileDescriptionPage* ifdp;
+    IndexFileDescPage* ifdp;
     std::map<int, IndexNodePage*> pages;
     int rootNode;
     int minDgr;
@@ -50,7 +50,7 @@ public:
 
 	void remove(void* key);
 
-    void printFileDescription();
+    void printFileDesc();
 
     static void test();
 };

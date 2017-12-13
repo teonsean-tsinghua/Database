@@ -17,7 +17,11 @@ public:
 
     void read(std::vector<void*>& data);
 
-    bool checkValue(std::map<int, std::vector<void*> >& info, int op);
+    bool check(SearchInfo& si);
+
+    bool checkValueNotEqual(std::map<int, std::vector<void*> >& info);
+
+    bool checkValue(std::map<int, void*>& info, int op);
 
     bool checkFields(std::map<int, std::vector<int> >& info, int op);
 

@@ -42,7 +42,7 @@ int IndexFile::allocateNewInternalNode()
     return cnt;
 }
 
-void IndexFile::printFileDescription()
+void IndexFile::printFileDesc()
 {
     assert(open);
     ifdp->print();
@@ -233,7 +233,7 @@ void IndexFile::createFile(int keyType, int keyLength)
     open = true;
     int index;
     BufType cache = fm->getPage(fileID, 0, index);
-    ifdp = new IndexFileDescriptionPage(cache, index, 0, false, keyType, keyLength);
+    ifdp = new IndexFileDescPage(cache, index, 0, false, keyType, keyLength);
     int root = allocateNewLeafNode();
     ifdp->setRootPage(root);
     fm->flush(ifdp->getIndex());
@@ -267,7 +267,7 @@ void IndexFile::openFile()
     int index;
     open = true;
     BufType cache = fm->getPage(fileID, 0, index);
-    ifdp = new IndexFileDescriptionPage(cache, index, 0, true);
+    ifdp = new IndexFileDescPage(cache, index, 0, true);
     keyType = ifdp->getKeyType();
     rootNode = ifdp->getRootPage();
     keyLength = ifdp->getKeyLength();
@@ -285,7 +285,7 @@ void IndexFile::_test()
 //    closeFile();
 //
 //    openFile("test.idx");
-//    printFileDescription();
+//    printFileDesc();
 //    for(int i = 0; i < 1000000; i++)
 //    {
 //        PrintLine(search(&i));

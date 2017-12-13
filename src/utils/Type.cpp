@@ -5,7 +5,7 @@ const int Type::typeSize_[] = {20, sizeof(int), sizeof(float), 8, 0};
 
 const char* const Type::typeName_[] = {"_ID", "INT", "FLOAT", "DATE", "VARCHAR"};
 
-const char* const Type::pageName_[] = {"Data file description page",
+const char* const Type::pageName_[] = {"Data file Desc page",
                                          "Data page",
                                          "Usage page",
                                          "Index file description page",

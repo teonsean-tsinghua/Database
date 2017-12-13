@@ -2,26 +2,9 @@
 #define DATAFILE_H_INCLUDED
 
 #include"Include.h"
-#include"DataFileDescriptionPage.h"
+#include"DataFileDescPage.h"
 #include"DataPage.h"
 #include"UsagePage.h"
-
-class DataFile;
-
-class SelectResult
-{
-
-public:
-    SelectResult();
-
-    std::list<std::vector<void*> > results;
-
-    void filterByValue(std::map<int, std::vector<void*> >& info, int op, RecordInfo* ri);
-
-    void filterByFields(std::map<int, std::vector<int> >& info, int op, RecordInfo* ri);
-
-    void print();
-};
 
 class DataFile
 {
@@ -29,12 +12,13 @@ private:
     int fileID;
     std::string path;
     FileIOModel* fm;
-    DataFileDescriptionPage* dfdp;
+    DataFileDescPage* dfdp;
     std::map<int, Page*> pages;
     RecordInfo* ri;
     int lastUsagePage;
     int lastDataPage;
     bool open;
+    char* buffer;
 
     int findFirstAvailableDataPage();
 
@@ -49,6 +33,8 @@ private:
     UsagePage* openUsagePage(int pid);
 
     bool validateInsertion(std::vector<void*>& data);
+
+    friend Table;
 
 public:
     DataFile(std::string path);
@@ -78,9 +64,9 @@ public:
 
     void getAllFields(std::vector<std::string>& names);
 
-    void printRecordDescription();
+    void printRecordDesc();
 
-    void printFileDescription();
+    void printFileDesc();
 
     void printAllRecords();
 };

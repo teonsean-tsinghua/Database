@@ -26,7 +26,6 @@ private:
 
     const std::string root;
     std::string name;
-    char* buffer;
 
     Database(std::string root = "/home/teon/Documents/Database");
 
@@ -41,8 +40,6 @@ private:
     void selectOneTable(bool all);
 
     void selectMultiTable(bool all);
-
-    bool processWheresWithOneTable(SearchInfo& si, RecordInfo* ri, std::string tbname);
 
     void processSets(UpdateInfo& ui, RecordInfo* ri, std::string tbname);
 

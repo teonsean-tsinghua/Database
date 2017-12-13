@@ -1,146 +1,5 @@
 #include"DataFile.h"
 
-SelectResult::SelectResult()
-{
-
-}
-
-void SelectResult::filterByValue(std::map<int, std::vector<void*> >& info, int op, RecordInfo* ri)
-{
-    std::list<std::vector<void*> >::iterator it;
-    for(it = results.begin(); it != results.end(); )
-    {
-        std::vector<void*>& data = *it;
-        std::map<int, std::vector<void*> >::iterator iter;
-        bool flag = true;
-        for(iter = info.begin(); iter != info.end(); iter++)
-        {
-            int idx = iter->first;
-            if(data[idx] == NULL)
-            {
-                flag = false;
-                break;
-            }
-            std::vector<void*>& vecs = iter->second;
-            for(int i = 0; i < vecs.size(); i++)
-            {
-                switch(op)
-                {
-                case 0:
-                    flag = Equal(data[idx], vecs[i], ri->type(idx), ri->length(idx));
-                    break;
-                case 1:
-                    flag = !Equal(data[idx], vecs[i], ri->type(idx), ri->length(idx));
-                    break;
-                case 2:
-                    flag = smallerOrEqual(data[idx], vecs[i], ri->type(idx), ri->length(idx));
-                    break;
-                case 3:
-                    flag = largerOrEqual(data[idx], vecs[i], ri->type(idx), ri->length(idx));
-                    break;
-                case 4:
-                    flag = smaller(data[idx], vecs[i], ri->type(idx), ri->length(idx));
-                    break;
-                case 5:
-                    flag = larger(data[idx], vecs[i], ri->type(idx), ri->length(idx));
-                    break;
-                }
-                if(!flag)
-                {
-                    break;
-                }
-            }
-            if(!flag)
-            {
-                break;
-            }
-        }
-        if(!flag)
-        {
-            it = results.erase(it);
-        }
-        else
-        {
-            it++;
-        }
-    }
-}
-
-void SelectResult::filterByFields(std::map<int, std::vector<int> >& info, int op, RecordInfo* ri)
-{
-    std::list<std::vector<void*> >::iterator it;
-    for(it = results.begin(); it != results.end(); )
-    {
-        std::vector<void*>& data = *it;
-        std::map<int, std::vector<int> >::iterator iter;
-        bool flag = true;
-        for(iter = info.begin(); iter != info.end(); iter++)
-        {
-            std::vector<int>& vecs = iter->second;
-            for(int i = 0; i < vecs.size(); i++)
-            {
-                int lidx = iter->first;
-                int ridx = vecs[i];
-                bool lnull = (data[lidx] == NULL);
-                bool rnull = (data[ridx] == NULL);
-                if(lnull && rnull)
-                {
-                    if(op != 0)
-                    {
-                        flag = false;
-                        break;
-                    }
-                }
-                if((lnull && !rnull) || (!lnull && rnull))
-                {
-                    if(op != 1)
-                    {
-                        flag = false;
-                        break;
-                    }
-                }
-                switch(op)
-                {
-                case 0:
-                    flag = Equal(data[lidx], data[ridx], ri->type(lidx), ri->length(lidx));
-                    break;
-                case 1:
-                    flag = !Equal(data[lidx], data[ridx], ri->type(lidx), ri->length(lidx));
-                    break;
-                case 2:
-                    flag = smallerOrEqual(data[lidx], data[ridx], ri->type(lidx), ri->length(lidx));
-                    break;
-                case 3:
-                    flag = largerOrEqual(data[lidx], data[ridx], ri->type(lidx), ri->length(lidx));
-                    break;
-                case 4:
-                    flag = smaller(data[lidx], data[ridx], ri->type(lidx), ri->length(lidx));
-                    break;
-                case 5:
-                    flag = larger(data[lidx], data[ridx], ri->type(lidx), ri->length(lidx));
-                    break;
-                }
-                if(!flag)
-                {
-                    break;
-                }
-            }
-            if(!flag)
-            {
-                break;
-            }
-        }
-        if(!flag)
-        {
-            it = results.erase(it);
-        }
-        else
-        {
-            it++;
-        }
-    }
-}
-
 DataFile::DataFile(std::string path):
     path(path)
 {
@@ -149,6 +8,7 @@ DataFile::DataFile(std::string path):
     lastDataPage = -1;
     open = false;
     ri = new RecordInfo();
+    buffer = new char[8192];
 }
 
 RecordInfo* DataFile::getRecordInfo()
@@ -323,7 +183,7 @@ void DataFile::createFile()
     open = true;
     ri->init();
     BufType cache = fm->getPage(fileID, 0, index);
-    dfdp = new DataFileDescriptionPage(cache, index, 0, false, ri);
+    dfdp = new DataFileDescPage(cache, index, 0, false, ri);
     ri->addField("_id", Type::_ID, false, 0);
     dfdp->writeFields();
     fm->flush(dfdp->getIndex());
@@ -350,13 +210,13 @@ void DataFile::closeFile()
     fm->closeFile(fileID);
 }
 
-void DataFile::printFileDescription()
+void DataFile::printFileDesc()
 {
     assert(open);
     dfdp->print();
 }
 
-void DataFile::printRecordDescription()
+void DataFile::printRecordDesc()
 {
     assert(open);
     int cnt = ri->getFieldCount();
@@ -448,103 +308,15 @@ int DataFile::update(SearchInfo& si, UpdateInfo& ui)
 void DataFile::select(SearchInfo& si, SelectResult& sr)
 {
     assert(open);
-    if(si.nulls.size() > 0)
+    DataPage* dp = openDataPage(dfdp->getFirstDataPage());
+    while(true)
     {
-        DataPage* dp = openDataPage(dfdp->getFirstDataPage());
-        while(true)
+        if(dp == NULL)
         {
-            if(dp == NULL)
-            {
-                break;
-            }
-            dp->filterByNull(si.nulls, sr.results);
-            dp = openDataPage(dp->getNextSameType());
+            break;
         }
-        if(sr.results.empty())
-        {
-            return;
-        }
-    }
-    for(int i = 0; i < 6; i++)
-    {
-        if(si.values[i].size() > 0)
-        {
-            if(sr.results.empty())
-            {
-                DataPage* dp = openDataPage(dfdp->getFirstDataPage());
-                while(true)
-                {
-                    if(dp == NULL)
-                    {
-                        break;
-                    }
-                    dp->filterByValue(si.values[i], sr.results, i);
-                    dp = openDataPage(dp->getNextSameType());
-                }
-                if(sr.results.empty())
-                {
-                    return;
-                }
-            }
-            else
-            {
-                DataPage* dp = openDataPage(dfdp->getFirstDataPage());
-                while(true)
-                {
-                    if(dp == NULL)
-                    {
-                        break;
-                    }
-                    sr.filterByValue(si.values[i], i, ri);
-                    dp = openDataPage(dp->getNextSameType());
-                }
-                if(sr.results.empty())
-                {
-                    return;
-                }
-            }
-        }
-    }
-    for(int i = 0; i < 6; i++)
-    {
-        if(si.fields[i].size() > 0)
-        {
-            Print::printLine("checking fields");
-            if(sr.results.empty())
-            {
-                DataPage* dp = openDataPage(dfdp->getFirstDataPage());
-                while(true)
-                {
-                    if(dp == NULL)
-                    {
-                        break;
-                    }
-                    dp->filterByFields(si.fields[i], sr.results, i);
-                    dp = openDataPage(dp->getNextSameType());
-                }
-                if(sr.results.empty())
-                {
-                    return;
-                }
-            }
-            else
-            {
-                DataPage* dp = openDataPage(dfdp->getFirstDataPage());
-                while(true)
-                {
-                    if(dp == NULL)
-                    {
-                        break;
-                    }
-                    sr.filterByFields(si.fields[i], i, ri);
-                    dp = openDataPage(dp->getNextSameType());
-                }
-                if(sr.results.empty())
-                {
-                    return;
-                }
-            }
-        }
+        dp->select(si, sr);
+        dp = openDataPage(dp->getNextSameType());
     }
 }
 
@@ -598,5 +370,5 @@ void DataFile::openFile()
     open = true;
     ri->init();
     BufType cache = fm->getPage(fileID, 0, index);
-    dfdp = new DataFileDescriptionPage(cache, index, 0, true, ri);
+    dfdp = new DataFileDescPage(cache, index, 0, true, ri);
 }

@@ -1626,31 +1626,31 @@ yyreduce:
 
   case 48:
 #line 113 "parser.y" /* yacc.c:1646  */
-    { (yyval.m_int) = 1; }
+    { (yyval.m_int) = 5; }
 #line 1631 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 49:
 #line 114 "parser.y" /* yacc.c:1646  */
-    { (yyval.m_int) = 2; }
+    { (yyval.m_int) = 1; }
 #line 1637 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 50:
 #line 115 "parser.y" /* yacc.c:1646  */
-    { (yyval.m_int) = 3; }
+    { (yyval.m_int) = 2; }
 #line 1643 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 51:
 #line 116 "parser.y" /* yacc.c:1646  */
-    { (yyval.m_int) = 4; }
+    { (yyval.m_int) = 3; }
 #line 1649 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 52:
 #line 117 "parser.y" /* yacc.c:1646  */
-    { (yyval.m_int) = 5; }
+    { (yyval.m_int) = 4; }
 #line 1655 "y.tab.c" /* yacc.c:1646  */
     break;
 
