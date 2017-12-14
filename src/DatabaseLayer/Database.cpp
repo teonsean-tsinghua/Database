@@ -427,6 +427,49 @@ void Database::createTable(std::string name_)
     Print::log("Created file ").logLine(path);
 }
 
+void Database::createIndex(std::string tbname, std::string colname)
+{
+    assert(databaseAvailable());
+    DataFile* df = getDataFile(tbname);
+    if(df == NULL)
+    {
+        return;
+    }
+    std::string path("");
+    path += (root + "/" + name + "/" + tbname + ".idx");
+    mkdir(path.c_str(), S_IRWXU|S_IRWXG|S_IROTH);
+    path += ("/" + colname + ".idx");
+    if(access(path.c_str(), F_OK) == 0)
+    {
+        throw Exception("Index already exists.");
+    }
+    RecordInfo* ri = df->getRecordInfo();
+    int idx = ri->index(colname);
+    if(idx < 0)
+    {
+        throw Exception("Table " + tbname + " does not contain field " + colname + ".");
+    }
+    IndexFile inf(path);
+    inf.createFile(ri->type(idx), ri->length(idx));
+    inf.openFile();
+    //unique.
+    inf.printFileDesc();
+    inf.closeFile();
+}
+
+void Database::dropIndex(std::string tbname, std::string colname)
+{
+    assert(databaseAvailable());
+    DataFile* df = getDataFile(tbname);
+    if(df == NULL)
+    {
+        return;
+    }
+    std::string path("");
+    path += (root + "/" + name + "/" + tbname + ".idx");
+    mkdir(path.c_str(), S_IRWXU|S_IRWXG|S_IROTH);
+}
+
 void Database::describeTable(std::string name_)
 {
     DataFile* df = getDataFile(name_);

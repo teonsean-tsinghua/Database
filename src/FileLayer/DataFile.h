@@ -5,6 +5,7 @@
 #include"DataFileDescPage.h"
 #include"DataPage.h"
 #include"UsagePage.h"
+#include"IndexFile.h"
 
 class DataFile
 {
@@ -51,6 +52,8 @@ public:
 
     void addFields(std::vector<std::string>& name, std::vector<int>& type,
                   std::vector<bool>& nullable, std::vector<int>& extra);
+
+    void createIndex(IndexFile& inf);
 
     void insert(std::vector<void*>& fields);
 

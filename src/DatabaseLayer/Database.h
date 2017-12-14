@@ -62,6 +62,10 @@ public:
 
     void describeTable(std::string name);
 
+    void createIndex(std::string tbname, std::string colname);
+
+    void dropIndex(std::string tbname, std::string colname);
+
     void showTables();
 
     void addPendingField(std::string& name, int type, bool nullable, int extra);

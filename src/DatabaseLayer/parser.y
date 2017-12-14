@@ -64,8 +64,8 @@ tbStmt	: CREATE TABLE tbName '(' fieldList ')' { instance->createTable($3); }
 	| SELECT selector FROM tableList WHERE whereClause { instance->select($2); } //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	;
 
-idxStmt	: CREATE INDEX tbName '(' colName ')' //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	| DROP INDEX tbName '(' colName ')' //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+idxStmt	: CREATE INDEX tbName '(' colName ')' { instance->createIndex($3, $5); }
+	| DROP INDEX tbName '(' colName ')' { instance->dropIndex($3, $5); }
 	;
 
 fieldList : field { instance->addPendingField($1.name, $1.type, $1.nullable, $1.extra); }

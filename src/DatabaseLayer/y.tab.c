@@ -1480,260 +1480,272 @@ yyreduce:
 #line 1481 "y.tab.c" /* yacc.c:1646  */
     break;
 
+  case 20:
+#line 67 "parser.y" /* yacc.c:1646  */
+    { instance->createIndex((yyvsp[-3].m_string), (yyvsp[-1].m_string)); }
+#line 1487 "y.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 21:
+#line 68 "parser.y" /* yacc.c:1646  */
+    { instance->dropIndex((yyvsp[-3].m_string), (yyvsp[-1].m_string)); }
+#line 1493 "y.tab.c" /* yacc.c:1646  */
+    break;
+
   case 22:
 #line 71 "parser.y" /* yacc.c:1646  */
     { instance->addPendingField((yyvsp[0].m_field).name, (yyvsp[0].m_field).type, (yyvsp[0].m_field).nullable, (yyvsp[0].m_field).extra); }
-#line 1487 "y.tab.c" /* yacc.c:1646  */
+#line 1499 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 23:
 #line 72 "parser.y" /* yacc.c:1646  */
     { instance->addPendingField((yyvsp[0].m_field).name, (yyvsp[0].m_field).type, (yyvsp[0].m_field).nullable, (yyvsp[0].m_field).extra); }
-#line 1493 "y.tab.c" /* yacc.c:1646  */
+#line 1505 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 24:
 #line 75 "parser.y" /* yacc.c:1646  */
     { (yyval.m_field).type = (yyvsp[0].m_type).type; (yyval.m_field).extra = (yyvsp[0].m_type).extra; (yyval.m_field).nullable = true; (yyval.m_field).name = (yyvsp[-1].m_string); }
-#line 1499 "y.tab.c" /* yacc.c:1646  */
+#line 1511 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 25:
 #line 76 "parser.y" /* yacc.c:1646  */
     { (yyval.m_field).type = (yyvsp[-2].m_type).type; (yyval.m_field).extra = (yyvsp[-2].m_type).extra; (yyval.m_field).nullable = false; (yyval.m_field).name = (yyvsp[-3].m_string); }
-#line 1505 "y.tab.c" /* yacc.c:1646  */
+#line 1517 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 28:
 #line 81 "parser.y" /* yacc.c:1646  */
     { (yyval.m_type).type = Type::INT; (yyval.m_type).extra = (yyvsp[-1].m_int); }
-#line 1511 "y.tab.c" /* yacc.c:1646  */
+#line 1523 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 29:
 #line 82 "parser.y" /* yacc.c:1646  */
     { (yyval.m_type).type = Type::INT; (yyval.m_type).extra = 0; }
-#line 1517 "y.tab.c" /* yacc.c:1646  */
+#line 1529 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
 #line 83 "parser.y" /* yacc.c:1646  */
     { (yyval.m_type).type = Type::VARCHAR; (yyval.m_type).extra = (yyvsp[-1].m_int); }
-#line 1523 "y.tab.c" /* yacc.c:1646  */
+#line 1535 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 31:
 #line 84 "parser.y" /* yacc.c:1646  */
     { (yyval.m_type).type = Type::DATE; (yyval.m_type).extra = 0; }
-#line 1529 "y.tab.c" /* yacc.c:1646  */
+#line 1541 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
 #line 85 "parser.y" /* yacc.c:1646  */
     { (yyval.m_type).type = Type::FLOAT; (yyval.m_type).extra = 0; }
-#line 1535 "y.tab.c" /* yacc.c:1646  */
+#line 1547 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 33:
 #line 88 "parser.y" /* yacc.c:1646  */
     { instance->addPendingValueList(); }
-#line 1541 "y.tab.c" /* yacc.c:1646  */
+#line 1553 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 34:
 #line 89 "parser.y" /* yacc.c:1646  */
     { instance->addPendingValueList(); }
-#line 1547 "y.tab.c" /* yacc.c:1646  */
+#line 1559 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 35:
 #line 92 "parser.y" /* yacc.c:1646  */
     { instance->addPendingValue((yyvsp[0].m_value)); }
-#line 1553 "y.tab.c" /* yacc.c:1646  */
+#line 1565 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 36:
 #line 93 "parser.y" /* yacc.c:1646  */
     { instance->addPendingValue((yyvsp[0].m_value)); }
-#line 1559 "y.tab.c" /* yacc.c:1646  */
+#line 1571 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 37:
 #line 96 "parser.y" /* yacc.c:1646  */
     { (yyval.m_value).type = 1; (yyval.m_value).v_int = (yyvsp[0].m_int); }
-#line 1565 "y.tab.c" /* yacc.c:1646  */
+#line 1577 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 38:
 #line 97 "parser.y" /* yacc.c:1646  */
     { (yyval.m_value).type = 2; (yyval.m_value).v_str = (yyvsp[0].m_string); }
-#line 1571 "y.tab.c" /* yacc.c:1646  */
+#line 1583 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 39:
 #line 98 "parser.y" /* yacc.c:1646  */
     { (yyval.m_value).type = 0; }
-#line 1577 "y.tab.c" /* yacc.c:1646  */
+#line 1589 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
 #line 101 "parser.y" /* yacc.c:1646  */
     { (yyval.m_where).type = 2; (yyval.m_where).op = (yyvsp[-1].m_int); (yyval.m_where).opCol = false; (yyval.m_where).left = (yyvsp[-2].m_col); (yyval.m_where).val_r = (yyvsp[0].m_value); instance->addPendingWhere((yyval.m_where)); }
-#line 1583 "y.tab.c" /* yacc.c:1646  */
+#line 1595 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 41:
 #line 102 "parser.y" /* yacc.c:1646  */
     { (yyval.m_where).type = 2; (yyval.m_where).op = (yyvsp[-1].m_int); (yyval.m_where).opCol = true; (yyval.m_where).left = (yyvsp[-2].m_col); (yyval.m_where).col_r = (yyvsp[0].m_col); instance->addPendingWhere((yyval.m_where)); }
-#line 1589 "y.tab.c" /* yacc.c:1646  */
+#line 1601 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
 #line 103 "parser.y" /* yacc.c:1646  */
     { (yyval.m_where).type = 0; (yyval.m_where).left = (yyvsp[-2].m_col); instance->addPendingWhere((yyval.m_where)); }
-#line 1595 "y.tab.c" /* yacc.c:1646  */
+#line 1607 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 43:
 #line 104 "parser.y" /* yacc.c:1646  */
     { (yyval.m_where).type = 1; (yyval.m_where).left = (yyvsp[-3].m_col); instance->addPendingWhere((yyval.m_where)); }
-#line 1601 "y.tab.c" /* yacc.c:1646  */
+#line 1613 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
 #line 105 "parser.y" /* yacc.c:1646  */
     {}
-#line 1607 "y.tab.c" /* yacc.c:1646  */
+#line 1619 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
 #line 108 "parser.y" /* yacc.c:1646  */
     { (yyval.m_col).table = (yyvsp[-2].m_string); (yyval.m_col).field = (yyvsp[0].m_string); }
-#line 1613 "y.tab.c" /* yacc.c:1646  */
+#line 1625 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
 #line 109 "parser.y" /* yacc.c:1646  */
     { (yyval.m_col).table = ""; (yyval.m_col).field = (yyvsp[0].m_string); }
-#line 1619 "y.tab.c" /* yacc.c:1646  */
+#line 1631 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 47:
 #line 112 "parser.y" /* yacc.c:1646  */
     { (yyval.m_int) = 0; }
-#line 1625 "y.tab.c" /* yacc.c:1646  */
+#line 1637 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 48:
 #line 113 "parser.y" /* yacc.c:1646  */
     { (yyval.m_int) = 5; }
-#line 1631 "y.tab.c" /* yacc.c:1646  */
+#line 1643 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 49:
 #line 114 "parser.y" /* yacc.c:1646  */
     { (yyval.m_int) = 1; }
-#line 1637 "y.tab.c" /* yacc.c:1646  */
+#line 1649 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 50:
 #line 115 "parser.y" /* yacc.c:1646  */
     { (yyval.m_int) = 2; }
-#line 1643 "y.tab.c" /* yacc.c:1646  */
+#line 1655 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 51:
 #line 116 "parser.y" /* yacc.c:1646  */
     { (yyval.m_int) = 3; }
-#line 1649 "y.tab.c" /* yacc.c:1646  */
+#line 1661 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 52:
 #line 117 "parser.y" /* yacc.c:1646  */
     { (yyval.m_int) = 4; }
-#line 1655 "y.tab.c" /* yacc.c:1646  */
+#line 1667 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 53:
 #line 120 "parser.y" /* yacc.c:1646  */
     { (yyval.m_set).field = (yyvsp[-2].m_string); (yyval.m_set).value = (yyvsp[0].m_value); instance->addPendingSet((yyval.m_set)); }
-#line 1661 "y.tab.c" /* yacc.c:1646  */
+#line 1673 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 54:
 #line 121 "parser.y" /* yacc.c:1646  */
     { (yyval.m_set).field = (yyvsp[-2].m_string); (yyval.m_set).value = (yyvsp[0].m_value); instance->addPendingSet((yyval.m_set)); }
-#line 1667 "y.tab.c" /* yacc.c:1646  */
+#line 1679 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 55:
 #line 124 "parser.y" /* yacc.c:1646  */
     { (yyval.m_bool) = true; }
-#line 1673 "y.tab.c" /* yacc.c:1646  */
+#line 1685 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 56:
 #line 125 "parser.y" /* yacc.c:1646  */
     { (yyval.m_bool) = false; }
-#line 1679 "y.tab.c" /* yacc.c:1646  */
+#line 1691 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 57:
 #line 128 "parser.y" /* yacc.c:1646  */
     { instance->addPendingCol((yyvsp[0].m_col)); }
-#line 1685 "y.tab.c" /* yacc.c:1646  */
+#line 1697 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 58:
 #line 129 "parser.y" /* yacc.c:1646  */
     { instance->addPendingCol((yyvsp[0].m_col)); }
-#line 1691 "y.tab.c" /* yacc.c:1646  */
+#line 1703 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 59:
 #line 132 "parser.y" /* yacc.c:1646  */
     { instance->addPendingTable((yyvsp[0].m_string)); }
-#line 1697 "y.tab.c" /* yacc.c:1646  */
+#line 1709 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 60:
 #line 133 "parser.y" /* yacc.c:1646  */
     { instance->addPendingTable((yyvsp[0].m_string)); }
-#line 1703 "y.tab.c" /* yacc.c:1646  */
+#line 1715 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 61:
 #line 136 "parser.y" /* yacc.c:1646  */
     { instance->addPendingColumn((yyvsp[0].m_string)); }
-#line 1709 "y.tab.c" /* yacc.c:1646  */
+#line 1721 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 62:
 #line 137 "parser.y" /* yacc.c:1646  */
     { instance->addPendingColumn((yyvsp[0].m_string)); }
-#line 1715 "y.tab.c" /* yacc.c:1646  */
+#line 1727 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 63:
 #line 140 "parser.y" /* yacc.c:1646  */
     { (yyval.m_string) = (yyvsp[0].m_string); }
-#line 1721 "y.tab.c" /* yacc.c:1646  */
+#line 1733 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 64:
 #line 143 "parser.y" /* yacc.c:1646  */
     { (yyval.m_string) = (yyvsp[0].m_string); }
-#line 1727 "y.tab.c" /* yacc.c:1646  */
+#line 1739 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 65:
 #line 146 "parser.y" /* yacc.c:1646  */
     { (yyval.m_string) = (yyvsp[0].m_string); }
-#line 1733 "y.tab.c" /* yacc.c:1646  */
+#line 1745 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1737 "y.tab.c" /* yacc.c:1646  */
+#line 1749 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
