@@ -1,6 +1,6 @@
 #! /bin/bash
 cd src
-cd DatabaseLayer
+cd database
 echo "============================================"
 echo "Generating lexer and parser files..."
 yacc -d parser.y

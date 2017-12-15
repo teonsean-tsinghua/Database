@@ -22,8 +22,9 @@ public:
     const static int INDEX_FILE_DESC_PAGE = USAGE_PAGE + 1;
     const static int INDEX_INTERNAL_PAGE = INDEX_FILE_DESC_PAGE + 1;
     const static int INDEX_LEAF_PAGE = INDEX_INTERNAL_PAGE + 1;
+    const static int BUCKET_PAGE = INDEX_LEAF_PAGE + 1;
     const static int FIRST_PAGE_TYPE = DATA_FILE_DESC_PAGE;
-    const static int LAST_PAGE_TYPE = INDEX_LEAF_PAGE;
+    const static int LAST_PAGE_TYPE = BUCKET_PAGE;
 
     static int typeSize(int type);
 
