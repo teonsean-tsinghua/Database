@@ -7,8 +7,6 @@ void test()
 //	DataFile::test();
 //	Database::test();
     UsagePage::test();
-    char buf[8192];
-    NodePage<int> t(buf, 1, 1, 1, 1, 1, 1);
     NodePage<int>::test();
 }
 
