@@ -6,6 +6,7 @@
 #include<vector>
 #include"Exception.h"
 #include"Type.h"
+#include"Base.h"
 
 class RecordInfo
 {
@@ -88,6 +89,34 @@ public:
     const static int FIELD_ALREADY_EXIST = 561;
 
     const static int EXCEED_PAGE_LIMIT = 615;
+};
+
+struct SearchInfo
+{
+    std::map<int, bool> nulls;
+    std::map<int, void*> values[5];
+    std::map<int, std::vector<void*> > notEqual;
+    std::map<int, std::vector<int> > fields[6];
+
+    SearchInfo();
+
+    bool processWheresWithOneTable(std::vector<Where>& pWheres, RecordInfo* ri, std::string tbname);
+};
+
+struct UpdateInfo
+{
+    std::map<int, void*> data;
+};
+
+class SelectResult
+{
+
+public:
+    bool all;
+
+    std::vector<int> results;
+
+    SelectResult();
 };
 
 #endif // RECORDINFO_H_INCLUDED

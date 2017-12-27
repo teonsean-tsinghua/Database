@@ -24,6 +24,8 @@ public:
     const static int USAGE_VOLUMN = PAGE_SIZE - PAGE_CONTENT_OFFSET;
 
     static void test();
+
+    void print();
 };
 
 #endif // USAGEPAGE_H_INCLUDED

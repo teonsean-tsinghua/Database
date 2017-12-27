@@ -47,6 +47,11 @@ void UsagePage::setAvailable(int pid, bool available)
     writeBool((*this)[PAGE_CONTENT_OFFSET + pid - pageID - 1], available);
 }
 
+void UsagePage::print()
+{
+    Page::print();
+}
+
 int UsagePage::findFirstAvailable()
 {
     int begin = pageID + 1, end = pageID + getFirstAvailableByte() - PAGE_CONTENT_OFFSET + 1;

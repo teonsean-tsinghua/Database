@@ -16,6 +16,11 @@ int Page::getPageType()
     return readInt((*this)[PAGE_TYPE_OFFSET]);
 }
 
+int Page::getPageType(char* buf)
+{
+    return readInt(buf + PAGE_TYPE_OFFSET);
+}
+
 int Page::getFirstAvailableByte()
 {
     return readInt((*this)[FIRST_AVAILABLE_BYTE_OFFSET]);
@@ -58,18 +63,18 @@ int Page::getIndex()
 
 void Page::print()
 {
-    std::cout << "Page ID: " << pageID << std::endl;
-    std::cout << "Page type: " << Type::pageName(getPageType()) << std::endl;
-    std::cout << "First available byte: " << getFirstAvailableByte() << std::endl;
-    if(isLengthFixed())
-    {
-        std::cout << "This page stores slots with fixed length.\n";
-    }
-    else
-    {
-        std::cout << "This page stores slots with variable length.\n";
-    }
-    std::cout << "Next page of this type: " << getNextSamePage() << std::endl;
+    std::cout << "Page ID:                          " << pageID << std::endl;
+    std::cout << "Page type:                        " << Type::pageName(getPageType()) << std::endl;
+    std::cout << "First available byte:             " << getFirstAvailableByte() << std::endl;
+//    if(isLengthFixed())
+//    {
+//        std::cout << "This page stores slots with fixed length.\n";
+//    }
+//    else
+//    {
+//        std::cout << "This page stores slots with variable length.\n";
+//    }
+    std::cout << "Next page in list:                " << getNextSamePage() << std::endl;
 }
 
 int Page::getPageID()

@@ -17,7 +17,6 @@ class NodePage: public Page
 protected:
     int keyType;
     int keyLength;
-    Entry<T> entries[];
     char* buffer;
 
 public:
@@ -225,7 +224,7 @@ bool NodePage<T>::greaterThanAll(T& key)
 {
     int cnt = getChildCnt();
     assert(cnt >= 0);
-    return cnt == 0 || key > entries[cnt - 1].key;
+    return cnt == 0 || key > at(cnt - 1)->key;
 }
 
 template<typename T>

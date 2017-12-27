@@ -13,7 +13,9 @@ public:
 
     int getFirstDataPage();
 
-    int getFirstUsagePage();
+    int getFirstLeafPage();
+
+    int getRootPage();
 
     int getPageNumber();
 
@@ -23,13 +25,15 @@ public:
 
     void setFirstDataPage(int n);
 
-    void setFirstUsagePage(int n);
+    void setFirstLeafPage(int n);
 
     void setPageNumber(int n);
 
     void setFieldCount(int n);
 
     void setPrimaryKeyCount(int n);
+
+    void setRootPage(int n);
 
     void incrementPageNumber(int type);
 
@@ -42,8 +46,9 @@ public:
     static int maxRecordInfoLength();
 
     const static int FIRST_DATA_PAGE_OFFSET = PAGE_CONTENT_OFFSET;
-    const static int FIRST_USAGE_PAGE_OFFSET = FIRST_DATA_PAGE_OFFSET + sizeof(int);
-    const static int PAGE_NUMBER_OFFSET = FIRST_USAGE_PAGE_OFFSET + sizeof(int);
+    const static int FIRST_LEAF_PAGE_OFFSET = FIRST_DATA_PAGE_OFFSET + sizeof(int);
+    const static int ROOT_PAGE_OFFSET = FIRST_LEAF_PAGE_OFFSET + sizeof(int);
+    const static int PAGE_NUMBER_OFFSET = ROOT_PAGE_OFFSET + sizeof(int);
     const static int PRIMARY_KEY_COUNT_OFFSET = PAGE_NUMBER_OFFSET + sizeof(int);
     const static int FIELD_COUNT_OFFSET = PRIMARY_KEY_COUNT_OFFSET + sizeof(int);
     const static int RECORD_INFO_OFFSET = FIELD_COUNT_OFFSET + sizeof(int);

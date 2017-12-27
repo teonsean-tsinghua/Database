@@ -42,6 +42,12 @@ class DataType
 
 };
 
+class Record
+{
+public:
+    char* buf;
+};
+
 class RecordInfo;
 
 class PrimKey: public DataType

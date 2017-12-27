@@ -37,6 +37,8 @@ public:
 
 	void setNextSamePage(int n);
 
+	static int getPageType(char* buf);
+
 	const static int PAGE_TYPE_OFFSET = 0;
 	const static int FIRST_AVAILABLE_BYTE_OFFSET = PAGE_TYPE_OFFSET + sizeof(int);
 	const static int LENGTH_FIXED_OFFSET = FIRST_AVAILABLE_BYTE_OFFSET + sizeof(int);

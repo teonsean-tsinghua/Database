@@ -334,6 +334,7 @@ void DataFile::openFile(std::string dbname, std::string tbname)
     ri->init();
     char* cache = fm->getPage(fileID, 0, index);
     dfdp = new DataFileDescPage(cache, index, 0, true, ri);
+    lastBucketPage = lastUsagePage = -1;
 }
 
 void DataFile::test()

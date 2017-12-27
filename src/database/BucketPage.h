@@ -21,6 +21,8 @@ public:
 
     int cnt();
 
+    void print();
+
     Bucket* at(int idx);
 
     static void test();

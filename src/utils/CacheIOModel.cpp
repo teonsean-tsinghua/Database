@@ -37,3 +37,11 @@ void copyData(char* src, char* dest, int len)
     memcpy((char*)dest, (char*)src, len);
 }
 
+void write_id(char* cache)
+{
+    *(unsigned long long*)cache = time(0);
+    *(unsigned int*)((char*)cache + 8) = rand() * rand();
+    *(unsigned int*)((char*)cache + 12) = (unsigned int)(unsigned long long)cache;
+    *(unsigned short*)((char*)cache + 16) = (unsigned short)getpid();
+    *(unsigned short*)((char*)cache + 18) = (unsigned short)(rand());
+}

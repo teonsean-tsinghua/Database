@@ -22,6 +22,11 @@ BucketPage::BucketPage(char* cache, int index, int pageID, bool parse, int densi
     }
 }
 
+void BucketPage::print()
+{
+    Page::print();
+}
+
 Bucket* BucketPage::at(int idx)
 {
     assert(idx >= 0 && idx < cnt());

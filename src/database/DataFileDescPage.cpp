@@ -9,7 +9,8 @@ DataFileDescPage::DataFileDescPage(char* cache, int index, int pageID, bool pars
         setNextSamePage(-1);
         setLengthFixed(false);
         setFirstDataPage(-1);
-        setFirstUsagePage(-1);
+        setFirstLeafPage(-1);
+        setRootPage(-1);
         setPageNumber(1);
         setFieldCount(0);
         setPrimaryKeyCount(0);
@@ -17,6 +18,7 @@ DataFileDescPage::DataFileDescPage(char* cache, int index, int pageID, bool pars
     }
     else
     {
+        assert(getPageType() == Type::DATA_FILE_DESC_PAGE);
     	int index = 0, cnt = getFieldCount();
         char* cache = (*this)[RECORD_INFO_OFFSET];
         int offset = 0, type = 0, name_length = 0, nullable = 0, extra = 0, foreign_length = 0;
@@ -57,10 +59,10 @@ void DataFileDescPage::incrementPageNumber(int type)
             setFirstDataPage(getPageNumber() - 1);
         }
         break;
-    case Type::USAGE_PAGE:
-        if(getFirstUsagePage() <= 0)
+    case Type::LEAF_PAGE:
+        if(getFirstLeafPage() <= 0)
         {
-            setFirstUsagePage(getPageNumber() - 1);
+            setFirstLeafPage(getPageNumber() - 1);
         }
         break;
     }
@@ -101,12 +103,13 @@ void DataFileDescPage::print()
 {
     Page::print();
     int cnt = ri->getFieldCount();
-    std::cout << "This file has " << getPageNumber() << " pages\n";
-    std::cout << "First data page is at " << getFirstDataPage() << std::endl;
-    std::cout << "First usage page is at " << getFirstUsagePage() << std::endl;
-    std::cout << "Record length is " << ri->getRecordLength() << std::endl;
-    std::cout << "Number of fields: " << cnt << std::endl;
-    std::cout << "Primary keys are: ";
+    std::cout << "Page number:                      " << getPageNumber() << std::endl;
+    std::cout << "First data page:                  " << getFirstDataPage() << std::endl;
+    std::cout << "First leaf page:                  " << getFirstLeafPage() << std::endl;
+    std::cout << "Root page:                        " << getRootPage() << std::endl;
+    std::cout << "Record length:                    " << ri->getRecordLength() << std::endl;
+    std::cout << "Number of fields:                 " << cnt << std::endl;
+    std::cout << "Primary keys:                     ";
     for(int i = 0; i < getPrimaryKeyCount(); i++)
     {
     	std::cout << ri->name(i) << " ";
@@ -119,9 +122,14 @@ int DataFileDescPage::getFirstDataPage()
     return readInt((*this)[FIRST_DATA_PAGE_OFFSET]);
 }
 
-int DataFileDescPage::getFirstUsagePage()
+int DataFileDescPage::getFirstLeafPage()
 {
-    return readInt((*this)[FIRST_USAGE_PAGE_OFFSET]);
+    return readInt((*this)[FIRST_LEAF_PAGE_OFFSET]);
+}
+
+int DataFileDescPage::getRootPage()
+{
+    return readInt((*this)[ROOT_PAGE_OFFSET]);
 }
 
 int DataFileDescPage::getPageNumber()
@@ -144,9 +152,14 @@ void DataFileDescPage::setFirstDataPage(int n)
     writeInt((*this)[FIRST_DATA_PAGE_OFFSET], n);
 }
 
-void DataFileDescPage::setFirstUsagePage(int n)
+void DataFileDescPage::setFirstLeafPage(int n)
 {
-    writeInt((*this)[FIRST_USAGE_PAGE_OFFSET], n);
+    writeInt((*this)[FIRST_LEAF_PAGE_OFFSET], n);
+}
+
+void DataFileDescPage::setRootPage(int n)
+{
+    writeInt((*this)[ROOT_PAGE_OFFSET], n);
 }
 
 void DataFileDescPage::setPageNumber(int n)

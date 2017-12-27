@@ -3,6 +3,8 @@
 
 #include<cstring>
 #include<string>
+#include<cstdlib>
+#include<unistd.h>
 
 int readInt(char* cache);
 
@@ -17,5 +19,7 @@ bool readBool(char* cache);
 void writeBool(char* cache, bool b);
 
 void copyData(char* src, char* dest, int len);
+
+void write_id(char* cache);
 
 #endif // CACHEIOMODEL_H_INCLUDED
