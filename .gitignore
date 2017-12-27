@@ -6,3 +6,4 @@ test.out
 dbms
 */clean
 .project
+*.cbp
