@@ -1,5 +1,6 @@
 #include"Type.h"
 #include<cstdio>
+#include"CacheIOModel.h"
 #include"Info.h"
 
 RecordInfo* PrimKey::ri;
@@ -46,6 +47,14 @@ const char* Type::pageName(int type)
 bool operator == (IDType& one, IDType& other)
 {
 	return one.ts == other.ts && one.ca == other.ca && one.pid == other.pid && one.rd == other.rd;
+}
+
+void operator << (IDType& one, IDType& other)
+{
+	one.ts = other.ts;
+	one.ca = other.ca;
+	one.pid = other.pid;
+	one.rd = other.rd;
 }
 
 bool operator != (IDType& one, IDType& other)
@@ -99,6 +108,11 @@ bool operator > (IntType& one, IntType& other)
 	return one.v > other.v;
 }
 
+void operator << (IntType& one, IntType& other)
+{
+	one.v = other.v;
+}
+
 bool operator <= (IntType& one, IntType& other)
 {
 	return one.v <= other.v;
@@ -129,6 +143,11 @@ bool operator > (FloatType& one, FloatType& other)
 	return one.v > other.v;
 }
 
+void operator << (FloatType& one, FloatType& other)
+{
+	one.v = other.v;
+}
+
 bool operator <= (FloatType& one, FloatType& other)
 {
 	return one.v <= other.v;
@@ -154,6 +173,11 @@ bool operator == (DateType& one, DateType& other)
 bool operator != (DateType& one, DateType& other)
 {
 	return !(one == other);
+}
+
+void operator << (DateType& one, DateType& other)
+{
+	strncpy(one.v, other.v, 8);
 }
 
 bool operator < (DateType& one, DateType& other)
@@ -498,6 +522,21 @@ bool operator != (PrimKey& one, PrimKey& other)
 	return !(one == other);
 }
 
+void operator << (PrimKey& one, PrimKey& other)
+{
+	const std::vector<int>& info = PrimKey::ri->getPrimKeyInfo();
+	char* ptr = (char*)one.keys;
+	char* ptr2 = (char*)other.keys;
+	for(int i = 0; i < info.size();)
+	{
+		int type = info[i++];
+		int len = info[i++];
+		copyData(ptr2, ptr, len);
+		ptr += len;
+		ptr2 += len;
+	}
+}
+
 bool operator == (PrimKey& one, PrimKey& other)
 {
 	const std::vector<int>& info = PrimKey::ri->getPrimKeyInfo();
@@ -544,6 +583,11 @@ bool operator == (PrimKey& one, PrimKey& other)
 		ptr2 += len;
 	}
 	return true;
+}
+
+void operator << (VarcharType& one, VarcharType& other)
+{
+	strcpy(one.v, other.v);
 }
 
 bool operator == (VarcharType& one, VarcharType& other)

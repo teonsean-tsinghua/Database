@@ -50,7 +50,9 @@ class PrimKey: public DataType
 public:
 	static RecordInfo* ri;
 
-	DataType keys[];
+	DataType keys[8192];
+
+	void friend operator << (PrimKey& one, PrimKey& other);
 
 	bool friend operator < (PrimKey& one, PrimKey& other);
 
@@ -70,7 +72,9 @@ class VarcharType: public DataType
 {
 
 public:
-	char v[];
+	char v[8192];
+
+	void friend operator << (VarcharType& one, VarcharType& other);
 
 	bool friend operator < (VarcharType& one, VarcharType& other);
 
@@ -92,6 +96,8 @@ class DateType: public DataType
 public:
 	char v[8];
 
+	void friend operator << (DateType& one, DateType& other);
+
 	bool friend operator < (DateType& one, DateType& other);
 
 	bool friend operator > (DateType& one, DateType& other);
@@ -112,6 +118,8 @@ class FloatType: public DataType
 public:
 	float v;
 
+	void friend operator << (FloatType& one, FloatType& other);
+
 	bool friend operator < (FloatType& one, FloatType& other);
 
 	bool friend operator > (FloatType& one, FloatType& other);
@@ -131,6 +139,8 @@ class IntType: public DataType
 
 public:
 	int v;
+
+	void friend operator << (IntType& one, IntType& other);
 
 	bool friend operator < (IntType& one, IntType& other);
 
@@ -154,6 +164,8 @@ public:
 	unsigned int ca;
 	unsigned short pid;
 	unsigned short rd;
+
+	void friend operator << (IDType& one, IDType& other);
 
 	bool friend operator < (IDType& one, IDType& other);
 

@@ -7,8 +7,8 @@ template<typename T>
 class Entry
 {
 public:
-    T key;
     int value;
+    T key;
 };
 
 template<typename T>
@@ -25,13 +25,17 @@ public:
 
     static void merge(NodePage* src, NodePage* dest);
 
+    bool greaterThanAll(T& key);
+
     void insert(T& key, int value);
 
-    void remove(T& key, int value);
+    void remove(T& key, int value = 0);
 
-    void update(T& key, int oldv, int newv);
+    void update(T& key, int newv, int oldv = 0);
 
-    int search(T& key);
+    Entry<T>* at(int i);
+
+    Entry<T>* search(T& key);
 
     bool isLeaf();
 
