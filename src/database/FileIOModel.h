@@ -3,11 +3,6 @@
 
 #include"Include.h"
 
-/*
- * All the methods needed to process file IO are provided here.
- * Use getPage to get a BufType, and all the reading and writing should be done on this BufType.
- */
-
 class FileIOModel
 {
 	const static std::string TAG;

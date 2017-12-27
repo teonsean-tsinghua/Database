@@ -1,10 +1,7 @@
 #ifndef DATABASE_H_INCLUDED
 #define DATABASE_H_INCLUDED
 
-#include"Include.h"
 #include"DataFile.h"
-#include"FileIOModel.h"
-//#include"IndexFile.h"
 #include"y.tab.h"
 
 class Database

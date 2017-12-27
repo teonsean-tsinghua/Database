@@ -1,6 +1,6 @@
 %{
-#include "Database.h"
 #include "Include.h"
+#include "Database.h"
 
 Database* instance = Database::getInstance();
 

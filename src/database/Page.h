@@ -2,7 +2,6 @@
 #define PAGE_H_INCLUDED
 
 #include"Include.h"
-#include"CacheIOModel.h"
 
 class Page
 {

@@ -22,17 +22,17 @@ DataFileDescPage::DataFileDescPage(char* cache, int index, int pageID, bool pars
         int offset = 0, type = 0, name_length = 0, nullable = 0, extra = 0, foreign_length = 0;
         while(index < cnt)
         {
-            readInt(cache + RECORD_INFO_TYPE_OFFSET, &type);
-            readInt(cache + RECORD_INFO_NULLABLE_OFFSET, &nullable);
-            readInt(cache + RECORD_INFO_NAME_LENGTH_OFFSET, &name_length);
-            readInt(cache + RECORD_INFO_EXTRA_OFFSET, &extra);
+            type = readInt(cache + RECORD_INFO_TYPE_OFFSET);
+            nullable = readInt(cache + RECORD_INFO_NULLABLE_OFFSET);
+            name_length = readInt(cache + RECORD_INFO_NAME_LENGTH_OFFSET);
+            extra = readInt(cache + RECORD_INFO_EXTRA_OFFSET);
             cache += RECORD_INFO_NAME_OFFSET;
             std::string name, foreign;
-            readString(cache, name, name_length);
+            name = readString(cache, name_length);
             cache += name_length;
-            readInt(cache, &foreign_length);
+            foreign_length = readInt(cache);
             cache += sizeof(int);
-            readString(cache, foreign, foreign_length);
+            foreign = readString(cache, foreign_length);
             cache += foreign_length;
             ri->addField(name, type, nullable, extra, foreign);
             index++;
@@ -116,37 +116,27 @@ void DataFileDescPage::print()
 
 int DataFileDescPage::getFirstDataPage()
 {
-    int re;
-    readInt((*this)[FIRST_DATA_PAGE_OFFSET], &re);
-    return re;
+    return readInt((*this)[FIRST_DATA_PAGE_OFFSET]);
 }
 
 int DataFileDescPage::getFirstUsagePage()
 {
-    int re;
-    readInt((*this)[FIRST_USAGE_PAGE_OFFSET], &re);
-    return re;
+    return readInt((*this)[FIRST_USAGE_PAGE_OFFSET]);
 }
 
 int DataFileDescPage::getPageNumber()
 {
-    int re;
-    readInt((*this)[PAGE_NUMBER_OFFSET], &re);
-    return re;
+    return readInt((*this)[PAGE_NUMBER_OFFSET]);
 }
 
 int DataFileDescPage::getFieldCount()
 {
-    int re;
-    readInt((*this)[FIELD_COUNT_OFFSET], &re);
-    return re;
+    return readInt((*this)[FIELD_COUNT_OFFSET]);
 }
 
 int DataFileDescPage::getPrimaryKeyCount()
 {
-    int re;
-    readInt((*this)[PRIMARY_KEY_COUNT_OFFSET], &re);
-    return re;
+    return readInt((*this)[PRIMARY_KEY_COUNT_OFFSET]);
 }
 
 void DataFileDescPage::setFirstDataPage(int n)

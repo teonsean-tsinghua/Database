@@ -12,8 +12,8 @@ const char* const Type::pageName_[] = {"Data file Desc page",
 									   "Data page",
 									   "Usage page",
 							  		   "Index file description page",
-									   "Index internal page",
-									   "Index leaf page",
+									   "Internal node page",
+									   "Leaf node page",
 									   "Bucket page"};
 
 int Type::typeSize(int type)

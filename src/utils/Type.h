@@ -16,6 +16,7 @@ public:
     const static int FLOAT = INT + 1;
     const static int DATE = FLOAT + 1;
     const static int VARCHAR = DATE + 1;
+    const static int PRIMARYKEY = VARCHAR + 1;
     const static int FIRST_TYPE = _ID;
     const static int LAST_TYPE = VARCHAR;
 
@@ -23,9 +24,9 @@ public:
     const static int DATA_PAGE = DATA_FILE_DESC_PAGE + 1;
     const static int USAGE_PAGE = DATA_PAGE + 1;
     const static int INDEX_FILE_DESC_PAGE = USAGE_PAGE + 1;
-    const static int INDEX_INTERNAL_PAGE = INDEX_FILE_DESC_PAGE + 1;
-    const static int INDEX_LEAF_PAGE = INDEX_INTERNAL_PAGE + 1;
-    const static int BUCKET_PAGE = INDEX_LEAF_PAGE + 1;
+    const static int INTERNAL_PAGE = INDEX_FILE_DESC_PAGE + 1;
+    const static int LEAF_PAGE = INTERNAL_PAGE + 1;
+    const static int BUCKET_PAGE = LEAF_PAGE + 1;
     const static int FIRST_PAGE_TYPE = DATA_FILE_DESC_PAGE;
     const static int LAST_PAGE_TYPE = BUCKET_PAGE;
 

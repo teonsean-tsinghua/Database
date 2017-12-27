@@ -8,35 +8,27 @@ Page::Page(char* cache, int index, int pageID):
 
 char* Page::operator[](const int offset) const
 {
-    return (cache + offset);
+    return cache + offset;
 }
 
 int Page::getPageType()
 {
-    int re;
-    readInt((*this)[PAGE_TYPE_OFFSET], &re);
-    return re;
+    return readInt((*this)[PAGE_TYPE_OFFSET]);
 }
 
 int Page::getFirstAvailableByte()
 {
-    int re;
-    readInt((*this)[FIRST_AVAILABLE_BYTE_OFFSET], &re);
-    return re;
+    return readInt((*this)[FIRST_AVAILABLE_BYTE_OFFSET]);
 }
 
 bool Page::isLengthFixed()
 {
-    int re;
-    readInt((*this)[LENGTH_FIXED_OFFSET], &re);
-    return re == 1;
+    return readInt((*this)[LENGTH_FIXED_OFFSET]) == 1;
 }
 
 int Page::getNextSamePage()
 {
-    int re;
-    readInt((*this)[NEXT_SAME_PAGE_OFFSET], &re);
-    return re;
+    return readInt((*this)[NEXT_SAME_PAGE_OFFSET]);
 }
 
 void Page::setPageType(int n)

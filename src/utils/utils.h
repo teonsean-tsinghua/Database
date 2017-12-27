@@ -2,6 +2,7 @@
 #define UTILS_H_INCLUDED
 
 #include"Exception.h"
+#include"CacheIOModel.h"
 #include"Type.h"
 #include"Info.h"
 #include"Base.h"

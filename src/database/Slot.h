@@ -1,8 +1,6 @@
 #ifndef SLOT_H_INCLUDED
 #define SLOT_H_INCLUDED
 
-#include"FileIOModel.h"
-#include"CacheIOModel.h"
 #include"Include.h"
 
 class Slot

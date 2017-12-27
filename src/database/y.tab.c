@@ -64,8 +64,8 @@
 /* Copy the first part of user declarations.  */
 #line 1 "parser.y" /* yacc.c:339  */
 
-#include "Database.h"
 #include "Include.h"
+#include "Database.h"
 
 Database* instance = Database::getInstance();
 
