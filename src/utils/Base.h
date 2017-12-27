@@ -39,6 +39,13 @@ struct Set
     struct Value value;
 };
 
+struct Foreign
+{
+	std::string field;
+	std::string table;
+	std::string column;
+};
+
 struct Where
 {
     int type; // 0-is null, 1-not null, 2-op

@@ -10,6 +10,9 @@
 
 class FileIOModel
 {
+	const static std::string TAG;
+	std::string root;
+
     static FileIOModel* instance;
     BufPageManager* bpm;
     FileManager* fm;
@@ -19,25 +22,55 @@ class FileIOModel
 public:
     static FileIOModel* getInstance();
 
-    void createFile(const char* name);
+    ~FileIOModel();
 
-    void openFile(const char* name, int& fileID);
+    void setRoot(std::string r);
+
+    void rmDir(const char* path);
+
+    bool isFile(std::string fname);
+
+    bool isDir(std::string dname);
+
+    bool exist(std::string name);
+
+    void checkDb(std::string dbname, bool exist);
+
+    void checkIdxDir(std::string dbname, std::string tbname, bool exist);
+
+    void checkDataFile(std::string dbname, std::string tbname, bool exist);
+
+    void checkIdxFile(std::string dbname, std::string tbname, std::string fdname, bool exist);
+
+    void createDb(std::string dbname);
+
+    void createDataFile(std::string dbname, std::string tbname);
+
+    void createIndexFile(std::string dbname, std::string tbname, std::string fdname);
+
+    void showTables(std::string dbname);
+
+    void showDbs();
+
+    void dropDb(std::string dbname);
+
+    void dropTable(std::string dbname, std::string tbname);
+
+    void dropIdx(std::string dbname, std::string tbname, std::string fdname);
+
+    void openDataFile(std::string dbname, std::string tbname, int& fileID);
+
+    void openIdxFile(std::string dbname, std::string tbname, std::string fdname, int& fileID);
 
     void closeFile(int fileID);
 
-    void deleteFile(const char* name);
-
-    BufType getPage(int fileID, int pageID, int& index);
-
-    BufType allocatePage(int fileID, int pageID, int& index);
+    char* getPage(int fileID, int pageID, int& index);
 
     void flush(int index);
 
-    void getKey(int index, int& fileID, int& pageID);
-
     void release(int index);
 
-    void flushAll();
+    static void test();
 
 };
 

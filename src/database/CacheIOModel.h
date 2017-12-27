@@ -2,33 +2,28 @@
 #define CACHEIOMODEL_H_INCLUDED
 
 #include"Include.h"
-#include"FileIOModel.h"
 
-void readInt(BufType cache, int *n);
+void readInt(char* cache, int *n);
 
-void readUnsignedInt(BufType cache, unsigned int* n);
-
-void writeInt(BufType cache, int n);
-
-void writeUnsignedInt(BufType cache, unsigned int n);
+void writeInt(char* cache, int n);
 
 void readString(char* cache, std::string& str, int len);
 
 void writeString(char* cache, std::string& str, int len);
 
-void readCharToBool(BufType cache, bool* b);
+void readCharToBool(char* cache, bool* b);
 
-void writeBoolToChar(BufType cache, bool b);
+void writeBoolToChar(char* cache, bool b);
 
-void readData(BufType cache, char* data, int len);
+void readData(char* cache, char* data, int len);
 
-void writeData(BufType cache, char* data, int len);
+void writeData(char* cache, char* data, int len);
 
-void copyData(BufType src, BufType dest, int len);
+void copyData(char* src, char* dest, int len);
 
-void read_id(BufType cache, char* data);
+void read_id(char* cache, char* data);
 
-void write_id(BufType cache);
+void write_id(char* cache);
 
 
 #endif // CACHEIOMODEL_H_INCLUDED

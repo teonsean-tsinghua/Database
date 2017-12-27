@@ -1,6 +1,6 @@
 %{
-#include "Base.h"
 #include "Database.h"
+#include "Include.h"
 
 Database* instance = Database::getInstance();
 
@@ -68,14 +68,14 @@ idxStmt	: CREATE INDEX tbName '(' colName ')' { instance->createIndex($3, $5); }
 	| DROP INDEX tbName '(' colName ')' { instance->dropIndex($3, $5); }
 	;
 
-fieldList : field { instance->addPendingField($1.name, $1.type, $1.nullable, $1.extra); }
-	| fieldList ',' field { instance->addPendingField($3.name, $3.type, $3.nullable, $3.extra); }
+fieldList : field {}
+	| fieldList ',' field {}
 	;
 
-field	: colName type { $$.type = $2.type; $$.extra = $2.extra; $$.nullable = true; $$.name = $1; }
-	| colName type NOT NULL_ { $$.type = $2.type; $$.extra = $2.extra; $$.nullable = false; $$.name = $1; }
-	| PRIMARY KEY '(' columnList ')'        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	| FOREIGN KEY '(' colName ')' REFERENCES tbName '(' colName ')' //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+field	: colName type { instance->addPendingField($1, $2.type, true, $2.extra); }
+	| colName type NOT NULL_ { instance->addPendingField($1, $2.type, false, $2.extra); }
+	| PRIMARY KEY '(' columnList ')' {}      
+	| FOREIGN KEY '(' colName ')' REFERENCES tbName '(' colName ')' { Foreign f; f.field = $4; f.table = $7; f.column = $9; instance->addPendingForeign(f); }
 	;
 
 type	: INT_ '(' VALUE_INT ')' { $$.type = Type::INT; $$.extra = $3; }

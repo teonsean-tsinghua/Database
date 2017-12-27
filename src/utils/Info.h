@@ -5,22 +5,29 @@
 #include<string>
 #include<vector>
 #include"Exception.h"
-#include"../database/Base.h"
+#include"Type.h"
 
 class RecordInfo
 {
 private:
+	const static std::string TAG;
     std::map<std::string, int> indexes;
     std::vector<std::string> names;
     std::vector<bool> nullables;
     std::vector<int> types;
     std::vector<int> offsets;
     std::vector<int> extras;
+    std::vector<std::string> foreigns;
+    std::vector<int> primKeyInfo;
     int recordLength;
     int recordInfoLength;
+    int primKeyCnt;
+    int primKeyLen;
 
 public:
     RecordInfo();
+
+    void printRecordDesc(std::string tbname);
 
     void init();
 
@@ -40,6 +47,8 @@ public:
 
     int extra(std::string name);
 
+    std::string foreign(std::string name);
+
     bool nullable(int i);
 
     int type(int i);
@@ -52,6 +61,8 @@ public:
 
     int extra(int i);
 
+    std::string foreign(int i);
+
     int getRecordLength();
 
     int getRecordInfoLength();
@@ -60,7 +71,13 @@ public:
 
     int getFieldCount();
 
-    int addField(std::string name, int type, bool nullable, int extra);
+    void setPrimKeyCnt(int n);
+
+    int getPrimKeyLen();
+
+    const std::vector<int>& getPrimKeyInfo();
+
+    int addField(std::string name, int type, bool nullable, int extra, std::string foreign);
 
     void reset(int n);
 
@@ -71,34 +88,6 @@ public:
     const static int FIELD_ALREADY_EXIST = 561;
 
     const static int EXCEED_PAGE_LIMIT = 615;
-};
-
-struct SearchInfo
-{
-    std::map<int, bool> nulls;
-    std::map<int, void*> values[5];
-    std::map<int, std::vector<void*> > notEqual;
-    std::map<int, std::vector<int> > fields[6];
-
-    SearchInfo();
-
-    bool processWheresWithOneTable(std::vector<Where>& pWheres, RecordInfo* ri, std::string tbname);
-};
-
-struct UpdateInfo
-{
-    std::map<int, void*> data;
-};
-
-class SelectResult
-{
-
-public:
-    bool all;
-
-    std::vector<int> results;
-
-    SelectResult();
 };
 
 #endif // RECORDINFO_H_INCLUDED

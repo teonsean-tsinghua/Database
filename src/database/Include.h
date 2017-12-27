@@ -16,5 +16,6 @@
 #include<set>
 #include<list>
 #include<cassert>
+#include<algorithm>
 
 #endif // FILELAYER_INCLUDE_H_INCLUDED

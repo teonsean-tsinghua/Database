@@ -1,12 +1,12 @@
 #include"Slot.h"
 
-Slot::Slot(BufType cache):
+Slot::Slot(char* cache):
     cache(cache)
 {
 
 }
 
-BufType Slot::operator[](const int offset) const
+char* Slot::operator[](const int offset) const
 {
-    return (BufType)((char*)cache + offset);
+    return (cache + offset);
 }

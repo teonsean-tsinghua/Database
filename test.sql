@@ -1,5 +1,4 @@
 USE test;
-DESC ints;
-UPDATE ints SET a = 11 WHERE d = 1;
-SELECT a, b, c, d FROM ints WHERE b <> 0;
-CREATE INDEX ints (a);
+CREATE TABLE primKeyTest (a INT, b INT, c INT, d INT, PRIMARY KEY(c, d), FOREIGN KEY (d) REFERENCES a(b), FOREIGN KEY (c) REFERENCES a(b));
+DESC primKeyTest;
+DROP TABLE primKeyTest;

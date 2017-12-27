@@ -1,40 +1,49 @@
 #ifndef PAGE_H_INCLUDED
 #define PAGE_H_INCLUDED
 
-#include"PageInfoSlot.h"
 #include"Include.h"
+#include"CacheIOModel.h"
 
 class Page
 {
 protected:
-    PageInfoSlot* pis;
-    BufType cache;
-    char* boundary;
+    char* cache;
     int index;
     int pageID;
 
-    const static char* const name_[];
-
 public:
-    Page(BufType cache, int index, int pageID, int type);
+    Page(char* cache, int index, int pageID);
 
-    BufType operator[](const int offset) const;
+    char* operator[](const int offset) const;
 
     int getIndex();
 
     int getPageID();
 
-    int getPageType();
+    void print();
 
-    void setNextSameType(int pid);
+	int getPageType();
 
-    int getNextSameType();
+	int getFirstAvailableByte();
 
-    const char* name(int type);
+	bool isLengthFixed();
 
-    virtual void print();
+	int getNextSamePage();
 
-    const static int PAGE_INFO_SLOT_OFFSET = 0;
+	void setPageType(int n);
+
+	void setFirstAvailableByte(int n);
+
+	void setLengthFixed(bool n);
+
+	void setNextSamePage(int n);
+
+	const static int PAGE_TYPE_OFFSET = 0;
+	const static int FIRST_AVAILABLE_BYTE_OFFSET = PAGE_TYPE_OFFSET + sizeof(int);
+	const static int LENGTH_FIXED_OFFSET = FIRST_AVAILABLE_BYTE_OFFSET + sizeof(int);
+	const static int NEXT_SAME_PAGE_OFFSET = LENGTH_FIXED_OFFSET + sizeof(int);
+
+    const static int PAGE_CONTENT_OFFSET = NEXT_SAME_PAGE_OFFSET + sizeof(int);
 
 };
 

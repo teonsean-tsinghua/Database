@@ -8,12 +8,12 @@
 class Slot
 {
 protected:
-    BufType cache;
+    char* cache;
 
 public:
-    Slot(BufType cache);
+    Slot(char* cache);
 
-    BufType operator[](const int offset) const;
+    char* operator[](const int offset) const;
 };
 
 #endif // SLOT_H_INCLUDED

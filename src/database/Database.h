@@ -3,20 +3,21 @@
 
 #include"Include.h"
 #include"DataFile.h"
-#include"IndexFile.h"
-#include"Base.h"
+#include"FileIOModel.h"
+//#include"IndexFile.h"
 #include"y.tab.h"
 
 class Database
 {
 private:
     static Database* instance;
-    std::map<std::string, DataFile*> data;
-    std::map<std::string, std::map<std::string, IndexFile*> > indexes;
+    const static std::string TAG;
+
+    FileIOModel* fm;
 
     std::vector<std::string> pNames;
     std::vector<int> pTypes;
-    std::vector<bool> pNullables;
+    std::vector<int> pNullables;
     std::vector<int> pExtras;
     std::vector<Value> pValues;
     std::vector<std::vector<Value> > pValueLists;
@@ -25,30 +26,25 @@ private:
     std::vector<Col> pCols;
     std::vector<Where> pWheres;
     std::vector<Set> pSets;
-
-    const std::string root;
-    std::string name;
+    std::vector<Foreign> pForeigns;
+    std::string curDb;
 
     Database(std::string root = "/home/teon/Documents/Database");
 
-    void delete_path(const char* path);
-
     void _test();
-
-    bool databaseAvailable();
-
-    DataFile* getDataFile(std::string name);
 
     void selectOneTable(bool all);
 
     void selectMultiTable(bool all);
 
-    void processSets(UpdateInfo& ui, RecordInfo* ri, std::string tbname);
-
-    void printOneTableSelectResult(SelectResult& sr, std::vector<bool>& selected, RecordInfo* ri);
+//    void processSets(UpdateInfo& ui, RecordInfo* ri, std::string tbname);
+//
+//    void printOneTableSelectResult(SelectResult& sr, std::vector<bool>& selected, RecordInfo* ri);
 
 public:
     static Database* getInstance();
+
+    void init();
 
     void createDatabase(std::string name);
 
@@ -85,6 +81,8 @@ public:
     void addPendingWhere(Where& where);
 
     void addPendingSet(Set& set_);
+
+    void addPendingForeign(Foreign& foreign);
 
     void insert(std::string name);
 

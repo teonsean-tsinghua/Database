@@ -1,23 +1,13 @@
 #include"CacheIOModel.h"
 
-void readInt(BufType cache, int* n)
+void readInt(char* cache, int* n)
 {
     *n = *(int*)cache;
 }
 
-void readUnsignedInt(BufType cache, unsigned int* n)
-{
-    *n = *(unsigned int*) cache;
-}
-
-void writeInt(BufType cache, int n)
+void writeInt(char* cache, int n)
 {
     *(int*)cache = n;
-}
-
-void writeUnsignedInt(BufType cache, unsigned int n)
-{
-    *(unsigned int*) cache = n;
 }
 
 void readString(char* cache, std::string& str, int len)
@@ -27,52 +17,47 @@ void readString(char* cache, std::string& str, int len)
 
 void writeString(char* cache, std::string& str, int len)
 {
-    if(str.copy(cache, len) != len)
-    {
-        throw Exception("Failed to write string.");
-    }
+    str.copy(cache, len);
 }
 
-void readCharToBool(BufType cache, bool* b)
+void readCharToBool(char* cache, bool* b)
 {
     *b = (bool)(*(char*)cache);
 }
 
-void writeBoolToChar(BufType cache, bool b)
+void writeBoolToChar(char* cache, bool b)
 {
     *(char*)cache = (char)(b ? 1 : 0);
 }
 
-void readData(BufType cache, char* data, int len)
+void readData(char* cache, char* data, int len)
 {
     memcpy(data, (char*)cache, len);
 }
 
-void writeData(BufType cache, char* data, int len)
+void writeData(char* cache, char* data, int len)
 {
     memcpy((char*)cache, data, len);
 }
 
-void copyData(BufType src, BufType dest, int len)
+void copyData(char* src, char* dest, int len)
 {
     memcpy((char*)dest, (char*)src, len);
 }
 
-void read_id(BufType cache, char* data)
+void read_id(char* cache, char* data)
 {
     *(unsigned long long*)data = *(unsigned long long*)cache;
     *(unsigned int*)(data + 8) = *(unsigned int*)((char*)cache + 8);
-    *(unsigned int*)(data + 12) = *(unsigned int*)((char*)cache + 12);
-    *(unsigned short*)(data + 16) = *(unsigned short*)((char*)cache + 16);
-    *(unsigned short*)(data + 18) = *(unsigned short*)((char*)cache + 18);
+    *(unsigned short*)(data + 12) = *(unsigned short*)((char*)cache + 12);
+    *(unsigned short*)(data + 14) = *(unsigned short*)((char*)cache + 14);
 }
 
-void write_id(BufType cache)
+void write_id(char* cache)
 {
     *(unsigned long long*)cache = time(0);
-    *(unsigned int*)((char*)cache + 8) = rand() * rand();
-    *(unsigned int*)((char*)cache + 12) = (unsigned int)(unsigned long long)cache;
-    *(unsigned short*)((char*)cache + 16) = (unsigned short)getpid();
-    *(unsigned short*)((char*)cache + 18) = (unsigned short)(rand());
+    *(unsigned int*)((char*)cache + 8) = (unsigned int)(unsigned long long)cache;
+    *(unsigned short*)((char*)cache + 12) = (unsigned short)getpid();
+    *(unsigned short*)((char*)cache + 14) = (unsigned short)(rand());
 }
 

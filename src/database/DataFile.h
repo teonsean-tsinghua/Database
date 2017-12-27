@@ -3,15 +3,15 @@
 
 #include"Include.h"
 #include"DataFileDescPage.h"
-#include"DataPage.h"
-#include"UsagePage.h"
-#include"IndexFile.h"
+//#include"DataPage.h"
+//#include"UsagePage.h"
+//#include"IndexFile.h"
 
 class DataFile
 {
 private:
+	const static std::string TAG;
     int fileID;
-    std::string path;
     FileIOModel* fm;
     DataFileDescPage* dfdp;
     std::map<int, Page*> pages;
@@ -19,7 +19,6 @@ private:
     int lastUsagePage;
     int lastDataPage;
     bool open;
-    char* buffer;
 
     int findFirstAvailableDataPage();
 
@@ -29,49 +28,45 @@ private:
 
     int allocateNewUsagePage();
 
-    DataPage* openDataPage(int pid);
-
-    UsagePage* openUsagePage(int pid);
+//    DataPage* openDataPage(int pid);
+//
+//    UsagePage* openUsagePage(int pid);
 
     bool validateInsertion(std::vector<void*>& data);
 
-    friend Table;
+//    friend Table;
 
 public:
-    DataFile(std::string path);
+    DataFile();
+
+    ~DataFile();
 
     RecordInfo* getRecordInfo();
 
-    void createFile();
+    void createFile(std::string dbname, std::string tbname);
 
-    void openFile();
+    void openFile(std::string dbname, std::string tbname);
 
     void closeFile();
 
-    void deleteFile();
+    void addFields(std::vector<std::string>& name, std::vector<int>& type, std::vector<int>& nullable,
+    		std::vector<int>& extra, std::vector<std::string>& foreign, int primCnt);
 
-    void addFields(std::vector<std::string>& name, std::vector<int>& type,
-                  std::vector<bool>& nullable, std::vector<int>& extra);
+//    void createIndex(IndexFile& inf);
 
-    void createIndex(IndexFile& inf);
-
-    void insert(std::vector<void*>& fields);
-
-    void select(SearchInfo& si, SelectResult& sr);
-
-    int remove(SearchInfo& si);
-
-    int update(SearchInfo& si, UpdateInfo& ui);
-
-    void setPrimaryKey(const char* name);
-
-    void getAllFields(std::vector<std::string>& names);
-
-    void printRecordDesc();
+//    void insert(std::vector<void*>& fields);
+//
+//    void select(SearchInfo& si, SelectResult& sr);
+//
+//    int remove(SearchInfo& si);
+//
+//    int update(SearchInfo& si, UpdateInfo& ui);
 
     void printFileDesc();
 
     void printAllRecords();
+
+    static void test();
 };
 
 #endif // DATAFILE_H_INCLUDED
