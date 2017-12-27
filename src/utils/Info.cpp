@@ -197,6 +197,10 @@ int RecordInfo::addField(std::string name, int type, bool nullable, int extra, s
         return EXCEED_PAGE_LIMIT;
     }
     recordInfoLength += (sizeof(int) * 5 + name.size() + foreign.size());
+    if(type == Type::VARCHAR)
+    {
+        extra++;
+    }
     names.push_back(name);
     types.push_back(type);
     nullables.push_back(nullable);
