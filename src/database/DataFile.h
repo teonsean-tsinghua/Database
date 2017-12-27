@@ -3,6 +3,8 @@
 
 #include"DataFileDescPage.h"
 #include"FileIOModel.h"
+#include"NodePage.h"
+#include"UsagePage.h"
 
 class DataFile
 {

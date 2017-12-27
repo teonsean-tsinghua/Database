@@ -5,6 +5,7 @@
 
 class UsagePage: public Page
 {
+
 public:
     UsagePage(char* cache, int index, int pageID, bool parse);
 
@@ -16,9 +17,13 @@ public:
 
     bool withinRange(int pid);
 
+    void extendRange(int pid);
+
     int findFirstAvailable();
 
     const static int USAGE_VOLUMN = PAGE_SIZE - PAGE_CONTENT_OFFSET;
+
+    static void test();
 };
 
 #endif // USAGEPAGE_H_INCLUDED

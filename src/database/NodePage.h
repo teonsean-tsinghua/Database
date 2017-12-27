@@ -20,10 +20,7 @@ protected:
     Entry<T> entries[];
 
 public:
-
-    static void split(NodePage* src, NodePage* dest);
-
-    static void merge(NodePage* src, NodePage* dest);
+    NodePage(char* cache, int index, int pageID, int keyType, int keyLength, bool parse, int type);
 
     bool greaterThanAll(T& key);
 
@@ -47,10 +44,26 @@ public:
 
     void setChildCnt(int cnt);
 
+    static void test();
+
     const static int PARENT_NODE_OFFSET = PAGE_CONTENT_OFFSET;
     const static int CHILDREN_COUNT_OFFSET = PARENT_NODE_OFFSET + sizeof(int);
     const static int DATA_OFFSET = CHILDREN_COUNT_OFFSET + sizeof(int);
 
+};
+
+template<typename T>
+class InternalPage: public NodePage<T>
+{
+public:
+    InternalPage(char* cache, int index, int pageID, int keyType, int keyLength, bool parse);
+};
+
+template<typename T>
+class LeafPage: public NodePage<T>
+{
+public:
+    LeafPage(char* cache, int index, int pageID, int keyType, int keyLength, bool parse);
 };
 
 #endif // NODEPAGE_H_INCLUDED

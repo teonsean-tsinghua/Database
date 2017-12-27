@@ -34,6 +34,13 @@ bool UsagePage::isAvailable(int pid)
     return readBool((*this)[PAGE_CONTENT_OFFSET + pid - pageID - 1]);
 }
 
+void UsagePage::extendRange(int pid)
+{
+    assert(pid > pageID + getFirstAvailableByte() - PAGE_CONTENT_OFFSET &&
+            pid <= pageID + PAGE_SIZE - PAGE_CONTENT_OFFSET);
+    setFirstAvailableByte(PAGE_CONTENT_OFFSET + pid - pageID);
+}
+
 void UsagePage::setAvailable(int pid, bool available)
 {
     assert(withinRange(pid));
@@ -52,4 +59,24 @@ int UsagePage::findFirstAvailable()
         begin++;
     }
     return 0;
+}
+
+void UsagePage::test()
+{
+    char page[8192];
+    UsagePage* up = new UsagePage(page, 1, 1, false);
+    assert(up->findFirstAvailable() == 0);
+    up->extendRange(1024);
+    assert(up->withinRange(512));
+    up->setAvailable(128, true);
+    UsagePage* up2 = new UsagePage(page, 1, 1, true);
+    assert(up->getPageType() == Type::USAGE_PAGE);
+    assert(up->getFirstAvailableByte() == PAGE_CONTENT_OFFSET + 1024 - 1);
+    assert(up->isAvailable(128));
+    assert(findOccupiedBy(128) == 1);
+    assert(findOccupiedBy(8161) == 1);
+    assert(findOccupiedBy(8179) == 8178);
+    delete up;
+    delete up2;
+    std::cout << "Passed usage page test.\n";
 }

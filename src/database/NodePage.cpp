@@ -3,6 +3,39 @@
 static char* buffer = new char[PAGE_SIZE];
 
 template<typename T>
+LeafPage<T>::LeafPage(char* cache, int index, int pageID, int keyType, int keyLength, bool parse):
+    NodePage<T>(cache, index, pageID, keyType, keyLength, parse, Type::LEAF_PAGE)
+{
+    if(parse)
+    {
+        assert(Page::getPageType() == Type::LEAF_PAGE);
+    }
+}
+
+template<typename T>
+InternalPage<T>::InternalPage(char* cache, int index, int pageID, int keyType, int keyLength, bool parse):
+    NodePage<T>(cache, index, pageID, keyType, keyLength, parse, Type::INTERNAL_PAGE)
+{
+    if(parse)
+    {
+        assert(Page::getPageType() == Type::INTERNAL_PAGE);
+    }
+}
+
+template<typename T>
+NodePage<T>::NodePage(char* cache, int index, int pageID, int keyType, int keyLength, bool parse, int type):
+    Page(cache, index, pageID), keyType(keyType), keyLength(keyLength)
+{
+    if(!parse)
+    {
+        setFirstAvailableByte(PAGE_CONTENT_OFFSET);
+        setLengthFixed(true);
+        setNextSamePage(-1);
+        setPageType(type);
+    }
+}
+
+template<typename T>
 int NodePage<T>::getChildCnt()
 {
 	return readInt((*this)[CHILDREN_COUNT_OFFSET]);
@@ -119,4 +152,51 @@ bool NodePage<T>::greaterThanAll(T& key)
     int cnt = getChildCnt();
     assert(cnt >= 0);
     return cnt == 0 || key > entries[cnt - 1].key;
+}
+
+template<typename T>
+void NodePage<T>::test()
+{
+    char *p1;
+    p1 = new char[8192];
+    int *nums;
+    nums = new int[10];
+    LeafPage<IntType>* lp = new LeafPage<IntType>(p1, 1, 2, Type::INT, 4, false);
+    nums[0] = 789;
+    nums[1] = 987;
+    nums[2] = 897;
+    nums[3] = 0;
+    lp->insert(*(IntType*)nums, 0);
+    lp->insert(*(IntType*)(nums + 1), 1);
+    lp->insert(*(IntType*)(nums + 2), 2);
+    lp->insert(*(IntType*)(nums + 3), 3);
+    assert(lp->at(0)->value == 3);
+    assert(lp->at(1)->value == 0);
+    assert(lp->at(2)->value == 2);
+    assert(lp->at(3)->value == 1);
+    assert(lp->at(0)->key.v == 0);
+    assert(lp->at(1)->key.v == 789);
+    assert(lp->at(2)->key.v == 897);
+    assert(lp->at(3)->key.v == 987);
+    lp->update(*(IntType*)(nums + 2), 222, 2);
+    assert(lp->at(0)->value == 3);
+    assert(lp->at(1)->value == 0);
+    assert(lp->at(2)->value == 222);
+    assert(lp->at(3)->value == 1);
+    assert(lp->at(0)->key.v == 0);
+    assert(lp->at(1)->key.v == 789);
+    assert(lp->at(2)->key.v == 897);
+    assert(lp->at(3)->key.v == 987);
+    LeafPage<IntType>* lp2 = new LeafPage<IntType>(p1, 1, 2, Type::INT, 4, true);
+    Entry<IntType>* en = lp2->search(*(IntType*)(nums + 1));
+    assert(en->key.v == 987);
+    assert(en->value == 1);
+    lp2->remove(*(IntType*)nums);
+    assert(lp->at(0)->value == 3);
+    assert(lp->at(1)->value == 222);
+    assert(lp->at(2)->value == 1);
+    assert(lp->at(0)->key.v == 0);
+    assert(lp->at(1)->key.v == 897);
+    assert(lp->at(2)->key.v == 987);
+    std::cout << "Passed node page tests.";
 }
