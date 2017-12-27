@@ -38,48 +38,30 @@ public:
 
 class DataType
 {
-public:
-	virtual void generate();
 
-	virtual int type();
-
-	virtual bool operator < (DataType& other) const;
-
-	virtual bool operator > (DataType& other) const;
-
-	virtual bool operator <= (DataType& other) const;
-
-	virtual bool operator >= (DataType& other) const;
-
-	virtual bool operator == (DataType& other) const;
-
-	virtual bool operator != (DataType& other) const;
 };
 
 class RecordInfo;
 
 class PrimKey: public DataType
 {
-	static RecordInfo* ri;
 
 public:
+	static RecordInfo* ri;
+
 	DataType keys[];
 
-	void generate();
+	bool friend operator < (PrimKey& one, PrimKey& other);
 
-	static void setRecordInfo(RecordInfo* ri);
+	bool friend operator > (PrimKey& one, PrimKey& other);
 
-	bool operator < (DataType& other) const;
+	bool friend operator <= (PrimKey& one, PrimKey& other);
 
-	bool operator > (DataType& other) const;
+	bool friend operator >= (PrimKey& one, PrimKey& other);
 
-	bool operator <= (DataType& other) const;
+	bool friend operator == (PrimKey& one, PrimKey& other);
 
-	bool operator >= (DataType& other) const;
-
-	bool operator == (DataType& other) const;
-
-	bool operator != (DataType& other) const;
+	bool friend operator != (PrimKey& one, PrimKey& other);
 
 };
 
@@ -89,21 +71,17 @@ class VarcharType: public DataType
 public:
 	char v[];
 
-	void generate();
+	bool friend operator < (VarcharType& one, VarcharType& other);
 
-	int type();
+	bool friend operator > (VarcharType& one, VarcharType& other);
 
-	bool operator < (DataType& other) const;
+	bool friend operator <= (VarcharType& one, VarcharType& other);
 
-	bool operator > (DataType& other) const;
+	bool friend operator >= (VarcharType& one, VarcharType& other);
 
-	bool operator <= (DataType& other) const;
+	bool friend operator == (VarcharType& one, VarcharType& other);
 
-	bool operator >= (DataType& other) const;
-
-	bool operator == (DataType& other) const;
-
-	bool operator != (DataType& other) const;
+	bool friend operator != (VarcharType& one, VarcharType& other);
 
 };
 
@@ -113,21 +91,17 @@ class DateType: public DataType
 public:
 	char v[8];
 
-	void generate();
+	bool friend operator < (DateType& one, DateType& other);
 
-	int type();
+	bool friend operator > (DateType& one, DateType& other);
 
-	bool operator < (DataType& other) const;
+	bool friend operator <= (DateType& one, DateType& other);
 
-	bool operator > (DataType& other) const;
+	bool friend operator >= (DateType& one, DateType& other);
 
-	bool operator <= (DataType& other) const;
+	bool friend operator == (DateType& one, DateType& other);
 
-	bool operator >= (DataType& other) const;
-
-	bool operator == (DataType& other) const;
-
-	bool operator != (DataType& other) const;
+	bool friend operator != (DateType& one, DateType& other);
 
 };
 
@@ -137,21 +111,17 @@ class FloatType: public DataType
 public:
 	float v;
 
-	void generate();
+	bool friend operator < (FloatType& one, FloatType& other);
 
-	int type();
+	bool friend operator > (FloatType& one, FloatType& other);
 
-	bool operator < (DataType& other) const;
+	bool friend operator <= (FloatType& one, FloatType& other);
 
-	bool operator > (DataType& other) const;
+	bool friend operator >= (FloatType& one, FloatType& other);
 
-	bool operator <= (DataType& other) const;
+	bool friend operator == (FloatType& one, FloatType& other);
 
-	bool operator >= (DataType& other) const;
-
-	bool operator == (DataType& other) const;
-
-	bool operator != (DataType& other) const;
+	bool friend operator != (FloatType& one, FloatType& other);
 
 };
 
@@ -161,21 +131,17 @@ class IntType: public DataType
 public:
 	int v;
 
-	void generate();
+	bool friend operator < (IntType& one, IntType& other);
 
-	int type();
+	bool friend operator > (IntType& one, IntType& other);
 
-	bool operator < (DataType& other) const;
+	bool friend operator <= (IntType& one, IntType& other);
 
-	bool operator > (DataType& other) const;
+	bool friend operator >= (IntType& one, IntType& other);
 
-	bool operator <= (DataType& other) const;
+	bool friend operator == (IntType& one, IntType& other);
 
-	bool operator >= (DataType& other) const;
-
-	bool operator == (DataType& other) const;
-
-	bool operator != (DataType& other) const;
+	bool friend operator != (IntType& one, IntType& other);
 
 };
 
@@ -188,21 +154,17 @@ public:
 	unsigned short pid;
 	unsigned short rd;
 
-	void generate();
+	bool friend operator < (IDType& one, IDType& other);
 
-	int type();
+	bool friend operator > (IDType& one, IDType& other);
 
-	bool operator < (DataType& other) const;
+	bool friend operator <= (IDType& one, IDType& other);
 
-	bool operator > (DataType& other) const;
+	bool friend operator >= (IDType& one, IDType& other);
 
-	bool operator <= (DataType& other) const;
+	bool friend operator == (IDType& one, IDType& other);
 
-	bool operator >= (DataType& other) const;
-
-	bool operator == (DataType& other) const;
-
-	bool operator != (DataType& other) const;
+	bool friend operator != (IDType& one, IDType& other);
 };
 
 #endif // TYPE_H_INCLUDED

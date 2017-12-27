@@ -2,6 +2,8 @@
 #include<cstdio>
 #include"Info.h"
 
+RecordInfo* PrimKey::ri;
+
 const int Type::typeSize_[] = {16, sizeof(int), sizeof(float), 8, 0};
 
 const char* const Type::typeName_[] = {"_ID", "INT", "FLOAT", "DATE", "VARCHAR"};
@@ -41,127 +43,107 @@ const char* Type::pageName(int type)
     return pageName_[type];
 }
 
-int IDType::type()
+bool operator == (IDType& one, IDType& other)
 {
-	return Type::_ID;
+	return one.ts == other.ts && one.ca == other.ca && one.pid == other.pid && one.rd == other.rd;
 }
 
-bool IDType::operator == (DataType& other) const
+bool operator != (IDType& one, IDType& other)
 {
-	return ts == IDType(other).ts && ca == IDType(other).ca && pid == IDType(other).pid && rd == IDType(other).rd;
+	return !(one == other);
 }
 
-bool IDType::operator != (DataType& other) const
+bool operator < (IDType& one, IDType& other)
 {
-	return !((*this) == IDType(other));
+	return one.ts < other.ts ||
+			(one.ts == other.ts && one.ca < other.ca) ||
+			(one.ts == other.ts && one.ca == other.ca && one.pid < other.pid) ||
+			(one.ts == other.ts && one.ca == other.ca && one.pid == other.pid && one.rd < other.rd);
 }
 
-bool IDType::operator < (DataType& other) const
+bool operator > (IDType& one, IDType& other)
 {
-	return ts < IDType(other).ts ||
-			(ts == IDType(other).ts && ca < IDType(other).ca) ||
-			(ts == IDType(other).ts && ca == IDType(other).ca && pid < IDType(other).pid) ||
-			(ts == IDType(other).ts && ca == IDType(other).ca && pid == IDType(other).pid && rd < IDType(other).rd);
+	return one.ts > other.ts ||
+			(one.ts == other.ts && one.ca > other.ca) ||
+			(one.ts == other.ts && one.ca == other.ca && one.pid > other.pid) ||
+			(one.ts == other.ts && one.ca == other.ca && one.pid == other.pid && one.rd > other.rd);
 }
 
-bool IDType::operator > (DataType& other) const
+bool operator <= (IDType& one, IDType& other)
 {
-	return ts > IDType(other).ts ||
-			(ts == IDType(other).ts && ca > IDType(other).ca) ||
-			(ts == IDType(other).ts && ca == IDType(other).ca && pid > IDType(other).pid) ||
-			(ts == IDType(other).ts && ca == IDType(other).ca && pid == IDType(other).pid && rd > IDType(other).rd);
+	return !(one > other);
 }
 
-bool IDType::operator <= (DataType& other) const
+bool operator >= (IDType& one, IDType& other)
 {
-	return !((*this) > IDType(other));
+	return !(one < other);
 }
 
-bool IDType::operator >= (DataType& other) const
+bool operator == (IntType& one, IntType& other)
 {
-	return !((*this) < IDType(other));
+	return one.v == other.v;
 }
 
-int IntType::type()
+bool operator != (IntType& one, IntType& other)
 {
-	return Type::INT;
+	return one.v != other.v;
 }
 
-bool IntType::operator == (DataType& other) const
+bool operator < (IntType& one, IntType& other)
 {
-	return v == ((IntType)other).v
+	return one.v < other.v;
 }
 
-bool IntType::operator != (DataType& other) const
+bool operator > (IntType& one, IntType& other)
 {
-	return v != ((IntType)other).v
+	return one.v > other.v;
 }
 
-bool IntType::operator < (DataType& other) const
+bool operator <= (IntType& one, IntType& other)
 {
-	return v < ((IntType)other).v
+	return one.v <= other.v;
 }
 
-bool IntType::operator > (DataType& other) const
+bool operator >= (IntType& one, IntType& other)
 {
-	return v > ((IntType)other).v
+	return one.v >= other.v;
 }
 
-bool IntType::operator <= (DataType& other) const
+bool operator == (FloatType& one, FloatType& other)
 {
-	return v <= ((IntType)other).v
+	return one.v == other.v;
 }
 
-bool IntType::operator >= (DataType& other) const
+bool operator != (FloatType& one, FloatType& other)
 {
-	return v >= ((IntType)other).v
+	return one.v != other.v;
 }
 
-int FloatType::type()
+bool operator < (FloatType& one, FloatType& other)
 {
-	return Type::FLOAT;
+	return one.v < other.v;
 }
 
-bool FloatType::operator == (DataType& other) const
+bool operator > (FloatType& one, FloatType& other)
 {
-	return v == ((FloatType)other).v;
+	return one.v > other.v;
 }
 
-bool FloatType::operator != (DataType& other) const
+bool operator <= (FloatType& one, FloatType& other)
 {
-	return v != ((FloatType)other).v;
+	return one.v <= other.v;
 }
 
-bool FloatType::operator < (DataType& other) const
+bool operator >= (FloatType& one, FloatType& other)
 {
-	return v < ((FloatType)other).v;
+	return one.v >= other.v;
 }
 
-bool FloatType::operator > (DataType& other) const
-{
-	return v > ((FloatType)other).v;
-}
-
-bool FloatType::operator <= (DataType& other) const
-{
-	return v <= ((FloatType)other).v;
-}
-
-bool FloatType::operator >= (DataType& other) const
-{
-	return v >= ((FloatType)other).v;
-}
-
-int DateType::type()
-{
-	return Type::DATE;
-}
-
-bool DateType::operator == (DataType& other) const
+bool operator == (DateType& one, DateType& other)
 {
 	for(int i = 0; i < 8; i++)
 	{
-		if(v[i] != ((DateType)other).v[i])
+		if(one.v[i] != other.v[i])
 		{
 			return false;
 		}
@@ -169,20 +151,20 @@ bool DateType::operator == (DataType& other) const
 	return true;
 }
 
-bool DateType::operator != (DataType& other) const
+bool operator != (DateType& one, DateType& other)
 {
-	return !((*this) == ((DateType)other));
+	return !(one == other);
 }
 
-bool DateType::operator < (DataType& other) const
+bool operator < (DateType& one, DateType& other)
 {
 	for(int i = 0; i < 8; i++)
 	{
-		if(v[i] < ((DateType)other).v[i])
+		if(one.v[i] < other.v[i])
 		{
 			return true;
 		}
-		else if(v[i] > ((DateType)other).v[i])
+		else if(one.v[i] > other.v[i])
 		{
 			return false;
 		}
@@ -190,15 +172,15 @@ bool DateType::operator < (DataType& other) const
 	return false;
 }
 
-bool DateType::operator > (DataType& other) const
+bool operator > (DateType& one, DateType& other)
 {
 	for(int i = 0; i < 8; i++)
 	{
-		if(v[i] < ((DateType)other).v[i])
+		if(one.v[i] < other.v[i])
 		{
 			return false;
 		}
-		else if(v[i] > ((DateType)other).v[i])
+		else if(one.v[i] > other.v[i])
 		{
 			return true;
 		}
@@ -206,16 +188,16 @@ bool DateType::operator > (DataType& other) const
 	return false;
 }
 
-bool DateType::operator <= (DataType& other) const
+bool operator <= (DateType& one, DateType& other)
 {
 
 	for(int i = 0; i < 8; i++)
 	{
-		if(v[i] < ((DateType)other).v[i])
+		if(one.v[i] < other.v[i])
 		{
 			return true;
 		}
-		else if(v[i] > ((DateType)other).v[i])
+		else if(one.v[i] > other.v[i])
 		{
 			return false;
 		}
@@ -223,15 +205,15 @@ bool DateType::operator <= (DataType& other) const
 	return true;
 }
 
-bool DateType::operator >= (DataType& other) const
+bool operator >= (DateType& one, DateType& other)
 {
 	for(int i = 0; i < 8; i++)
 	{
-		if(v[i] < ((DateType)other).v[i])
+		if(one.v[i] < other.v[i])
 		{
 			return false;
 		}
-		else if(v[i] > ((DateType)other).v[i])
+		else if(one.v[i] > other.v[i])
 		{
 			return true;
 		}
@@ -239,18 +221,11 @@ bool DateType::operator >= (DataType& other) const
 	return true;
 }
 
-RecordInfo* PrimKey::ri;
-
-void PrimKey::setRecordInfo(RecordInfo* ri)
+bool operator < (PrimKey& one, PrimKey& other)
 {
-	this->ri = ri;
-}
-
-bool PrimKey::operator < (DataType& other) const
-{
-	const std::vector<int>& info = ri->getPrimKeyInfo();
-	char* ptr = (char*)keys;
-	char* ptr2 = (char*)((PrimKey)other).keys;
+	const std::vector<int>& info = PrimKey::ri->getPrimKeyInfo();
+	char* ptr = (char*)one.keys;
+	char* ptr2 = (char*)other.keys;
 	for(int i = 0; i < info.size();)
 	{
 		int type = info[i++];
@@ -273,6 +248,275 @@ bool PrimKey::operator < (DataType& other) const
 				return true;
 			}
 			if(*(IntType*)(ptr) > *(IntType*)(ptr2))
+			{
+				return false;
+			}
+			break;
+		case Type::FLOAT:
+			if(*(FloatType*)(ptr) < *(FloatType*)(ptr2))
+			{
+				return true;
+			}
+			if(*(FloatType*)(ptr) > *(FloatType*)(ptr2))
+			{
+				return false;
+			}
+			break;
+		case Type::DATE:
+			if(*(DateType*)(ptr) < *(DateType*)(ptr2))
+			{
+				return true;
+			}
+			if(*(DateType*)(ptr) > *(DateType*)(ptr2))
+			{
+				return false;
+			}
+			break;
+		case Type::VARCHAR:
+			if(*(VarcharType*)(ptr) < *(VarcharType*)(ptr2))
+			{
+				return true;
+			}
+			if(*(VarcharType*)(ptr) > *(VarcharType*)(ptr2))
+			{
+				return false;
+			}
+			break;
+		}
+		ptr += len;
+		ptr2 += len;
+	}
+	return false;
+}
+
+bool operator > (PrimKey& one, PrimKey& other)
+{
+	const std::vector<int>& info = PrimKey::ri->getPrimKeyInfo();
+	char* ptr = (char*)one.keys;
+	char* ptr2 = (char*)other.keys;
+	for(int i = 0; i < info.size();)
+	{
+		int type = info[i++];
+		int len = info[i++];
+		switch(type)
+		{
+		case Type::_ID:
+			if(*(IDType*)(ptr) > *(IDType*)(ptr2))
+			{
+				return true;
+			}
+			if(*(IDType*)(ptr) < *(IDType*)(ptr2))
+			{
+				return false;
+			}
+			break;
+		case Type::INT:
+			if(*(IntType*)(ptr) > *(IntType*)(ptr2))
+			{
+				return true;
+			}
+			if(*(IntType*)(ptr) < *(IntType*)(ptr2))
+			{
+				return false;
+			}
+			break;
+		case Type::FLOAT:
+			if(*(FloatType*)(ptr) > *(FloatType*)(ptr2))
+			{
+				return true;
+			}
+			if(*(FloatType*)(ptr) < *(FloatType*)(ptr2))
+			{
+				return false;
+			}
+			break;
+		case Type::DATE:
+			if(*(DateType*)(ptr) > *(DateType*)(ptr2))
+			{
+				return true;
+			}
+			if(*(DateType*)(ptr) < *(DateType*)(ptr2))
+			{
+				return false;
+			}
+			break;
+		case Type::VARCHAR:
+			if(*(VarcharType*)(ptr) > *(VarcharType*)(ptr2))
+			{
+				return true;
+			}
+			if(*(VarcharType*)(ptr) < *(VarcharType*)(ptr2))
+			{
+				return false;
+			}
+			break;
+		}
+		ptr += len;
+		ptr2 += len;
+	}
+	return false;
+}
+
+bool operator <= (PrimKey& one, PrimKey& other)
+{
+    const std::vector<int>& info = PrimKey::ri->getPrimKeyInfo();
+	char* ptr = (char*)one.keys;
+	char* ptr2 = (char*)other.keys;
+	for(int i = 0; i < info.size();)
+	{
+		int type = info[i++];
+		int len = info[i++];
+		switch(type)
+		{
+		case Type::_ID:
+			if(*(IDType*)(ptr) < *(IDType*)(ptr2))
+			{
+				return true;
+			}
+			if(*(IDType*)(ptr) > *(IDType*)(ptr2))
+			{
+				return false;
+			}
+			break;
+		case Type::INT:
+			if(*(IntType*)(ptr) < *(IntType*)(ptr2))
+			{
+				return true;
+			}
+			if(*(IntType*)(ptr) > *(IntType*)(ptr2))
+			{
+				return false;
+			}
+			break;
+		case Type::FLOAT:
+			if(*(FloatType*)(ptr) < *(FloatType*)(ptr2))
+			{
+				return true;
+			}
+			if(*(FloatType*)(ptr) > *(FloatType*)(ptr2))
+			{
+				return false;
+			}
+			break;
+		case Type::DATE:
+			if(*(DateType*)(ptr) < *(DateType*)(ptr2))
+			{
+				return true;
+			}
+			if(*(DateType*)(ptr) > *(DateType*)(ptr2))
+			{
+				return false;
+			}
+			break;
+		case Type::VARCHAR:
+			if(*(VarcharType*)(ptr) < *(VarcharType*)(ptr2))
+			{
+				return true;
+			}
+			if(*(VarcharType*)(ptr) > *(VarcharType*)(ptr2))
+			{
+				return false;
+			}
+			break;
+		}
+		ptr += len;
+		ptr2 += len;
+	}
+	return true;
+}
+
+bool operator >= (PrimKey& one, PrimKey& other)
+{
+	const std::vector<int>& info = PrimKey::ri->getPrimKeyInfo();
+	char* ptr = (char*)one.keys;
+	char* ptr2 = (char*)other.keys;
+	for(int i = 0; i < info.size();)
+	{
+		int type = info[i++];
+		int len = info[i++];
+		switch(type)
+		{
+		case Type::_ID:
+			if(*(IDType*)(ptr) > *(IDType*)(ptr2))
+			{
+				return true;
+			}
+			if(*(IDType*)(ptr) < *(IDType*)(ptr2))
+			{
+				return false;
+			}
+			break;
+		case Type::INT:
+			if(*(IntType*)(ptr) > *(IntType*)(ptr2))
+			{
+				return true;
+			}
+			if(*(IntType*)(ptr) < *(IntType*)(ptr2))
+			{
+				return false;
+			}
+			break;
+		case Type::FLOAT:
+			if(*(FloatType*)(ptr) > *(FloatType*)(ptr2))
+			{
+				return true;
+			}
+			if(*(FloatType*)(ptr) < *(FloatType*)(ptr2))
+			{
+				return false;
+			}
+			break;
+		case Type::DATE:
+			if(*(DateType*)(ptr) > *(DateType*)(ptr2))
+			{
+				return true;
+			}
+			if(*(DateType*)(ptr) < *(DateType*)(ptr2))
+			{
+				return false;
+			}
+			break;
+		case Type::VARCHAR:
+			if(*(VarcharType*)(ptr) > *(VarcharType*)(ptr2))
+			{
+				return true;
+			}
+			if(*(VarcharType*)(ptr) < *(VarcharType*)(ptr2))
+			{
+				return false;
+			}
+			break;
+		}
+		ptr += len;
+		ptr2 += len;
+	}
+	return true;
+}
+
+bool operator != (PrimKey& one, PrimKey& other)
+{
+	return !(one == other);
+}
+
+bool operator == (PrimKey& one, PrimKey& other)
+{
+	const std::vector<int>& info = PrimKey::ri->getPrimKeyInfo();
+	char* ptr = (char*)one.keys;
+	char* ptr2 = (char*)other.keys;
+	for(int i = 0; i < info.size();)
+	{
+		int type = info[i++];
+		int len = info[i++];
+        switch(type)
+		{
+		case Type::_ID:
+			if(*(IDType*)(ptr) != *(IDType*)(ptr2))
+			{
+				return false;
+			}
+			break;
+		case Type::INT:
+			if(*(IntType*)(ptr) != *(IntType*)(ptr2))
 			{
 				return true;
 			}
@@ -302,74 +546,33 @@ bool PrimKey::operator < (DataType& other) const
 	return true;
 }
 
-bool PrimKey::operator > (DataType& other) const
+bool operator == (VarcharType& one, VarcharType& other)
 {
-
+	return strcmp(one.v, other.v) == 0;
 }
 
-bool PrimKey::operator <= (DataType& other) const
+bool operator != (VarcharType& one, VarcharType& other)
 {
-
+	return strcmp(one.v, other.v) != 0;
 }
 
-bool PrimKey::operator >= (DataType& other) const
+bool operator < (VarcharType& one, VarcharType& other)
 {
-
+	return strcmp(one.v, other.v) < 0;
 }
 
-bool PrimKey::operator != (DataType& other) const
+bool operator > (VarcharType& one, VarcharType& other)
 {
-	return !((*this) == ((PrimKey)other));
+	return strcmp(one.v, other.v) > 0;
 }
 
-bool PrimKey::operator == (DataType& other) const
+bool operator <= (VarcharType& one, VarcharType& other)
 {
-	const std::vector<int>& info = ri->getPrimKeyInfo();
-	char* ptr = (char*)keys;
-	char* ptr2 = (char*)((PrimKey)other).keys;
-	for(int i = 0; i < info.size();)
-	{
-		int type = info[i++];
-		int len = info[i++];
-
-		ptr += len;
-		ptr2 += len;
-	}
-	return true;
+	return strcmp(one.v, other.v) <= 0;
 }
 
-int VarcharType::type()
+bool operator >= (VarcharType& one, VarcharType& other)
 {
-	return Type::VARCHAR;
-}
-
-bool VarcharType::operator == (DataType& other) const
-{
-	return strcmp(v, ((VarcharType)other).v) == 0;
-}
-
-bool VarcharType::operator != (DataType& other) const
-{
-	return strcmp(v, ((VarcharType)other).v) != 0;
-}
-
-bool VarcharType::operator < (DataType& other) const
-{
-	return strcmp(v, ((VarcharType)other).v) < 0;
-}
-
-bool VarcharType::operator > (DataType& other) const
-{
-	return strcmp(v, ((VarcharType)other).v) > 0;
-}
-
-bool VarcharType::operator <= (DataType& other) const
-{
-	return strcmp(v, ((VarcharType)other).v) <= 0;
-}
-
-bool VarcharType::operator >= (DataType& other) const
-{
-	return strcmp(v, ((VarcharType)other).v) >= 0;
+	return strcmp(one.v, other.v) >= 0;
 }
 
