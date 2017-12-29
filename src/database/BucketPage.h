@@ -5,6 +5,8 @@
 
 class Bucket
 {
+public:
+
     int next;
     int pids[];
 
@@ -13,6 +15,8 @@ class Bucket
     static int search(Bucket* b, int v, int d);
 
     static int lastIdx(Bucket* b, int d);
+
+    static void print(Bucket*b, int d);
 };
 
 class BucketPage: public Page

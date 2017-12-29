@@ -15,11 +15,31 @@ bool Bucket::containForInsert(Bucket* b, int v, int d, bool& athere)
         }
         if(b->pids[i] == 0)
         {
+            b->pids[i] = v;
             athere = false;
             return true;
         }
     }
     return false;
+}
+
+void Bucket::print(Bucket* b, int d)
+{
+    int volumn = bucket_sizes[d];
+    std::cout << b << ":[";
+    for(int i = 0; i < volumn; i++)
+    {
+        if(b->pids[i] > 0)
+        {
+            std::cout << b->pids[i] << ", ";
+        }
+        else
+        {
+            break;
+        }
+    }
+    std::cout << "]\n";
+    return;
 }
 
 int Bucket::lastIdx(Bucket* b, int d)
@@ -32,7 +52,7 @@ int Bucket::lastIdx(Bucket* b, int d)
             return i - 1;
         }
     }
-    return -1;
+    return volumn - 1;
 }
 
 int Bucket::search(Bucket* b, int v, int d)
@@ -64,6 +84,10 @@ BucketPage::BucketPage(char* cache, int index, int pageID, bool parse, int densi
         setNextSamePage(-1);
         setPrevSamePage(-1);
         memset((*this)[PAGE_CONTENT_OFFSET], 0, PAGE_SIZE - PAGE_CONTENT_OFFSET);
+        for(int i = 0; i < cnt(); i++)
+        {
+            writeBool((*this)[PAGE_CONTENT_OFFSET + i], true);
+        }
     }
 }
 

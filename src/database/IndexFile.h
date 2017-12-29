@@ -49,6 +49,12 @@ public:
 
     bool remove(T& key, int value = 0);
 
+    bool update(T& key, int value, int old_value = 0);
+
+    void printValuesOfKey(T& key);
+
+    static void test();
+
 };
 
 template<typename T>
@@ -60,8 +66,72 @@ IndexFile<T>::IndexFile()
 }
 
 template<typename T>
+void IndexFile<T>::printValuesOfKey(T& key)
+{
+    assert(open);
+    std::cout << "Values of key " << key << ":\n";
+    if(ifdp->getUnique())
+    {
+        std::cout << tree->search(key) << std::endl;
+    }
+    int bid = tree->search(key);
+    if(bid <= 0)
+    {
+        std::cout << 0 << std::endl;
+        return;
+    }
+    Bucket* target = ((BucketPage*)openPage(bid / PAGE_SIZE))->at(bid % PAGE_SIZE);
+    while(true)
+    {
+        Bucket::print(target, ifdp->getDensity());
+        if(target->next <= 0)
+        {
+            break;
+        }
+        target = ((BucketPage*)openPage(target->next / PAGE_SIZE))->at(target->next % PAGE_SIZE);
+    }
+    std::cout << "===================================================\n";
+}
+
+template<typename T>
+bool IndexFile<T>::update(T& key, int value, int old_value)
+{
+    assert(open);
+    if(ifdp->getUnique())
+    {
+        return tree->update(key, value);
+    }
+    assert(old_value > 0);
+    int bucket_id = tree->search(key);
+    if(bucket_id <= 0)
+    {
+        return false;
+    }
+    Bucket* target = ((BucketPage*)openPage(bucket_id / PAGE_SIZE))->at(bucket_id % PAGE_SIZE);
+    bool re;
+    while(true)
+    {
+        int idx;
+        if((idx = Bucket::search(target, old_value, ifdp->getDensity())) >= 0)
+        {
+            re = true;
+            target->pids[idx] = value;
+            break;
+        }
+        if(target->next <= 0)
+        {
+            re = false;
+            break;
+        }
+        target = ((BucketPage*)openPage(target->next / PAGE_SIZE))->at(target->next % PAGE_SIZE);
+    }
+    return re;
+}
+
+template<typename T>
 bool IndexFile<T>::remove(T& key, int value)
 {
+    assert(open);
     if(ifdp->getUnique())
     {
         return tree->remove(key);
@@ -80,8 +150,11 @@ bool IndexFile<T>::remove(T& key, int value)
         tail_bid = tail->next;
         secondLast = tail;
         tail = ((BucketPage*)openPage(tail_bid / PAGE_SIZE))->at(tail_bid % PAGE_SIZE);
+        std::cout << "tail: " << tail << "\n";
     }
+    std::cout << "finally tail:" << tail << " and second last " << secondLast<<std::endl;
     int tail_index = Bucket::lastIdx(tail, ifdp->getDensity());
+    std::cout << "tail page:" << tail_bid / PAGE_SIZE << ", tail index " << tail_index << "\n";
     assert(tail_index >= 0);
     bool re;
     while(true)
@@ -93,11 +166,18 @@ bool IndexFile<T>::remove(T& key, int value)
             tail->pids[tail_index] = 0;
             if(Bucket::lastIdx(tail, ifdp->getDensity()) < 0)
             {
+                std::cout << "last bucket empty, removing it.\n";
                 BucketPage* page = (BucketPage*)openPage(tail_bid / PAGE_SIZE);
                 page->setAvailable(tail_bid % PAGE_SIZE, true);
                 if(secondLast != NULL)
                 {
                     secondLast->next = 0;
+                    std::cout << "second last reset.\n";
+                    std::cout << secondLast->next << "\n";
+                }
+                if(bucket_id == tail_bid)
+                {
+                    tree->remove(key);
                 }
                 int upid = UsagePage::findOccupiedBy(page->getPageID());
                 ((UsagePage*)openPage(upid))->setAvailable(page->getPageID(), true);
@@ -119,6 +199,7 @@ bool IndexFile<T>::remove(T& key, int value)
 template<typename T>
 bool IndexFile<T>::insert(T& key, int value)
 {
+    assert(open);
     if(ifdp->getUnique())
     {
         if(tree->search(key) != 0)
@@ -181,6 +262,7 @@ bool IndexFile<T>::insert(T& key, int value)
 template<typename T>
 void IndexFile<T>::setRootPage(int n)
 {
+    assert(open);
     ifdp->setRootPage(n);
 }
 
@@ -211,6 +293,7 @@ int IndexFile<T>::findFirstAvailableBucketPage()
 template<typename T>
 void IndexFile<T>::markAsUsable(int n)
 {
+    assert(open);
     int upid = UsagePage::findOccupiedBy(n);
     delete pages[n];
     int index;
@@ -289,7 +372,7 @@ int IndexFile<T>::allocateNodePage(bool isLeaf)
         ifdp->incrementPageNumber();
     }
     up->extendRange(cnt);
-    up->setAvailable(cnt, true);
+    up->setAvailable(cnt, false);
     return cnt;
 }
 
@@ -389,10 +472,9 @@ void IndexFile<T>::createFile(std::string dbname, std::string tbname, std::strin
     int index;
     char* cache = fm->getPage(fileID, 0, index);
     ifdp = new IndexFileDescPage(cache, index, 0, false, keyType, keyLength);
-    ifdp->setRootPage(ifdp->getRootPage());
     ifdp->setUnique(unique);
     ifdp->setDensity(density);
-    int root = allocateNodePage(true);
+    ifdp->setRootPage(allocateNodePage(true));
     fm->flush(ifdp->getIndex());
     for(std::map<int, Page*>::iterator iter = pages.begin(); iter != pages.end(); iter++)
     {
@@ -434,6 +516,34 @@ void IndexFile<T>::openFile(std::string dbname, std::string tbname, std::string 
     keyLength = ifdp->getKeyLength();
     tree = new IndexTree<T>(this, ifdp->getRootPage(), keyLength);
     openPage(ifdp->getRootPage());
+}
+
+template<typename T>
+void IndexFile<T>::test()
+{
+    FileIOModel::getInstance()->createDataFile("test", "test");
+    IndexFile<IntType> f;
+    f.createFile("test", "test", "test", 1, 4, false, 1);
+    f.openFile("test", "test", "test");
+    for(int i = 0; i < 100; i++)
+    {
+        for(int j = 1; j < 100; j++)
+        {
+            assert(f.insert(*(IntType*)&i, j));
+        }
+    }
+    for(int i = 0; i < 100; i++)
+    {
+        f.printValuesOfKey(*(IntType*)&i);
+    }
+    for(int i = 0; i < 100; i++)
+    {
+        for(int j = 1; j < 100; j++)
+        {
+            assert(f.remove(*(IntType*)&i, j));
+        }
+    }
+    FileIOModel::getInstance()->dropTable("test", "test");
 }
 
 #endif

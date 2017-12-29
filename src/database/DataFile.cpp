@@ -126,7 +126,7 @@ int DataFile::allocateNodePage(bool isLeaf)
         dfdp->incrementPageNumber();
     }
     up->extendRange(cnt);
-    up->setAvailable(cnt, true);
+    up->setAvailable(cnt, false);
     return cnt;
 }
 
