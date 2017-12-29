@@ -8,6 +8,7 @@ class RecordSlot
 protected:
     char* cache;
     RecordInfo* ri;
+    int actual_data_offset;
 
 public:
     RecordSlot(char* cache, RecordInfo* ri);

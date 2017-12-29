@@ -3,7 +3,7 @@
 RecordSlot::RecordSlot(char* cache, RecordInfo* ri):
     cache(cache), ri(ri)
 {
-
+    actual_data_offset = ri->getFieldCount();
 }
 
 bool RecordSlot::check(SearchInfo& si)
@@ -39,7 +39,7 @@ bool RecordSlot::checkNull(std::map<int, bool>& nulls)
     for(iter = nulls.begin(); iter != nulls.end(); iter++)
     {
         int idx = iter->first;
-        if(readBool((*this)[ri->offset(idx)]) != iter->second)
+        if(readBool((*this)[idx]) != iter->second)
         {
             return false;
         }
@@ -54,11 +54,11 @@ bool RecordSlot::checkValue(std::map<int, void*>& info, int op)
     {
         int idx = iter->first;
         int offset = ri->offset(idx);
-        if(readBool((*this)[offset]))
+        if(readBool((*this)[idx]))
         {
             return false;
         }
-        char* left = (*this)[offset + 1], *right = (char*)iter->second;
+        char* left = (*this)[offset + actual_data_offset], *right = (char*)iter->second;
         bool flag = false;
         switch(op)
         {
@@ -178,14 +178,14 @@ bool RecordSlot::checkValueNotEqual(std::map<int, std::vector<void*> >& info)
     {
         int idx = iter->first;
         int offset = ri->offset(idx);
-        if(readBool((*this)[offset]))
+        if(readBool((*this)[idx]))
         {
             return true;
         }
         std::vector<void*>& vecs = iter->second;
         for(int i = 0; i < vecs.size(); i++)
         {
-            if(memcmp((*this)[offset + 1], vecs[i], ri->length(idx)) == 0)
+            if(memcmp((*this)[offset + actual_data_offset], vecs[i], ri->length(idx)) == 0)
             {
                 return false;
             }
@@ -207,8 +207,8 @@ bool RecordSlot::checkFields(std::map<int, std::vector<int> >& info, int op)
             int ridx = vecs[i];
             int roffset = ri->offset(ridx);
             bool lnull, rnull;
-            lnull = readBool((*this)[loffset]);
-            rnull = readBool((*this)[roffset]);
+            lnull = readBool((*this)[lidx]);
+            rnull = readBool((*this)[ridx]);
             if(lnull && rnull)
             {
                 if(op != 0)
@@ -224,7 +224,7 @@ bool RecordSlot::checkFields(std::map<int, std::vector<int> >& info, int op)
                 }
             }
             bool flag = false;
-            char* left = (*this)[loffset + 1], * right = (*this)[roffset + 1];
+            char* left = (*this)[loffset + actual_data_offset], * right = (*this)[roffset + actual_data_offset];
             switch(op)
             {
             case 0:
@@ -362,19 +362,19 @@ void RecordSlot::write(std::vector<void*>& data)
     int cnt = ri->getFieldCount();
     assert(cnt != data.size());
     writeBool((*this)[0], false);
-    write_id((*this)[1]);
+    write_id((*this)[actual_data_offset]);
     for(int i = 1; i < cnt; i++)
     {
         int offset = ri->offset(i);
         char* ptr = (char*)(data[i]);
         if(ptr == NULL)
         {
-            writeBool((*this)[offset], true);
+            writeBool((*this)[i], true);
         }
         else
         {
-            writeBool((*this)[offset], false);
-            copyData(ptr, (*this)[offset + 1], ri->length(i));
+            writeBool((*this)[i], false);
+            copyData(ptr, (*this)[offset + actual_data_offset], ri->length(i));
         }
     }
 }
@@ -393,12 +393,12 @@ void RecordSlot::update(UpdateInfo& ui)
         char* ptr = (char*)iter->second;
         if(ptr == NULL)
         {
-            writeBool((*this)[ri->offset(idx)], true);
+            writeBool((*this)[idx], true);
         }
         else
         {
-            writeBool((*this)[ri->offset(idx)], false);
-            copyData(ptr, (*this)[ri->offset(idx) + 1], ri->length(idx));
+            writeBool((*this)[idx], false);
+            copyData(ptr, (*this)[ri->offset(idx) + actual_data_offset], ri->length(idx));
         }
     }
 }
@@ -417,7 +417,7 @@ void RecordSlot::read(std::vector<void*>& data)
     for(int i = 1; i < cnt; i++)
     {
         int offset = ri->offset(i);
-        bool isNull = readBool((*this)[offset]);
+        bool isNull = readBool((*this)[i]);
         if(ri->nullable(i) && isNull)
         {
             data[i] = NULL;
@@ -426,7 +426,7 @@ void RecordSlot::read(std::vector<void*>& data)
         {
             int len = ri->length(i);
             char* tmp = new char[len];
-            copyData((*this)[offset + 1], tmp, len);
+            copyData((*this)[offset + actual_data_offset], tmp, len);
             data[i] = (void*)tmp;
         }
     }
