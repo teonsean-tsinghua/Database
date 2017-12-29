@@ -248,8 +248,8 @@ bool operator >= (DateType& one, DateType& other)
 bool operator < (PrimKey& one, PrimKey& other)
 {
 	const std::vector<int>& info = PrimKey::ri->getPrimKeyInfo();
-	char* ptr = (char*)one.keys;
-	char* ptr2 = (char*)other.keys;
+	char* ptr = (char*)&one;
+	char* ptr2 = (char*)&other;
 	for(int i = 0; i < info.size();)
 	{
 		int type = info[i++];
@@ -316,8 +316,8 @@ bool operator < (PrimKey& one, PrimKey& other)
 bool operator > (PrimKey& one, PrimKey& other)
 {
 	const std::vector<int>& info = PrimKey::ri->getPrimKeyInfo();
-	char* ptr = (char*)one.keys;
-	char* ptr2 = (char*)other.keys;
+	char* ptr = (char*)&one;
+	char* ptr2 = (char*)&other;
 	for(int i = 0; i < info.size();)
 	{
 		int type = info[i++];
@@ -384,8 +384,8 @@ bool operator > (PrimKey& one, PrimKey& other)
 bool operator <= (PrimKey& one, PrimKey& other)
 {
     const std::vector<int>& info = PrimKey::ri->getPrimKeyInfo();
-	char* ptr = (char*)one.keys;
-	char* ptr2 = (char*)other.keys;
+	char* ptr = (char*)&one;
+	char* ptr2 = (char*)&other;
 	for(int i = 0; i < info.size();)
 	{
 		int type = info[i++];
@@ -452,8 +452,8 @@ bool operator <= (PrimKey& one, PrimKey& other)
 bool operator >= (PrimKey& one, PrimKey& other)
 {
 	const std::vector<int>& info = PrimKey::ri->getPrimKeyInfo();
-	char* ptr = (char*)one.keys;
-	char* ptr2 = (char*)other.keys;
+	char* ptr = (char*)&one;
+	char* ptr2 = (char*)&other;
 	for(int i = 0; i < info.size();)
 	{
 		int type = info[i++];
@@ -525,8 +525,8 @@ bool operator != (PrimKey& one, PrimKey& other)
 void operator << (PrimKey& one, PrimKey& other)
 {
 	const std::vector<int>& info = PrimKey::ri->getPrimKeyInfo();
-	char* ptr = (char*)one.keys;
-	char* ptr2 = (char*)other.keys;
+	char* ptr = (char*)&one;
+	char* ptr2 = (char*)&other;
 	for(int i = 0; i < info.size();)
 	{
 		int type = info[i++];
@@ -540,8 +540,8 @@ void operator << (PrimKey& one, PrimKey& other)
 bool operator == (PrimKey& one, PrimKey& other)
 {
 	const std::vector<int>& info = PrimKey::ri->getPrimKeyInfo();
-	char* ptr = (char*)one.keys;
-	char* ptr2 = (char*)other.keys;
+	char* ptr = (char*)&one;
+	char* ptr2 = (char*)&other;
 	for(int i = 0; i < info.size();)
 	{
 		int type = info[i++];
@@ -557,7 +557,7 @@ bool operator == (PrimKey& one, PrimKey& other)
 		case Type::INT:
 			if(*(IntType*)(ptr) != *(IntType*)(ptr2))
 			{
-				return true;
+				return false;
 			}
 			break;
 		case Type::FLOAT:

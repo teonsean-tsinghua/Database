@@ -24,11 +24,13 @@ public:
 
     ~NodePage();
 
+    void print();
+
     bool greaterThanAll(T& key);
 
     void insert(T& key, int value);
 
-    void remove(T& key, int value = 0);
+    int remove(T& key, int value = 0);
 
     void update(T& key, int newv, int oldv = 0);
 
@@ -36,7 +38,13 @@ public:
 
     Entry<T>* search(T& key);
 
+    int searchForIndex(T& key);
+
+    int getKeyLength();
+
     bool isLeaf();
+
+    bool isFull();
 
     int getParent();
 
@@ -95,7 +103,7 @@ NodePage<T>::NodePage(char* cache, int index, int pageID, int keyType, int keyLe
     if(!parse)
     {
         setFirstAvailableByte(PAGE_CONTENT_OFFSET);
-        setLengthFixed(true);
+        setPrevSamePage(-1);
         setNextSamePage(-1);
         setPageType(type);
     }
@@ -109,15 +117,34 @@ NodePage<T>::~NodePage()
 }
 
 template<typename T>
+void NodePage<T>::print()
+{
+    Page::print();
+    std::cout << "Parent id:                        " << getParent() << std::endl;
+}
+
+template<typename T>
 int NodePage<T>::getChildCnt()
 {
 	return readInt((*this)[CHILDREN_COUNT_OFFSET]);
 }
 
 template<typename T>
+int NodePage<T>::getKeyLength()
+{
+	return keyLength;
+}
+
+template<typename T>
 void NodePage<T>::setChildCnt(int n)
 {
 	writeInt((*this)[CHILDREN_COUNT_OFFSET], n);
+}
+
+template<typename T>
+bool NodePage<T>::isFull()
+{
+    return (getFirstAvailableByte() + sizeof(int) + keyLength) > PAGE_SIZE;
 }
 
 template<typename T>
@@ -130,6 +157,21 @@ template<typename T>
 Entry<T>* NodePage<T>::at(int n)
 {
     return (Entry<T>*)((*this)[DATA_OFFSET + n * (keyLength + sizeof(int))]);
+}
+
+template<typename T>
+int NodePage<T>::searchForIndex(T& key)
+{
+    int cnt = getChildCnt();
+    assert(cnt >= 0);
+    for(int i = 0; i < cnt; i++)
+    {
+        if(key <= at(i)->key)
+        {
+            return i;
+        }
+    }
+    return -1;
 }
 
 template<typename T>
@@ -164,7 +206,7 @@ void NodePage<T>::update(T& key, int newv, int oldv)
 }
 
 template<typename T>
-void NodePage<T>::remove(T& key, int value)
+int NodePage<T>::remove(T& key, int value)
 {
     int cnt = getChildCnt();
     assert(cnt >= 0);
@@ -178,9 +220,10 @@ void NodePage<T>::remove(T& key, int value)
             copyData(buffer, (char*)&(at(i)->value), len);
             setChildCnt(cnt - 1);
             setFirstAvailableByte(getFirstAvailableByte() - keyLength - sizeof(int));
-            return;
+            return i;
         }
     }
+    return -1;
 }
 
 template<typename T>
@@ -196,7 +239,11 @@ void NodePage<T>::insert(T& key, int value)
             break;
         }
     }
-    assert(idx == cnt || (idx < cnt && key != at(idx)->key));
+    if(idx != cnt)
+    {
+        assert(idx < cnt);
+        assert(key != at(idx)->key);
+    }
     int len = (cnt - idx) * (sizeof(int) + keyLength);
     copyData((char*)&(at(idx)->value), buffer, len);
     copyData(buffer, (char*)&(at(idx + 1)->value), len);

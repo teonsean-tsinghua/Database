@@ -5,31 +5,34 @@
 #include"FileIOModel.h"
 #include"NodePage.h"
 #include"UsagePage.h"
+#include"IndexTree.h"
+#include"DataPage.h"
 
-class DataFile
+class DataFile: public BaseFile
 {
 private:
 	const static std::string TAG;
     int fileID;
     FileIOModel* fm;
     DataFileDescPage* dfdp;
+    IndexTree<PrimKey>* tree;
     std::map<int, Page*> pages;
     RecordInfo* ri;
-    int lastUsagePage;
-    int lastDataPage;
     bool open;
 
     int findFirstAvailableDataPage();
 
-    void setAvailableOfDataPage(int dpid, bool available);
+    int allocateUsagePage();
 
-    int allocateNewDataPage();
+    int allocateNodePage(bool isLeaf);
 
-    int allocateNewUsagePage();
+    int allocateDataPage();
 
-//    DataPage* openDataPage(int pid);
-//
-//    UsagePage* openUsagePage(int pid);
+    void markAsUsable(int n);
+
+    void setRootPage(int n);
+
+    Page* openPage(int pid);
 
     bool validateInsertion(std::vector<void*>& data);
 
@@ -50,16 +53,6 @@ public:
 
     void addFields(std::vector<std::string>& name, std::vector<int>& type, std::vector<int>& nullable,
     		std::vector<int>& extra, std::vector<std::string>& foreign, int primCnt);
-
-//    void createIndex(IndexFile& inf);
-
-//    void insert(std::vector<void*>& fields);
-//
-//    void select(SearchInfo& si, SelectResult& sr);
-//
-//    int remove(SearchInfo& si);
-//
-//    int update(SearchInfo& si, UpdateInfo& ui);
 
     void printFileDesc();
 

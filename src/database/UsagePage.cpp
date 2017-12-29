@@ -7,7 +7,7 @@ UsagePage::UsagePage(char* cache, int index, int pageID, bool parse):
     if(!parse)
     {
         setFirstAvailableByte(PAGE_CONTENT_OFFSET);
-        setLengthFixed(true);
+        setPrevSamePage(-1);
         setNextSamePage(-1);
         setPageType(Type::USAGE_PAGE);
     }
@@ -19,7 +19,11 @@ UsagePage::UsagePage(char* cache, int index, int pageID, bool parse):
 
 int UsagePage::findOccupiedBy(int pid)
 {
-    assert(pid > 0 && pid % (USAGE_VOLUMN + 1) != 1);
+    assert(pid > 0);
+    if(pid % (USAGE_VOLUMN + 1) == 1)
+    {
+        return 0;
+    }
     return ((pid - 1) / (USAGE_VOLUMN + 1)) * (USAGE_VOLUMN + 1) + 1;
 }
 

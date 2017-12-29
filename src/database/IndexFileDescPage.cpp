@@ -7,7 +7,7 @@ IndexFileDescPage::IndexFileDescPage(char* cache, int index, int pageID, bool pa
     {
         setPageType(Type::INDEX_FILE_DESC_PAGE);
         setNextSamePage(-1);
-        setLengthFixed(false);
+        setPrevSamePage(-1);
         setFirstLeafPage(-1);
         setFirstBucketPage(-1);
         setPageNumber(1);

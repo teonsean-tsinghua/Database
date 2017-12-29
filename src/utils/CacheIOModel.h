@@ -5,6 +5,7 @@
 #include<string>
 #include<cstdlib>
 #include<unistd.h>
+#include<cstdio>
 
 int readInt(char* cache);
 
@@ -21,5 +22,7 @@ void writeBool(char* cache, bool b);
 void copyData(char* src, char* dest, int len);
 
 void write_id(char* cache);
+
+std::string read_id(char* cache);
 
 #endif // CACHEIOMODEL_H_INCLUDED

@@ -30,6 +30,8 @@ public:
 
     static void copy(RecordSlot* src, RecordSlot* dest, int length);
 
+    void print();
+
     char* operator[](const int offset) const;
 };
 

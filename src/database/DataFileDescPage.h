@@ -11,6 +11,8 @@ protected:
 public:
     DataFileDescPage(char* cache, int index, int pageID, bool parse, RecordInfo* ri);
 
+    int getLastDataPage();
+
     int getFirstDataPage();
 
     int getFirstLeafPage();
@@ -25,6 +27,8 @@ public:
 
     void setFirstDataPage(int n);
 
+    void setLastDataPage(int n);
+
     void setFirstLeafPage(int n);
 
     void setPageNumber(int n);
@@ -35,7 +39,7 @@ public:
 
     void setRootPage(int n);
 
-    void incrementPageNumber(int type);
+    void incrementPageNumber();
 
     void writeFields();
 
@@ -46,7 +50,8 @@ public:
     static int maxRecordInfoLength();
 
     const static int FIRST_DATA_PAGE_OFFSET = PAGE_CONTENT_OFFSET;
-    const static int FIRST_LEAF_PAGE_OFFSET = FIRST_DATA_PAGE_OFFSET + sizeof(int);
+    const static int LAST_DATA_PAGE_OFFSET = FIRST_DATA_PAGE_OFFSET + sizeof(int);
+    const static int FIRST_LEAF_PAGE_OFFSET = LAST_DATA_PAGE_OFFSET + sizeof(int);
     const static int ROOT_PAGE_OFFSET = FIRST_LEAF_PAGE_OFFSET + sizeof(int);
     const static int PAGE_NUMBER_OFFSET = ROOT_PAGE_OFFSET + sizeof(int);
     const static int PRIMARY_KEY_COUNT_OFFSET = PAGE_NUMBER_OFFSET + sizeof(int);

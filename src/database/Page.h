@@ -19,13 +19,13 @@ public:
 
     int getPageID();
 
-    void print();
+    virtual void print();
 
 	int getPageType();
 
 	int getFirstAvailableByte();
 
-	bool isLengthFixed();
+	int getPrevSamePage();
 
 	int getNextSamePage();
 
@@ -37,12 +37,14 @@ public:
 
 	void setNextSamePage(int n);
 
-	static int getPageType(char* buf);
+	void setPrevSamePage(int n);
+
+	static int getPageTypeStatik(char* buf);
 
 	const static int PAGE_TYPE_OFFSET = 0;
 	const static int FIRST_AVAILABLE_BYTE_OFFSET = PAGE_TYPE_OFFSET + sizeof(int);
-	const static int LENGTH_FIXED_OFFSET = FIRST_AVAILABLE_BYTE_OFFSET + sizeof(int);
-	const static int NEXT_SAME_PAGE_OFFSET = LENGTH_FIXED_OFFSET + sizeof(int);
+	const static int PREV_SAME_PAGE_OFFSET = FIRST_AVAILABLE_BYTE_OFFSET + sizeof(int);
+	const static int NEXT_SAME_PAGE_OFFSET = PREV_SAME_PAGE_OFFSET + sizeof(int);
 
     const static int PAGE_CONTENT_OFFSET = NEXT_SAME_PAGE_OFFSET + sizeof(int);
 

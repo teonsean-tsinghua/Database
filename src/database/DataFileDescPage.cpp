@@ -7,8 +7,9 @@ DataFileDescPage::DataFileDescPage(char* cache, int index, int pageID, bool pars
     {
         setPageType(Type::DATA_FILE_DESC_PAGE);
         setNextSamePage(-1);
-        setLengthFixed(false);
+        setPrevSamePage(-1);
         setFirstDataPage(-1);
+        setLastDataPage(-1);
         setFirstLeafPage(-1);
         setRootPage(-1);
         setPageNumber(1);
@@ -48,24 +49,9 @@ void DataFileDescPage::updateFirstAvailable()
     setFirstAvailableByte(RECORD_INFO_OFFSET + ri->getRecordInfoLength());
 }
 
-void DataFileDescPage::incrementPageNumber(int type)
+void DataFileDescPage::incrementPageNumber()
 {
     setPageNumber(getPageNumber() + 1);
-    switch(type)
-    {
-    case Type::DATA_PAGE:
-        if(getFirstDataPage() <= 0)
-        {
-            setFirstDataPage(getPageNumber() - 1);
-        }
-        break;
-    case Type::LEAF_PAGE:
-        if(getFirstLeafPage() <= 0)
-        {
-            setFirstLeafPage(getPageNumber() - 1);
-        }
-        break;
-    }
 }
 
 int DataFileDescPage::maxRecordInfoLength()
@@ -105,6 +91,7 @@ void DataFileDescPage::print()
     int cnt = ri->getFieldCount();
     std::cout << "Page number:                      " << getPageNumber() << std::endl;
     std::cout << "First data page:                  " << getFirstDataPage() << std::endl;
+    std::cout << "Last data page:                   " << getLastDataPage() << std::endl;
     std::cout << "First leaf page:                  " << getFirstLeafPage() << std::endl;
     std::cout << "Root page:                        " << getRootPage() << std::endl;
     std::cout << "Record length:                    " << ri->getRecordLength() << std::endl;
@@ -120,6 +107,11 @@ void DataFileDescPage::print()
 int DataFileDescPage::getFirstDataPage()
 {
     return readInt((*this)[FIRST_DATA_PAGE_OFFSET]);
+}
+
+int DataFileDescPage::getLastDataPage()
+{
+    return readInt((*this)[LAST_DATA_PAGE_OFFSET]);
 }
 
 int DataFileDescPage::getFirstLeafPage()
@@ -150,6 +142,11 @@ int DataFileDescPage::getPrimaryKeyCount()
 void DataFileDescPage::setFirstDataPage(int n)
 {
     writeInt((*this)[FIRST_DATA_PAGE_OFFSET], n);
+}
+
+void DataFileDescPage::setLastDataPage(int n)
+{
+    writeInt((*this)[LAST_DATA_PAGE_OFFSET], n);
 }
 
 void DataFileDescPage::setFirstLeafPage(int n)

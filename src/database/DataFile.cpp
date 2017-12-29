@@ -2,11 +2,9 @@
 
 const std::string DataFile::TAG = "DataFile";
 
-DataFile::DataFile()
+DataFile::DataFile(): BaseFile()
 {
     fm = FileIOModel::getInstance();
-    lastUsagePage = -1;
-    lastDataPage = -1;
     open = false;
     ri = new RecordInfo();
 }
@@ -56,140 +54,169 @@ RecordInfo* DataFile::getRecordInfo()
 //        up = openUsagePage(up->getNextSameType());
 //    }
 //}
-//
-//void DataFile::setAvailableOfDataPage(int dpid, bool available)
-//{
-//    assert(open);
-//    UsagePage* up = openUsagePage(dfdp->getFirstUsagePage());
-//    while(true)
-//    {
-//        if(up == NULL)
-//        {
-//            return;
-//        }
-//        if(up->withinRange(dpid))
-//        {
-//            break;
-//        }
-//        up = openUsagePage(up->getNextSameType());
-//    }
-//    up->setAvailable(dpid, available);
-//}
-//
-//int DataFile::allocateNewUsagePage()
-//{
-//    assert(open);
-//    int cnt = dfdp->getPageNumber();
-//    if(cnt <= 0)
-//    {
-//        throw Exception("Invalid page number.");
-//    }
-//    int index;
-//    BufType cache = fm->getPage(fileID, cnt, index);
-//    UsagePage* up = new UsagePage(cache, index, cnt, false);
-//    pages[cnt] = up;
-//    Print::log("Allocated new usage page ").logLine(cnt);
-//    dfdp->incrementPageNumber(Type::USAGE_PAGE);
-//    UsagePage* last;
-//    if((last = openUsagePage(lastUsagePage)) != NULL)
-//    {
-//        last->setNextSameType(cnt);
-//    }
-//    lastUsagePage = cnt;
-//    return cnt;
-//}
-//
-//int DataFile::allocateNewDataPage()
-//{
-//    assert(open);
-//    int cnt = dfdp->getPageNumber();
-//    if(cnt <= 0)
-//    {
-//        throw Exception("Invalid page number.");
-//    }
-//    UsagePage* up = openUsagePage(lastUsagePage);
-//    if(up == NULL || !up->withinRange(cnt))
-//    {
-//        up = openUsagePage(allocateNewUsagePage());
-//    }
-//    cnt = dfdp->getPageNumber();
-//    int index;
-//    BufType cache = fm->getPage(fileID, cnt, index);
-//    DataPage* dp = new DataPage(cache, index, cnt, false, ri);
-//    pages[cnt] = dp;
-//    Print::log("Allocated new data page ").logLine(cnt);
-//    dfdp->incrementPageNumber(Type::DATA_PAGE);
-//    DataPage* last;
-//    if((last = openDataPage(lastDataPage)) != NULL)
-//    {
-//        last->setNextSameType(cnt);
-//    }
-//    lastDataPage = cnt;
-//    if(!up->withinRange(cnt))
-//    {
-//        throw Exception("Internal error when allocating new data page.");
-//    }
-//    up->setAvailable(cnt, true);
-//    return cnt;
-//}
-//
-//DataPage* DataFile::openDataPage(int pid)
-//{
-//    assert(open);
-//    if(pages.count(pid))
-//    {
-//        Page* re = pages[pid];
-//        return re->getPageType() == Type::DATA_PAGE ? (DataPage*)re : NULL;
-//    }
-//    if(pid <= 0 || pid >= dfdp->getPageNumber())
-//    {
-//        return NULL;
-//    }
-//    int index;
-//    BufType cache = fm->getPage(fileID, pid, index);
-//    if(PageInfoSlot::getPageType(cache) != Type::DATA_PAGE)
-//    {
-//        return NULL;
-//    }
-//    DataPage* re = new DataPage(cache, index, pid, true, ri);
-//    pages[pid] = re;
-//    return re;
-//}
-//
-//UsagePage* DataFile::openUsagePage(int pid)
-//{
-//    assert(open);
-//    if(pages.count(pid))
-//    {
-//        Page* re = pages[pid];
-//        return re->getPageType() == Type::USAGE_PAGE ? (UsagePage*)re : NULL;
-//    }
-//    if(pid <= 0 || pid >= dfdp->getPageNumber())
-//    {
-//        return NULL;
-//    }
-//    int index;
-//    BufType cache = fm->getPage(fileID, pid, index);
-//    if(PageInfoSlot::getPageType(cache) != Type::USAGE_PAGE)
-//    {
-//        return NULL;
-//    }
-//    UsagePage* re = new UsagePage(cache, index, pid, true);
-//    pages[pid] = re;
-//    return re;
-//}
-//
+
+void DataFile::markAsUsable(int n)
+{
+    int upid = UsagePage::findOccupiedBy(n);
+    delete pages[n];
+    int index;
+    char* cache = fm->getPage(fileID, n, index);
+    DataPage* cur = new DataPage(cache, index, n, false, ri);
+    pages[n] = cur;
+    ((UsagePage*)openPage(upid))->setAvailable(n, true);
+    int pid = n;
+    while(--pid > 0)
+    {
+        Page* p = openPage(pid);
+        if(p->getPageType() == Type::DATA_PAGE)
+        {
+            cur->setNextSamePage(p->getNextSamePage());
+            if(p->getNextSamePage() > 0)
+            {
+                openPage(p->getNextSamePage())->setPrevSamePage(n);
+            }
+            p->setNextSamePage(n);
+            cur->setPrevSamePage(pid);
+        }
+    }
+}
+
+void DataFile::setRootPage(int n)
+{
+    assert(n > 0);
+    dfdp->setRootPage(n);
+}
+
+int DataFile::allocateUsagePage()
+{
+    assert(open);
+    int cnt = dfdp->getPageNumber();
+    assert(cnt > 0);
+    int index;
+    char* cache = fm->getPage(fileID, cnt, index);
+    UsagePage* up = new UsagePage(cache, index, cnt, false);
+    pages[cnt] = up;
+    std::cout << "Allocated new usage page " << cnt << std::endl;
+    if(cnt != 1)
+    {
+        int last = UsagePage::findOccupiedBy(cnt - 1);
+        openPage(last)->setNextSamePage(cnt);
+        up->setPrevSamePage(last);
+    }
+    dfdp->incrementPageNumber();
+    return cnt;
+}
+
+int DataFile::allocateNodePage(bool isLeaf)
+{
+    assert(open);
+    int cnt = dfdp->getPageNumber();
+    int upid = UsagePage::findOccupiedBy(cnt);
+    if(upid == 0)
+    {
+        upid = allocateUsagePage();
+        cnt = dfdp->getPageNumber();
+    }
+    UsagePage* up = (UsagePage*)openPage(upid);
+    int index;
+    char* cache = fm->getPage(fileID, cnt, index);
+    if(isLeaf)
+    {
+        pages[cnt] = new LeafPage<PrimKey>(cache, index, cnt, Type::PRIMARYKEY, ri->getPrimKeyLen(), false);
+        std::cout << "Allocated new leaf page " << cnt << std::endl;
+        dfdp->incrementPageNumber();
+        if(dfdp->getFirstLeafPage() < 0)
+        {
+            dfdp->setFirstLeafPage(cnt);
+        }
+    }
+    else
+    {
+        pages[cnt] = new InternalPage<PrimKey>(cache, index, cnt, Type::PRIMARYKEY, ri->getPrimKeyLen(), false);
+        std::cout << "Allocated new internal page " << cnt << std::endl;
+        dfdp->incrementPageNumber();
+    }
+    up->extendRange(cnt);
+    up->setAvailable(cnt, true);
+    return cnt;
+}
+
+int DataFile::allocateDataPage()
+{
+    assert(open);
+    int cnt = dfdp->getPageNumber();
+    int upid = UsagePage::findOccupiedBy(cnt);
+    if(upid == 0)
+    {
+        upid = allocateUsagePage();
+        cnt = dfdp->getPageNumber();
+    }
+    UsagePage* up = (UsagePage*)openPage(upid);
+    int index;
+    char* cache = fm->getPage(fileID, cnt, index);
+    pages[cnt] = new DataPage(cache, index, cnt, false, ri);
+    std::cout << "Allocated new data page " << cnt << std::endl;
+    dfdp->incrementPageNumber();
+    if(dfdp->getFirstDataPage() < 0)
+    {
+        dfdp->setFirstDataPage(-1);
+        dfdp->setLastDataPage(-1);
+    }
+    else
+    {
+        openPage(dfdp->getLastDataPage())->setNextSamePage(cnt);
+        pages[cnt]->setPrevSamePage(dfdp->getLastDataPage());
+        dfdp->setLastDataPage(cnt);
+    }
+    up->extendRange(cnt);
+    up->setAvailable(cnt, true);
+    return cnt;
+}
+
+Page* DataFile::openPage(int pid)
+{
+    assert(open);
+    if(pages.count(pid))
+    {
+        return pages[pid];
+    }
+    assert(pid > 0 && pid < dfdp->getPageNumber());
+    int index;
+    char* cache = fm->getPage(fileID, pid, index);
+    Page* re;
+    switch(Page::getPageTypeStatik(cache))
+    {
+    case Type::DATA_PAGE:
+        re = new DataPage(cache, index, pid, true, ri);
+        break;
+    case Type::INTERNAL_PAGE:
+        re = new InternalPage<PrimKey>(cache, index, pid, Type::PRIMARYKEY, ri->getPrimKeyLen(), true);
+        break;
+    case Type::LEAF_PAGE:
+        re = new LeafPage<PrimKey>(cache, index, pid, Type::PRIMARYKEY, ri->getPrimKeyLen(), true);
+        break;
+    case Type::USAGE_PAGE:
+        re = new UsagePage(cache, index, pid, true);
+        break;
+    }
+    pages[pid] = re;
+    return re;
+}
+
 void DataFile::createFile(std::string dbname, std::string tbname)
 {
     assert(!open);
     fm->createDataFile(dbname, tbname);
     fm->openDataFile(dbname, tbname, fileID);
+    open = true;
     int index;
     ri->init();
     char* cache = fm->getPage(fileID, 0, index);
     dfdp = new DataFileDescPage(cache, index, 0, false, ri);
+    setRootPage(allocateNodePage(true));
     fm->flush(dfdp->getIndex());
     fm->closeFile(fileID);
+    open = false;
     delete dfdp;
 }
 
@@ -206,6 +233,7 @@ void DataFile::closeFile()
     open = false;
     fm->closeFile(fileID);
     delete dfdp;
+    delete tree;
 }
 
 void DataFile::printFileDesc()
@@ -239,91 +267,6 @@ void DataFile::addFields(std::vector<std::string>& name, std::vector<int>& type,
     dfdp->writeFields();
     dfdp->setPrimaryKeyCount(primCnt);
 }
-//
-//int DataFile::remove(SearchInfo& si)
-//{
-//    assert(open);
-//    DataPage* dp = openDataPage(dfdp->getFirstDataPage());
-//    int cnt = 0;
-//    while(true)
-//    {
-//        if(dp == NULL)
-//        {
-//            break;
-//        }
-//        cnt += dp->remove(si);
-//        dp = openDataPage(dp->getNextSameType());
-//    }
-//    return cnt;
-//}
-//
-//int DataFile::update(SearchInfo& si, UpdateInfo& ui)
-//{
-//    assert(open);
-//    DataPage* dp = openDataPage(dfdp->getFirstDataPage());
-//    int cnt = 0;
-//    while(true)
-//    {
-//        if(dp == NULL)
-//        {
-//            break;
-//        }
-//        cnt += dp->update(si, ui);
-//        dp = openDataPage(dp->getNextSameType());
-//    }
-//    return cnt;
-//}
-//
-//void DataFile::select(SearchInfo& si, SelectResult& sr)
-//{
-//    assert(open);
-//    DataPage* dp = openDataPage(dfdp->getFirstDataPage());
-//    while(true)
-//    {
-//        if(dp == NULL)
-//        {
-//            break;
-//        }
-//        dp->select(si, sr);
-//        dp = openDataPage(dp->getNextSameType());
-//    }
-//}
-//
-//bool DataFile::validateInsertion(std::vector<void*>& data)
-//{
-//    assert(open);
-//    int n = ri->getFieldCount();
-//    if(n != data.size())
-//    {
-//        Print::printLine("Not enough fields provided.");
-//        return false;
-//    }
-//    bool flag = true;
-//    for(int i = 1; i < data.size(); i++)
-//    {
-//        if(!ri->nullable(i) && data[i] == NULL)
-//        {
-//            flag = false;
-//            Print::print("Field ").print(ri->name(i)).printLine(" cannot be null");
-//        }
-//    }
-//    return flag;
-//}
-//
-//void DataFile::insert(std::vector<void*>& fields)
-//{
-//    assert(open);
-//    if(!validateInsertion(fields))
-//    {
-//        return;
-//    }
-//    int fadp = findFirstAvailableDataPage();
-//    int re = openDataPage(fadp)->insert(fields);
-//    if(re == DataPage::PAGE_FULL)
-//    {
-//        setAvailableOfDataPage(fadp, false);
-//    }
-//}
 
 void DataFile::openFile(std::string dbname, std::string tbname)
 {
@@ -334,14 +277,43 @@ void DataFile::openFile(std::string dbname, std::string tbname)
     ri->init();
     char* cache = fm->getPage(fileID, 0, index);
     dfdp = new DataFileDescPage(cache, index, 0, true, ri);
-    lastBucketPage = lastUsagePage = -1;
+    tree = new IndexTree<PrimKey>(this, dfdp->getRootPage(), ri->getPrimKeyLen());
 }
 
 void DataFile::test()
 {
+	try{FileIOModel::getInstance()->dropTable("test", "test");} catch(Exception){}
 	DataFile df;
 	df.createFile("test", "test");
 	df.openFile("test", "test");
+	std::vector<std::string> name;
+	name.push_back("test");
+	std::vector<int> type;
+	type.push_back(1);
+	std::vector<int> nullable;
+	nullable.push_back(0);
+	std::vector<int> extra;
+	extra.push_back(0);
+	std::vector<std::string> foreign;
+	foreign.push_back("");
+	df.addFields(name, type, nullable, extra, foreign, 1);
+	df.closeFile();
+	df.openFile("test", "test");
+	df.printFileDesc();
+	PrimKey::ri = df.ri;
+	char** key = new char*[1000000];
+	for(int i = 0; i < 10000; i++)
+    {
+        key[i] = new char[4];
+        writeInt(key[i], i);
+        df.tree->insert(*(PrimKey*)key[i], i);
+        //std::cout << i << " inserted.\n";
+    }
+    for(int i = 0; i < 10000; i++)
+    {
+        assert(df.tree->remove(*(PrimKey*)key[i]));
+        //std::cout << i << " inserted.\n";
+    }
 	df.closeFile();
 	FileIOModel::getInstance()->dropTable("test", "test");
 }

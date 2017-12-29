@@ -37,11 +37,18 @@ void copyData(char* src, char* dest, int len)
     memcpy((char*)dest, (char*)src, len);
 }
 
+std::string read_id(char* cache)
+{
+    char buf[33];
+    sprintf(buf, "%016X%08X%04X%04X", *(unsigned long long*)cache,
+            *(unsigned int*)((char*)cache + 8), *(unsigned short*)((char*)cache + 12), *(unsigned short*)((char*)cache + 14));
+    return std::string(buf);
+}
+
 void write_id(char* cache)
 {
     *(unsigned long long*)cache = time(0);
-    *(unsigned int*)((char*)cache + 8) = rand() * rand();
-    *(unsigned int*)((char*)cache + 12) = (unsigned int)(unsigned long long)cache;
-    *(unsigned short*)((char*)cache + 16) = (unsigned short)getpid();
-    *(unsigned short*)((char*)cache + 18) = (unsigned short)(rand());
+    *(unsigned int*)((char*)cache + 8) = (unsigned int)(unsigned long long)cache;
+    *(unsigned short*)((char*)cache + 12) = (unsigned short)getpid();
+    *(unsigned short*)((char*)cache + 14) = (unsigned short)(rand());
 }

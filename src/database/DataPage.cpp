@@ -7,7 +7,7 @@ DataPage::DataPage(char* cache, int index, int pageID, bool parse, RecordInfo* r
     {
         setPageType(Type::DATA_PAGE);
         setNextSamePage(-1);
-        setLengthFixed(true);
+        setPrevSamePage(-1);
         setFirstAvailableByte(PAGE_CONTENT_OFFSET);
         records.clear();
     }

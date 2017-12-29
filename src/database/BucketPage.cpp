@@ -17,7 +17,7 @@ BucketPage::BucketPage(char* cache, int index, int pageID, bool parse, int densi
         setFirstAvailableByte(PAGE_CONTENT_OFFSET);
         setPageType(Type::BUCKET_PAGE);
         setNextSamePage(-1);
-        setLengthFixed(true);
+        setPrevSamePage(-1);
         memset((*this)[PAGE_CONTENT_OFFSET], 0, PAGE_SIZE - PAGE_CONTENT_OFFSET);
     }
 }

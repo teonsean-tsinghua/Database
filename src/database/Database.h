@@ -3,6 +3,7 @@
 
 #include"DataFile.h"
 #include"y.tab.h"
+#include"IndexFile.h"
 
 class Database
 {

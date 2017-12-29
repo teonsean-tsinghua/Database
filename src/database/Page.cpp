@@ -16,7 +16,7 @@ int Page::getPageType()
     return readInt((*this)[PAGE_TYPE_OFFSET]);
 }
 
-int Page::getPageType(char* buf)
+int Page::getPageTypeStatik(char* buf)
 {
     return readInt(buf + PAGE_TYPE_OFFSET);
 }
@@ -26,9 +26,9 @@ int Page::getFirstAvailableByte()
     return readInt((*this)[FIRST_AVAILABLE_BYTE_OFFSET]);
 }
 
-bool Page::isLengthFixed()
+int Page::getPrevSamePage()
 {
-    return readInt((*this)[LENGTH_FIXED_OFFSET]) == 1;
+    return readInt((*this)[PREV_SAME_PAGE_OFFSET]);
 }
 
 int Page::getNextSamePage()
@@ -46,9 +46,9 @@ void Page::setFirstAvailableByte(int n)
     writeInt((*this)[FIRST_AVAILABLE_BYTE_OFFSET], n);
 }
 
-void Page::setLengthFixed(bool n)
+void Page::setPrevSamePage(int n)
 {
-    writeInt((*this)[LENGTH_FIXED_OFFSET], n ? 1 : 0);
+    writeInt((*this)[PREV_SAME_PAGE_OFFSET], n);
 }
 
 void Page::setNextSamePage(int n)

@@ -403,6 +403,11 @@ void RecordSlot::update(UpdateInfo& ui)
     }
 }
 
+void RecordSlot::print()
+{
+
+}
+
 void RecordSlot::read(std::vector<void*>& data)
 {
     data.clear();
