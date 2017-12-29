@@ -7,6 +7,12 @@ class Bucket
 {
     int next;
     int pids[];
+
+    static bool containForInsert(Bucket* b, int v, int d, bool& athere);
+
+    static int search(Bucket* b, int v, int d);
+
+    static int lastIdx(Bucket* b, int d);
 };
 
 class BucketPage: public Page
@@ -21,9 +27,17 @@ public:
 
     int cnt();
 
+    bool full();
+
+    bool available(int idx);
+
+    void setAvailable(int idx, bool b);
+
     void print();
 
     Bucket* at(int idx);
+
+    Bucket* allocateBucket(int& idx);
 
     static void test();
 

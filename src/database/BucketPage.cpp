@@ -1,7 +1,52 @@
 #include"BucketPage.h"
 
 static int bucket_sizes[] = {10, 32, 50, 72};
-static int bucket_cnts[] = {185, 63, 40, 28};
+static int bucket_cnts[] = {181, 61, 39, 27};
+
+bool Bucket::containForInsert(Bucket* b, int v, int d, bool& athere)
+{
+    int volumn = bucket_sizes[d];
+    for(int i = 0; i < volumn; i++)
+    {
+        if(v == b->pids[i])
+        {
+            athere = true;
+            return true;
+        }
+        if(b->pids[i] == 0)
+        {
+            athere = false;
+            return true;
+        }
+    }
+    return false;
+}
+
+int Bucket::lastIdx(Bucket* b, int d)
+{
+    int volumn = bucket_sizes[d];
+    for(int i = 0; i < volumn; i++)
+    {
+        if(b->pids[i] == 0)
+        {
+            return i - 1;
+        }
+    }
+    return -1;
+}
+
+int Bucket::search(Bucket* b, int v, int d)
+{
+    int volumn = bucket_sizes[d];
+    for(int i = 0; i < volumn; i++)
+    {
+        if(v == b->pids[i])
+        {
+            return i;
+        }
+    }
+    return -1;
+}
 
 BucketPage::BucketPage(char* cache, int index, int pageID, bool parse, int density):
     Page(cache, index, pageID), density(density)
@@ -22,6 +67,41 @@ BucketPage::BucketPage(char* cache, int index, int pageID, bool parse, int densi
     }
 }
 
+bool BucketPage::full()
+{
+    for(int i = 0; i < cnt(); i++)
+    {
+        if(available(i))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool BucketPage::available(int idx)
+{
+    return readBool((*this)[PAGE_CONTENT_OFFSET + idx]);
+}
+
+void BucketPage::setAvailable(int idx, bool b)
+{
+    writeBool((*this)[PAGE_CONTENT_OFFSET + idx], b);
+}
+
+Bucket* BucketPage::allocateBucket(int& idx)
+{
+    for(idx = 0; idx < cnt(); idx++)
+    {
+        if(available(idx))
+        {
+            writeBool((*this)[PAGE_CONTENT_OFFSET + idx], false);
+            return at(idx);
+        }
+    }
+    return NULL;
+}
+
 void BucketPage::print()
 {
     Page::print();
@@ -30,7 +110,7 @@ void BucketPage::print()
 Bucket* BucketPage::at(int idx)
 {
     assert(idx >= 0 && idx < cnt());
-    return (Bucket*)(*this)[PAGE_CONTENT_OFFSET + size() * idx];
+    return (Bucket*)(*this)[PAGE_CONTENT_OFFSET + cnt() + (size() + 1) * idx * sizeof(int)];
 }
 
 int BucketPage::cnt()
@@ -42,3 +122,4 @@ int BucketPage::size()
 {
     return bucket_sizes[density];
 }
+

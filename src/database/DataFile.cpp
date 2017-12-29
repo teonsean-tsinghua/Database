@@ -19,41 +19,28 @@ RecordInfo* DataFile::getRecordInfo()
     return ri;
 }
 
-//void DataFile::printAllRecords()
-//{
-//    assert(open);
-//    DataPage* dp = openDataPage(dfdp->getFirstDataPage());
-//    while(true)
-//    {
-//        if(dp == NULL)
-//        {
-//            return;
-//        }
-//        dp->print();
-//        dp->printAllRecords();
-//        Print::printLine("====================");
-//        dp = openDataPage(dp->getNextSameType());
-//    }
-//}
-//
-//int DataFile::findFirstAvailableDataPage()
-//{
-//    assert(open);
-//    UsagePage* up = openUsagePage(dfdp->getFirstUsagePage());
-//    while(true)
-//    {
-//        if(up == NULL)
-//        {
-//            return allocateNewDataPage();
-//        }
-//        int re = up->findFirstAvailable();
-//        if(re > 0 && re < dfdp->getPageNumber())
-//        {
-//            return re;
-//        }
-//        up = openUsagePage(up->getNextSameType());
-//    }
-//}
+int DataFile::findFirstAvailableDataPage()
+{
+    assert(open);
+    UsagePage* up = (UsagePage*)openPage(1);
+    int re;
+    while(true)
+    {
+        if(re = up->findFirstAvailable())
+        {
+            break;
+        }
+        int nextUp = up->getNextSamePage();
+        if(nextUp > 0)
+        {
+            up = (UsagePage*)openPage(nextUp);
+            continue;
+        }
+        re = allocateDataPage();
+        break;
+    }
+    return re;
+}
 
 void DataFile::markAsUsable(int n)
 {
@@ -311,7 +298,7 @@ void DataFile::test()
 	df.printFileDesc();
 	PrimKey::ri = df.ri;
 	std::map<char*, int> numbers;
-	for(int i = 0; i < 1000000; i++)
+	for(int i = 0; i < 100; i++)
     {
         char* tmp = new char[20];
         write_id(tmp);

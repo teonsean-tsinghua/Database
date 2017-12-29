@@ -14,12 +14,12 @@ class IndexFile: public BaseFile
 private:
     int keyLength;
     int keyType;
-    int lastUsagePage;
-    int lastBucketPage;
     IndexFileDescPage* ifdp;
     IndexTree<T>* tree;
     std::map<int, Page*> pages;
     bool open;
+
+    int findFirstAvailableBucketPage();
 
     int allocateUsagePage();
 
@@ -45,6 +45,10 @@ public:
 
     void printFileDesc();
 
+    bool insert(T& key, int value);
+
+    bool remove(T& key, int value = 0);
+
 };
 
 template<typename T>
@@ -56,9 +60,152 @@ IndexFile<T>::IndexFile()
 }
 
 template<typename T>
+bool IndexFile<T>::remove(T& key, int value)
+{
+    if(ifdp->getUnique())
+    {
+        return tree->remove(key);
+    }
+    assert(value > 0);
+    int bucket_id = tree->search(key);
+    if(bucket_id <= 0)
+    {
+        return false;
+    }
+    Bucket* target = ((BucketPage*)openPage(bucket_id / PAGE_SIZE))->at(bucket_id % PAGE_SIZE);
+    int tail_bid = bucket_id;
+    Bucket* tail = target, *secondLast = NULL;
+    while(tail->next > 0)
+    {
+        tail_bid = tail->next;
+        secondLast = tail;
+        tail = ((BucketPage*)openPage(tail_bid / PAGE_SIZE))->at(tail_bid % PAGE_SIZE);
+    }
+    int tail_index = Bucket::lastIdx(tail, ifdp->getDensity());
+    assert(tail_index >= 0);
+    bool re;
+    while(true)
+    {
+        int idx;
+        if((idx = Bucket::search(target, value, ifdp->getDensity())) >= 0)
+        {
+            target->pids[idx] = tail->pids[tail_index];
+            tail->pids[tail_index] = 0;
+            if(Bucket::lastIdx(tail, ifdp->getDensity()) < 0)
+            {
+                BucketPage* page = (BucketPage*)openPage(tail_bid / PAGE_SIZE);
+                page->setAvailable(tail_bid % PAGE_SIZE, true);
+                if(secondLast != NULL)
+                {
+                    secondLast->next = 0;
+                }
+                int upid = UsagePage::findOccupiedBy(page->getPageID());
+                ((UsagePage*)openPage(upid))->setAvailable(page->getPageID(), true);
+            }
+            re = true;
+            break;
+        }
+        int next = target->next;
+        if(next <= 0)
+        {
+            re = false;
+            break;
+        }
+        target = ((BucketPage*)openPage(next / PAGE_SIZE))->at(next % PAGE_SIZE);
+    }
+    return re;
+}
+
+template<typename T>
+bool IndexFile<T>::insert(T& key, int value)
+{
+    if(ifdp->getUnique())
+    {
+        if(tree->search(key) != 0)
+        {
+            return false;
+        }
+        tree->insert(key, value);
+        return true;
+    }
+    int bucket_id = tree->search(key);
+    Bucket* target = NULL;
+    if(bucket_id <= 0)
+    {
+        int bucket_pid = findFirstAvailableBucketPage();
+        int idx;
+        BucketPage* page = ((BucketPage*)openPage(bucket_pid));
+        target = page->allocateBucket(idx);
+        bucket_id = PAGE_SIZE * bucket_pid + idx;
+        tree->insert(key, bucket_id);
+        if(page->full())
+        {
+            int upid = UsagePage::findOccupiedBy(page->getPageID());
+            ((UsagePage*)openPage(upid))->setAvailable(page->getPageID(), false);
+        }
+    }
+    else
+    {
+        target = ((BucketPage*)openPage(bucket_id / PAGE_SIZE))->at(bucket_id % PAGE_SIZE);
+    }
+    bool re;
+    while(true)
+    {
+        if(Bucket::containForInsert(target, value, ifdp->getDensity(), re))
+        {
+            re = !re;
+            break;
+        }
+        if(target->next <= 0)
+        {
+            int pid = findFirstAvailableBucketPage();
+            int idx;
+            BucketPage* page = ((BucketPage*)openPage(pid));
+            Bucket* new_bucket = page->allocateBucket(idx);
+            target->next = PAGE_SIZE * pid + idx;
+            target = new_bucket;
+            if(page->full())
+            {
+                int upid = UsagePage::findOccupiedBy(page->getPageID());
+                ((UsagePage*)openPage(upid))->setAvailable(page->getPageID(), false);
+            }
+        }
+        else
+        {
+            target = ((BucketPage*)openPage(target->next / PAGE_SIZE))->at(target->next % PAGE_SIZE);
+        }
+    }
+    return re;
+}
+
+template<typename T>
 void IndexFile<T>::setRootPage(int n)
 {
     ifdp->setRootPage(n);
+}
+
+template<typename T>
+int IndexFile<T>::findFirstAvailableBucketPage()
+{
+    assert(open);
+    UsagePage* up = (UsagePage*)openPage(1);
+    int re;
+    while(true)
+    {
+        if(re = up->findFirstAvailable())
+        {
+            break;
+        }
+        int nextUp = up->getNextSamePage();
+        if(nextUp > 0)
+        {
+            up = (UsagePage*)openPage(nextUp);
+            continue;
+        }
+        re = allocateBucketPage();
+        break;
+    }
+    return re;
 }
 
 template<typename T>
@@ -286,7 +433,6 @@ void IndexFile<T>::openFile(std::string dbname, std::string tbname, std::string 
     keyType = ifdp->getKeyType();
     keyLength = ifdp->getKeyLength();
     tree = new IndexTree<T>(this, ifdp->getRootPage(), keyLength);
-    lastBucketPage = lastUsagePage = -1;
     openPage(ifdp->getRootPage());
 }
 
