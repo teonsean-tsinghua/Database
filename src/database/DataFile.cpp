@@ -289,42 +289,54 @@ void DataFile::test()
 	df.createFile("test", "test");
 	df.openFile("test", "test");
 	std::vector<std::string> name;
+	name.push_back("_id");
 	name.push_back("test");
 	std::vector<int> type;
-	type.push_back(1);
+	type.push_back(0);
+	type.push_back(2);
 	std::vector<int> nullable;
+	nullable.push_back(0);
 	nullable.push_back(0);
 	std::vector<int> extra;
 	extra.push_back(0);
+	extra.push_back(0);
 	std::vector<std::string> foreign;
 	foreign.push_back("");
-	df.addFields(name, type, nullable, extra, foreign, 1);
+	foreign.push_back("");
+	df.addFields(name, type, nullable, extra, foreign, 2);
 	df.closeFile();
 	df.openFile("test", "test");
 	df.printFileDesc();
 	PrimKey::ri = df.ri;
-	std::set<int> numbers;
+	std::map<char*, int> numbers;
 	for(int i = 0; i < 1000000; i++)
     {
-        numbers.insert(rand() * rand());
+        char* tmp = new char[20];
+        write_id(tmp);
+        writeFloat(tmp + 16, rand() * rand() * rand()/(double)(RAND_MAX));
+        numbers[tmp] = rand() * rand();
     }
     std::cout << "Numbers generated.\n";
-    for(std::set<int>::iterator iter = numbers.begin(); iter != numbers.end(); iter++)
+    for(std::map<char*, int>::iterator iter = numbers.begin(); iter != numbers.end(); iter++)
     {
-        int n = *iter;
-        df.tree->insert(*(PrimKey*)&n, n);
+        char* tmp = iter->first;
+        df.tree->insert(*(PrimKey*)tmp, iter->second);
     }
     std::cout << "Finished inserting.\n";
-    for(std::set<int>::iterator iter = numbers.begin(); iter != numbers.end(); iter++)
+    int n = 0;
+    for(std::map<char*, int>::iterator iter = numbers.begin(); iter != numbers.end(); iter++)
     {
-        int n = *iter;
-        assert(df.tree->search(*(PrimKey*)&n) == n);
+        char* tmp = iter->first;
+        std::cout << "searched " << n++ << "\n";
+        assert(df.tree->search(*(PrimKey*)tmp) == (int)iter->second);
     }
     std::cout << "Finished searching.\n";
-    for(std::set<int>::iterator iter = numbers.begin(); iter != numbers.end(); iter++)
+    n = 0;
+    for(std::map<char*, int>::iterator iter = numbers.begin(); iter != numbers.end(); iter++)
     {
-        int n = *iter;
-        assert(df.tree->remove(*(PrimKey*)&n));
+        char* tmp = iter->first;
+        std::cout << "removed " << n++ << "\n";
+        assert(df.tree->remove(*(PrimKey*)tmp));
     }
     std::cout << "Finished removing.\n";
 //	for(int i = 1000000 - 1; i >= 0; i--)

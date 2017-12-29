@@ -10,6 +10,16 @@ void writeInt(char* cache, int n)
     *(int*)cache = n;
 }
 
+float readFloat(char* cache)
+{
+    return *(float*)cache;
+}
+
+void writeFloat(char* cache, float n)
+{
+    *(float*)cache = n;
+}
+
 std::string readString(char* cache, int len)
 {
     std::string str;

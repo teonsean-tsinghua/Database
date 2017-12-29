@@ -11,6 +11,10 @@ int readInt(char* cache);
 
 void writeInt(char* cache, int n);
 
+void writeFloat(char* cache, float f);
+
+float readFloat(char* cache);
+
 std::string readString(char* cache, int len);
 
 void writeString(char* cache, std::string& str, int len);
