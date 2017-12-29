@@ -8,7 +8,7 @@ class BaseFile
 {
 protected:
     int fileID;
-    const FileIOModel* fm;
+    FileIOModel* fm;
 
 public:
     BaseFile() {};

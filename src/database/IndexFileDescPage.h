@@ -9,11 +9,13 @@ class IndexFileDescPage: public Page
 public:
     IndexFileDescPage(char* cache, int index, int pageID, bool parse, int type = -1, int length = -1);
 
-    void incrementPageNumber(int type);
+    void incrementPageNumber();
 
     int getFirstLeafPage();
 
     int getFirstBucketPage();
+
+    int getLastBucketPage();
 
     int getPageNumber();
 
@@ -30,6 +32,8 @@ public:
     void setFirstLeafPage(int n);
 
     void setFirstBucketPage(int n);
+
+    void setLastBucketPage(int n);
 
     void setPageNumber(int n);
 
@@ -53,6 +57,7 @@ public:
     const static int DENSITY_OFFSET = KEY_LENGTH_OFFSET + sizeof(int);
     const static int UNIQUE_OFFSET = DENSITY_OFFSET + sizeof(int);
     const static int FIRST_BUCKET_PAGE_OFFSET = UNIQUE_OFFSET + sizeof(int);
+    const static int LAST_BUCKET_PAGE_OFFSET = FIRST_BUCKET_PAGE_OFFSET + sizeof(int);
 };
 
 #endif // INDEXFILEDESCPAGE_H_INCLUDED

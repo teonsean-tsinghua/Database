@@ -22,24 +22,9 @@ IndexFileDescPage::IndexFileDescPage(char* cache, int index, int pageID, bool pa
     }
 }
 
-void IndexFileDescPage::incrementPageNumber(int type)
+void IndexFileDescPage::incrementPageNumber()
 {
     setPageNumber(getPageNumber() + 1);
-    switch(type)
-    {
-    case Type::BUCKET_PAGE:
-        if(getFirstBucketPage() <= 0)
-        {
-            setFirstBucketPage(getPageNumber() - 1);
-        }
-        break;
-    case Type::LEAF_PAGE:
-        if(getFirstLeafPage() <= 0)
-        {
-            setFirstLeafPage(getPageNumber() - 1);
-        }
-        break;
-    }
 }
 
 void IndexFileDescPage::print()
@@ -48,6 +33,7 @@ void IndexFileDescPage::print()
     std::cout << "Page number:                      " << getPageNumber() << std::endl;
     std::cout << "First leaf page:                  " << getFirstLeafPage() << std::endl;
     std::cout << "First bucket page:                " << getFirstBucketPage() << std::endl;
+    std::cout << "Last bucket page:                 " << getLastBucketPage() << std::endl;
     std::cout << "Root page:                        " << getRootPage() << std::endl;
     std::cout << "Key type:                         " << Type::typeName(getKeyType()) << std::endl;
     std::cout << "Density level:                    " << getDensity() << std::endl;
@@ -62,6 +48,11 @@ int IndexFileDescPage::getFirstLeafPage()
 int IndexFileDescPage::getFirstBucketPage()
 {
     return readInt((*this)[FIRST_BUCKET_PAGE_OFFSET]);
+}
+
+int IndexFileDescPage::getLastBucketPage()
+{
+    return readInt((*this)[LAST_BUCKET_PAGE_OFFSET]);
 }
 
 int IndexFileDescPage::getPageNumber()
@@ -102,6 +93,11 @@ void IndexFileDescPage::setFirstLeafPage(int n)
 void IndexFileDescPage::setFirstBucketPage(int n)
 {
     writeInt((*this)[FIRST_BUCKET_PAGE_OFFSET], n);
+}
+
+void IndexFileDescPage::setLastBucketPage(int n)
+{
+    writeInt((*this)[LAST_BUCKET_PAGE_OFFSET], n);
 }
 
 void IndexFileDescPage::setPageNumber(int n)

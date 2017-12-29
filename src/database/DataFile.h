@@ -12,8 +12,6 @@ class DataFile: public BaseFile
 {
 private:
 	const static std::string TAG;
-    int fileID;
-    FileIOModel* fm;
     DataFileDescPage* dfdp;
     IndexTree<PrimKey>* tree;
     std::map<int, Page*> pages;

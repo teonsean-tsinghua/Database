@@ -15,7 +15,7 @@ private:
     int density;
 
 public:
-    BucketPage(char* cache, int index, int pageID, bool parse, int density = 1);
+    BucketPage(char* cache, int index, int pageID, bool parse, int density);
 
     int size();
 

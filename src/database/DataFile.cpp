@@ -125,7 +125,7 @@ int DataFile::allocateNodePage(bool isLeaf)
     if(isLeaf)
     {
         pages[cnt] = new LeafPage<PrimKey>(cache, index, cnt, Type::PRIMARYKEY, ri->getPrimKeyLen(), false);
-//        std::cout << "Allocated new leaf page " << cnt << std::endl;
+        std::cout << "Allocated new leaf page " << cnt << std::endl;
         dfdp->incrementPageNumber();
         if(dfdp->getFirstLeafPage() < 0)
         {
@@ -200,6 +200,8 @@ Page* DataFile::openPage(int pid)
     case Type::USAGE_PAGE:
         re = new UsagePage(cache, index, pid, true);
         break;
+    default:
+        assert(false);
     }
     pages[pid] = re;
     return re;
