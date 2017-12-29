@@ -25,7 +25,7 @@ DataPage::DataPage(char* cache, int index, int pageID, bool parse, RecordInfo* r
 void DataPage::print()
 {
     Page::print();
-    std::cout << "Record count:                         " << records.size() << std::endl;
+    std::cout << "Record count:                     " << records.size() << std::endl;
     for(int i = 0; i < records.size(); i++)
     {
         records[i]->print();

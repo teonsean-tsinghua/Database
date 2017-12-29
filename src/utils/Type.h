@@ -3,6 +3,8 @@
 
 #include<cstring>
 #include<vector>
+#include<iostream>
+#include<string>
 
 class Type
 {
@@ -72,6 +74,8 @@ public:
 
 	bool friend operator != (PrimKey& one, PrimKey& other);
 
+	friend std::ostream& operator << (std::ostream& out, PrimKey& one);
+
 };
 
 class VarcharType: public DataType
@@ -93,6 +97,8 @@ public:
 	bool friend operator == (VarcharType& one, VarcharType& other);
 
 	bool friend operator != (VarcharType& one, VarcharType& other);
+
+	friend std::ostream& operator << (std::ostream& out, VarcharType& one);
 
 };
 
@@ -116,6 +122,8 @@ public:
 
 	bool friend operator != (DateType& one, DateType& other);
 
+	friend std::ostream& operator << (std::ostream& out, DateType& one);
+
 };
 
 class FloatType: public DataType
@@ -138,6 +146,8 @@ public:
 
 	bool friend operator != (FloatType& one, FloatType& other);
 
+	friend std::ostream& operator << (std::ostream& out, FloatType& one);
+
 };
 
 class IntType: public DataType
@@ -159,6 +169,8 @@ public:
 	bool friend operator == (IntType& one, IntType& other);
 
 	bool friend operator != (IntType& one, IntType& other);
+
+	friend std::ostream& operator << (std::ostream& out, IntType& one);
 
 };
 
@@ -184,6 +196,8 @@ public:
 	bool friend operator == (IDType& one, IDType& other);
 
 	bool friend operator != (IDType& one, IDType& other);
+
+	friend std::ostream& operator << (std::ostream& out, IDType& one);
 };
 
 #endif // TYPE_H_INCLUDED

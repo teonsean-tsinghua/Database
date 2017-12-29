@@ -121,6 +121,10 @@ void NodePage<T>::print()
 {
     Page::print();
     std::cout << "Parent id:                        " << getParent() << std::endl;
+    for(int i = 0; i < getChildCnt(); i++)
+    {
+        std::cout << "idx " << i << " key " << at(i)->key << " value " << at(i)->value << "\n";
+    }
 }
 
 template<typename T>

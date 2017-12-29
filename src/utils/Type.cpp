@@ -88,6 +88,15 @@ bool operator >= (IDType& one, IDType& other)
 	return !(one < other);
 }
 
+std::ostream& operator << (std::ostream& out, IDType& one)
+{
+    char tmp[17];
+    read_id(tmp);
+    tmp[16] = '\0';
+    out << std::string(tmp);;
+    return out;
+}
+
 bool operator == (IntType& one, IntType& other)
 {
 	return one.v == other.v;
@@ -123,6 +132,12 @@ bool operator >= (IntType& one, IntType& other)
 	return one.v >= other.v;
 }
 
+std::ostream& operator << (std::ostream& out, IntType& one)
+{
+    out << one.v;;
+    return out;
+}
+
 bool operator == (FloatType& one, FloatType& other)
 {
 	return one.v == other.v;
@@ -156,6 +171,12 @@ bool operator <= (FloatType& one, FloatType& other)
 bool operator >= (FloatType& one, FloatType& other)
 {
 	return one.v >= other.v;
+}
+
+std::ostream& operator << (std::ostream& out, FloatType& one)
+{
+    out << one.v;;
+    return out;
 }
 
 bool operator == (DateType& one, DateType& other)
@@ -243,6 +264,14 @@ bool operator >= (DateType& one, DateType& other)
 		}
 	}
 	return true;
+}
+
+std::ostream& operator << (std::ostream& out, DateType& one)
+{
+    std::string str;
+    str = str.assign(one.v, 8);
+    out << str;;
+    return out;
 }
 
 bool operator < (PrimKey& one, PrimKey& other)
@@ -522,6 +551,37 @@ bool operator != (PrimKey& one, PrimKey& other)
 	return !(one == other);
 }
 
+std::ostream& operator << (std::ostream& out, PrimKey& one)
+{
+    const std::vector<int>& info = PrimKey::ri->getPrimKeyInfo();
+	char* ptr = (char*)&one;
+	for(int i = 0; i < info.size();)
+	{
+		int type = info[i++];
+		int len = info[i++];
+        switch(type)
+		{
+		case Type::_ID:
+			out << *(IDType*)(ptr);
+			break;
+		case Type::INT:
+			out << *(IntType*)(ptr);
+			break;
+		case Type::FLOAT:
+			out << *(FloatType*)(ptr);
+			break;
+		case Type::DATE:
+			out << *(DateType*)(ptr);
+			break;
+		case Type::VARCHAR:
+			out << *(VarcharType*)(ptr);
+			break;
+		}
+		ptr += len;
+	}
+	return out;
+}
+
 void operator << (PrimKey& one, PrimKey& other)
 {
 	const std::vector<int>& info = PrimKey::ri->getPrimKeyInfo();
@@ -618,5 +678,11 @@ bool operator <= (VarcharType& one, VarcharType& other)
 bool operator >= (VarcharType& one, VarcharType& other)
 {
 	return strcmp(one.v, other.v) >= 0;
+}
+
+std::ostream& operator << (std::ostream& out, VarcharType& one)
+{
+    out << one.v;
+    return out;
 }
 

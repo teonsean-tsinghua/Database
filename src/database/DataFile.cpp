@@ -77,8 +77,10 @@ void DataFile::markAsUsable(int n)
             }
             p->setNextSamePage(n);
             cur->setPrevSamePage(pid);
+            return;
         }
     }
+    dfdp->setFirstDataPage(n);
 }
 
 void DataFile::setRootPage(int n)
@@ -123,7 +125,7 @@ int DataFile::allocateNodePage(bool isLeaf)
     if(isLeaf)
     {
         pages[cnt] = new LeafPage<PrimKey>(cache, index, cnt, Type::PRIMARYKEY, ri->getPrimKeyLen(), false);
-        std::cout << "Allocated new leaf page " << cnt << std::endl;
+//        std::cout << "Allocated new leaf page " << cnt << std::endl;
         dfdp->incrementPageNumber();
         if(dfdp->getFirstLeafPage() < 0)
         {
@@ -301,19 +303,53 @@ void DataFile::test()
 	df.openFile("test", "test");
 	df.printFileDesc();
 	PrimKey::ri = df.ri;
-	char** key = new char*[1000000];
-	for(int i = 0; i < 10000; i++)
+	std::set<int> numbers;
+	for(int i = 0; i < 1000000; i++)
     {
-        key[i] = new char[4];
-        writeInt(key[i], i);
-        df.tree->insert(*(PrimKey*)key[i], i);
-        //std::cout << i << " inserted.\n";
+        numbers.insert(rand() * rand());
     }
-    for(int i = 0; i < 10000; i++)
+    std::cout << "Numbers generated.\n";
+    for(std::set<int>::iterator iter = numbers.begin(); iter != numbers.end(); iter++)
     {
-        assert(df.tree->remove(*(PrimKey*)key[i]));
-        //std::cout << i << " inserted.\n";
+        int n = *iter;
+        df.tree->insert(*(PrimKey*)&n, n);
     }
+    std::cout << "Finished inserting.\n";
+    for(std::set<int>::iterator iter = numbers.begin(); iter != numbers.end(); iter++)
+    {
+        int n = *iter;
+        assert(df.tree->search(*(PrimKey*)&n) == n);
+    }
+    std::cout << "Finished searching.\n";
+    for(std::set<int>::iterator iter = numbers.begin(); iter != numbers.end(); iter++)
+    {
+        int n = *iter;
+        assert(df.tree->remove(*(PrimKey*)&n));
+    }
+    std::cout << "Finished removing.\n";
+//	for(int i = 1000000 - 1; i >= 0; i--)
+//    {
+//        key[i] = new char[4];
+//        writeInt(key[i], i);
+//        df.tree->insert(*(PrimKey*)key[i], i);
+////        std::cout << i << " inserted.\n";
+//    }
+//    for(int i = 1000000 - 1; i >= 0; i--)
+//    {
+////        std::cout << "Removing " << i << "\n";
+//        assert(df.tree->remove(*(PrimKey*)key[i]));
+////        int p = df.dfdp->getFirstLeafPage();
+////        int head, tail = -1;
+////        do
+////        {
+////            NodePage<PrimKey>* cur = (NodePage<PrimKey>*)df.openPage(p);
+////            head = cur->at(0)->value;
+////            if(p != df.dfdp->getFirstLeafPage())
+////            assert(head == tail + 1);
+////            tail = cur->at(cur->getChildCnt() - 1)->value;
+////            p = cur->getNextSamePage();
+////        }while(p > 0);
+//    }
 	df.closeFile();
 	FileIOModel::getInstance()->dropTable("test", "test");
 }

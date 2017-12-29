@@ -99,11 +99,11 @@ bool IndexTree<T>::remove(T& key, NodePage<T>* page)
             assert(parentEntry->value == left->getPageID());
             parentEntry->key << left->at(left->getChildCnt() - 2)->key;
         }
-        left->remove(entry->key);
         if(!left->isLeaf())
         {
             node(entry->value)->setParent(page->getPageID());
         }
+        left->remove(entry->key);
         return true;
     }
     if(right != NULL && right->getChildCnt() > minDgr)
@@ -112,29 +112,29 @@ bool IndexTree<T>::remove(T& key, NodePage<T>* page)
         page->insert(entry->key, entry->value);
         if(page->getParent() > 0)
         {
-            Entry<T>* parentEntry = node(page->getParent())->search(page->at(page->getChildCnt() - 1)->key);
+            Entry<T>* parentEntry = node(page->getParent())->search(page->at(page->getChildCnt() - 2)->key);
             assert(parentEntry->value = page->getPageID());
             parentEntry->key << entry->key;
         }
-        right->remove(entry->key);
         if(!right->isLeaf())
         {
             node(entry->value)->setParent(page->getPageID());
         }
+        right->remove(entry->key);
         return true;
     }
     if(left != NULL)
     {
         int cnt = page->getChildCnt();
-        copyData((char*)&(page->at(0)->value), (char*)&(left->at(left->getChildCnt() - 1)->value), cnt * (keyLength + sizeof(int)));
+        copyData((char*)&(page->at(0)->value), (char*)&(left->at(left->getChildCnt())->value), cnt * (keyLength + sizeof(int)));
         if(left->getParent() > 0)
         {
-            Entry<T>* parentEntry = node(left->getParent())->search(left->at(left->getChildCnt() - 1)->key);
-            assert(parentEntry->value == left->getPageID());
-            parentEntry->key << page->at(cnt - 1)->key;
-            parentEntry = node(page->getParent())->search(page->at(cnt - 1)->key);
+            Entry<T>* parentEntry = node(page->getParent())->search(page->at(cnt - 1)->key);
             assert(parentEntry->value == page->getPageID());
             node(page->getParent())->remove(parentEntry->key);
+            parentEntry = node(left->getParent())->search(left->at(left->getChildCnt() - 1)->key);
+            assert(parentEntry->value == left->getPageID());
+            parentEntry->key << page->at(cnt - 1)->key;
         }
         if(!left->isLeaf())
         {
@@ -160,15 +160,15 @@ bool IndexTree<T>::remove(T& key, NodePage<T>* page)
     if(right != NULL)
     {
         int cnt = right->getChildCnt();
-        copyData((char*)&(right->at(0)->value), (char*)&(page->at(page->getChildCnt() - 1)->value), cnt * (keyLength + sizeof(int)));
+        copyData((char*)&(right->at(0)->value), (char*)&(page->at(page->getChildCnt())->value), cnt * (keyLength + sizeof(int)));
         if(page->getParent() > 0)
         {
-            Entry<T>* parentEntry = node(page->getParent())->search(page->at(page->getChildCnt() - 1)->key);
-            assert(parentEntry->value == page->getPageID());
-            parentEntry->key << right->at(cnt - 1)->key;
-            parentEntry = node(right->getParent())->search(right->at(cnt - 1)->key);
+            Entry<T>* parentEntry = node(right->getParent())->search(right->at(cnt - 1)->key);
             assert(parentEntry->value == right->getPageID());
             node(right->getParent())->remove(parentEntry->key);
+            parentEntry = node(page->getParent())->search(page->at(page->getChildCnt() - 1)->key);
+            assert(parentEntry->value == page->getPageID());
+            parentEntry->key << right->at(cnt - 1)->key;
         }
         if(!page->isLeaf())
         {
