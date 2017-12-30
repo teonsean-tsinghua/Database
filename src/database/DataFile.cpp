@@ -42,6 +42,18 @@ int DataFile::findFirstAvailableDataPage()
     return re;
 }
 
+void DataFile::printAllRecords()
+{
+    assert(open);
+    std::cout << "All records are listed as below:\n";
+    int pid = dfdp->getFirstDataPage();
+    while(pid > 0)
+    {
+        ((DataPage*)openPage(pid))->print();
+        pid = openPage(pid)->getNextSamePage();
+    }
+}
+
 void DataFile::markAsUsable(int n)
 {
     int upid = UsagePage::findOccupiedBy(n);
@@ -85,7 +97,7 @@ int DataFile::allocateUsagePage()
     char* cache = fm->getPage(fileID, cnt, index);
     UsagePage* up = new UsagePage(cache, index, cnt, false);
     pages[cnt] = up;
-    std::cout << "Allocated new usage page " << cnt << std::endl;
+//    std::cout << "Allocated new usage page " << cnt << std::endl;
     if(cnt != 1)
     {
         int last = UsagePage::findOccupiedBy(cnt - 1);
@@ -112,7 +124,7 @@ int DataFile::allocateNodePage(bool isLeaf)
     if(isLeaf)
     {
         pages[cnt] = new LeafPage<PrimKey>(cache, index, cnt, Type::PRIMARYKEY, ri->getPrimKeyLen(), false);
-        std::cout << "Allocated new leaf page " << cnt << std::endl;
+//        std::cout << "Allocated new leaf page " << cnt << std::endl;
         dfdp->incrementPageNumber();
         if(dfdp->getFirstLeafPage() < 0)
         {
@@ -122,7 +134,7 @@ int DataFile::allocateNodePage(bool isLeaf)
     else
     {
         pages[cnt] = new InternalPage<PrimKey>(cache, index, cnt, Type::PRIMARYKEY, ri->getPrimKeyLen(), false);
-        std::cout << "Allocated new internal page " << cnt << std::endl;
+//        std::cout << "Allocated new internal page " << cnt << std::endl;
         dfdp->incrementPageNumber();
     }
     up->extendRange(cnt);
@@ -144,12 +156,12 @@ int DataFile::allocateDataPage()
     int index;
     char* cache = fm->getPage(fileID, cnt, index);
     pages[cnt] = new DataPage(cache, index, cnt, false, ri);
-    std::cout << "Allocated new data page " << cnt << std::endl;
+//    std::cout << "Allocated new data page " << cnt << std::endl;
     dfdp->incrementPageNumber();
     if(dfdp->getFirstDataPage() < 0)
     {
-        dfdp->setFirstDataPage(-1);
-        dfdp->setLastDataPage(-1);
+        dfdp->setFirstDataPage(cnt);
+        dfdp->setLastDataPage(cnt);
     }
     else
     {
@@ -160,6 +172,239 @@ int DataFile::allocateDataPage()
     up->extendRange(cnt);
     up->setAvailable(cnt, true);
     return cnt;
+}
+
+char* DataFile::generatePrimKey(std::vector<void*>& data)
+{
+    //need to assert that they are not null
+    char* re = new char[ri->getPrimKeyLen()];
+    char* ptr = re;
+    for(int i = 0; i < data.size(); i++)
+    {
+        if(!ri->isPrim(i))
+        {
+            continue;
+        }
+        assert(data[i] != NULL);
+        copyData((char*)data[i], ptr, ri->length(i));
+        ptr += ri->length(i);
+    }
+    return re;
+}
+
+void DataFile::createIndex(std::string fdname, bool unique, int density)
+{
+    assert(open);
+    int idx = ri->index(fdname);
+    if(idx == -1)
+    {
+        throw Exception(TAG, "Field " + fdname + " is never defined in table " + tbname + ".");
+    }
+    if(indexes.count(idx))
+    {
+        throw Exception(TAG, "Table " + tbname + " already has an index on " + fdname + ".");
+    }
+    switch(ri->type(idx))
+    {
+    case Type::INT:
+    {
+        IndexFile<IntType>* f = new IndexFile<IntType>();
+        f->createFile(dbname, tbname, fdname, ri->type(idx), ri->length(idx), unique, density);
+        f->openFile(dbname, tbname, fdname);
+        int pid = dfdp->getFirstDataPage();
+        while(pid > 0)
+        {
+            DataPage* dp = (DataPage*)openPage(pid);
+            dp->initIterator();
+            char* data;
+            int ridx;
+            data = dp->getNext(idx, ridx);
+            while(data != NULL)
+            {
+                if(!f->insert(*(IntType*)data, pid * PAGE_SIZE + ridx))
+                {
+                    f->closeFile();
+                    fm->dropIdx(dbname, tbname, fdname);
+                    throw Exception(TAG, "Error occurred when creating index.");
+                }
+                data = dp->getNext(idx, ridx);
+            }
+            pid = dp->getNextSamePage();
+        }
+//        f->printAllValues();
+        indexes[idx] = f;
+        break;
+    }
+    case Type::FLOAT:
+    {
+        IndexFile<FloatType>* f = new IndexFile<FloatType>();
+        f->createFile(dbname, tbname, fdname, ri->type(idx), ri->length(idx), unique, density);
+        f->openFile(dbname, tbname, fdname);
+        int pid = dfdp->getFirstDataPage();
+        while(pid > 0)
+        {
+            DataPage* dp = (DataPage*)openPage(pid);
+            dp->initIterator();
+            char* data;
+            int ridx;
+            data = dp->getNext(idx, ridx);
+            while(data != NULL)
+            {
+                if(!f->insert(*(FloatType*)data, pid * PAGE_SIZE + ridx))
+                {
+                    f->closeFile();
+                    fm->dropIdx(dbname, tbname, fdname);
+                    throw Exception(TAG, "Error occurred when creating index.");
+                }
+                data = dp->getNext(idx, ridx);
+            }
+            pid = openPage(pid)->getNextSamePage();
+        }
+        indexes[idx] = f;
+        break;
+    }
+    case Type::DATE:
+    {
+        IndexFile<DateType>* f = new IndexFile<DateType>();
+        f->createFile(dbname, tbname, fdname, ri->type(idx), ri->length(idx), unique, density);
+        f->openFile(dbname, tbname, fdname);
+        int pid = dfdp->getFirstDataPage();
+        while(pid > 0)
+        {
+            DataPage* dp = (DataPage*)openPage(pid);
+            dp->initIterator();
+            char* data;
+            int ridx;
+            data = dp->getNext(idx, ridx);
+            while(data != NULL)
+            {
+                if(!f->insert(*(DateType*)data, pid * PAGE_SIZE + ridx))
+                {
+                    f->closeFile();
+                    fm->dropIdx(dbname, tbname, fdname);
+                    throw Exception(TAG, "Error occurred when creating index.");
+                }
+                data = dp->getNext(idx, ridx);
+            }
+            pid = openPage(pid)->getNextSamePage();
+        }
+        indexes[idx] = f;
+        break;
+    }
+    case Type::VARCHAR:
+    {
+        IndexFile<VarcharType>* f = new IndexFile<VarcharType>();
+        f->createFile(dbname, tbname, fdname, ri->type(idx), ri->length(idx), unique, density);
+        f->openFile(dbname, tbname, fdname);
+        int pid = dfdp->getFirstDataPage();
+        while(pid > 0)
+        {
+            DataPage* dp = (DataPage*)openPage(pid);
+            dp->initIterator();
+            char* data;
+            int ridx;
+            data = dp->getNext(idx, ridx);
+            while(data != NULL)
+            {
+                if(!f->insert(*(VarcharType*)data, pid * PAGE_SIZE + ridx))
+                {
+                    f->closeFile();
+                    fm->dropIdx(dbname, tbname, fdname);
+                    throw Exception(TAG, "Error occurred when creating index.");
+                }
+                data = dp->getNext(idx, ridx);
+            }
+            pid = openPage(pid)->getNextSamePage();
+        }
+        indexes[idx] = f;
+        break;
+    }
+    }
+}
+
+BaseFile* DataFile::getIndexFile(int i)
+{
+    if(indexes.count(i))
+    {
+        return indexes[i];
+    }
+    return NULL;
+}
+
+bool DataFile::insert(std::vector<void*>& data)
+{
+    assert(data[0] == NULL);
+    data[0] = new char[Type::typeSize(Type::_ID)];
+    write_id((char*)data[0]);
+    PrimKey::ri = ri;
+    char* primkey = generatePrimKey(data);
+    int searchResult = tree->search(*(PrimKey*)primkey);
+    if(searchResult > 0)
+    {
+        return false;
+    }
+    for(std::map<int, bool>::iterator iter = uniqueIndex.begin(); iter != uniqueIndex.end(); iter++)
+    {
+        if(iter->second)
+        {
+            int i = iter->first;
+            char* field = (char*)data[i];
+            switch(ri->type(i))
+            {
+            case Type::INT:
+                searchResult = ((IndexFile<IntType>*)indexes[i])->directSearch(*(IntType*)field);
+                break;
+            case Type::FLOAT:
+                searchResult = ((IndexFile<FloatType>*)indexes[i])->directSearch(*(FloatType*)field);
+                break;
+            case Type::DATE:
+                searchResult = ((IndexFile<DateType>*)indexes[i])->directSearch(*(DateType*)field);
+                break;
+            case Type::VARCHAR:
+                searchResult = ((IndexFile<VarcharType>*)indexes[i])->directSearch(*(VarcharType*)field);
+                break;
+            default:
+                assert(false);
+            }
+            if(searchResult > 0)
+            {
+                return false;
+            }
+        }
+    }
+    int dp = findFirstAvailableDataPage();
+    DataPage* dpage = (DataPage*)openPage(dp);
+    int idx = dpage->insert(data);
+    int pid = idx + dpage->getPageID() * PAGE_SIZE;
+    if(dpage->isFull())
+    {
+        int upid = UsagePage::findOccupiedBy(dp);
+        ((UsagePage*)openPage(upid))->setAvailable(dp, false);
+    }
+    tree->insert(*(PrimKey*)primkey, pid);
+    for(std::map<int, BaseFile*>::iterator iter = indexes.begin(); iter != indexes.end(); iter++)
+    {
+        int i = iter->first;
+        char* field = (char*)data[i];
+        switch(ri->type(i))
+        {
+        case Type::INT:
+            assert(((IndexFile<IntType>*)indexes[i])->directSearch(*(IntType*)field));
+            break;
+        case Type::FLOAT:
+            assert(((IndexFile<FloatType>*)indexes[i])->directSearch(*(FloatType*)field));
+            break;
+        case Type::DATE:
+            assert(((IndexFile<DateType>*)indexes[i])->directSearch(*(DateType*)field));
+            break;
+        case Type::VARCHAR:
+            assert(((IndexFile<VarcharType>*)indexes[i])->directSearch(*(VarcharType*)field));
+            break;
+        default:
+            assert(false);
+        }
+    }
+    return true;
 }
 
 Page* DataFile::openPage(int pid)
@@ -215,11 +460,18 @@ void DataFile::closeFile()
 {
     assert(open);
     fm->flush(dfdp->getIndex());
+    for(std::map<int, BaseFile*>::iterator iter = indexes.begin(); iter != indexes.end(); iter++)
+    {
+        (iter->second)->closeFile();
+        delete iter->second;
+    }
     for(std::map<int, Page*>::iterator iter = pages.begin(); iter != pages.end(); iter++)
     {
         fm->flush(iter->second->getIndex());
         delete iter->second;
     }
+    indexes.clear();
+    uniqueIndex.clear();
     pages.clear();
     open = false;
     fm->closeFile(fileID);
@@ -234,17 +486,17 @@ void DataFile::printFileDesc()
 }
 
 void DataFile::addFields(std::vector<std::string>& name, std::vector<int>& type, std::vector<int>& nullable,
-		std::vector<int>& extra, std::vector<std::string>& foreign, int primCnt)
+		std::vector<int>& extra, std::vector<std::string>& foreign, std::vector<bool>& isPrim)
 {
     assert(open);
-    assert(primCnt >= 1);
     assert(name.size() == type.size() &&
        type.size() == nullable.size() &&
        nullable.size() == extra.size() &&
-	   extra.size() == foreign.size());
+	   extra.size() == foreign.size() &&
+       foreign.size() == isPrim.size());
     for(int i = 0; i < name.size(); i++)
     {
-        int re = ri->addField(name[i], type[i], nullable[i], extra[i], foreign[i]);
+        int re = ri->addField(name[i], type[i], nullable[i], extra[i], foreign[i], isPrim[i]);
         switch(re)
         {
         case RecordInfo::EMPTY_FIELD_NAME:
@@ -256,101 +508,92 @@ void DataFile::addFields(std::vector<std::string>& name, std::vector<int>& type,
         }
     }
     dfdp->writeFields();
-    dfdp->setPrimaryKeyCount(primCnt);
 }
 
 void DataFile::openFile(std::string dbname, std::string tbname)
 {
     assert(!open);
     fm->openDataFile(dbname, tbname, fileID);
+    this->tbname = tbname;
+    this->dbname = dbname;
     open = true;
     int index;
     ri->init();
     char* cache = fm->getPage(fileID, 0, index);
     dfdp = new DataFileDescPage(cache, index, 0, true, ri);
     tree = new IndexTree<PrimKey>(this, dfdp->getRootPage(), ri->getPrimKeyLen());
+    for(int i = 1; i < ri->getFieldCount(); i++)
+    {
+        if(fm->checkIdxFileExist(dbname, tbname, ri->name(i)))
+        {
+            BaseFile* bf;
+            switch(ri->type(i))
+            {
+            case Type::INT:
+                bf = new IndexFile<IntType>();
+                ((IndexFile<IntType>*)bf)->openFile(dbname, tbname, ri->name(i));
+                uniqueIndex[i] = ((IndexFile<IntType>*)bf)->isUnique();
+                break;
+            case Type::FLOAT:
+                bf = new IndexFile<FloatType>();
+                ((IndexFile<FloatType>*)bf)->openFile(dbname, tbname, ri->name(i));
+                uniqueIndex[i] = ((IndexFile<FloatType>*)bf)->isUnique();
+                break;
+            case Type::DATE:
+                bf = new IndexFile<DateType>();
+                ((IndexFile<DateType>*)bf)->openFile(dbname, tbname, ri->name(i));
+                uniqueIndex[i] = ((IndexFile<DateType>*)bf)->isUnique();
+                break;
+            case Type::VARCHAR:
+                bf = new IndexFile<VarcharType>();
+                ((IndexFile<VarcharType>*)bf)->openFile(dbname, tbname, ri->name(i));
+                uniqueIndex[i] = ((IndexFile<VarcharType>*)bf)->isUnique();
+                break;
+            default:
+                assert(false);
+            }
+            indexes[i] = bf;
+        }
+    }
 }
 
 void DataFile::test()
 {
-	try{FileIOModel::getInstance()->dropTable("test", "test");} catch(Exception){}
-	DataFile df;
-	df.createFile("test", "test");
-	df.openFile("test", "test");
-	std::vector<std::string> name;
-	name.push_back("_id");
-	name.push_back("test");
-	std::vector<int> type;
-	type.push_back(0);
-	type.push_back(2);
-	std::vector<int> nullable;
-	nullable.push_back(0);
-	nullable.push_back(0);
-	std::vector<int> extra;
-	extra.push_back(0);
-	extra.push_back(0);
-	std::vector<std::string> foreign;
-	foreign.push_back("");
-	foreign.push_back("");
-	df.addFields(name, type, nullable, extra, foreign, 2);
-	df.closeFile();
-	df.openFile("test", "test");
-	df.printFileDesc();
-	PrimKey::ri = df.ri;
-	std::map<char*, int> numbers;
-	for(int i = 0; i < 100; i++)
-    {
-        char* tmp = new char[20];
-        write_id(tmp);
-        writeFloat(tmp + 16, rand() * rand() * rand()/(double)(RAND_MAX));
-        numbers[tmp] = rand() * rand();
-    }
-    std::cout << "Numbers generated.\n";
-    for(std::map<char*, int>::iterator iter = numbers.begin(); iter != numbers.end(); iter++)
-    {
-        char* tmp = iter->first;
-        df.tree->insert(*(PrimKey*)tmp, iter->second);
-    }
-    std::cout << "Finished inserting.\n";
-    int n = 0;
-    for(std::map<char*, int>::iterator iter = numbers.begin(); iter != numbers.end(); iter++)
-    {
-        char* tmp = iter->first;
-        std::cout << "searched " << n++ << "\n";
-        assert(df.tree->search(*(PrimKey*)tmp) == (int)iter->second);
-    }
-    std::cout << "Finished searching.\n";
-    n = 0;
-    for(std::map<char*, int>::iterator iter = numbers.begin(); iter != numbers.end(); iter++)
-    {
-        char* tmp = iter->first;
-        std::cout << "removed " << n++ << "\n";
-        assert(df.tree->remove(*(PrimKey*)tmp));
-    }
-    std::cout << "Finished removing.\n";
-//	for(int i = 1000000 - 1; i >= 0; i--)
+//	try{FileIOModel::getInstance()->dropTable("test", "test");} catch(Exception){}
+//	DataFile df;
+//	df.createFile("test", "test");
+//	df.openFile("test", "test");
+//	std::vector<std::string> name;
+//	name.push_back("_id");
+//	name.push_back("test");
+//	std::vector<int> type;
+//	type.push_back(0);
+//	type.push_back(1);
+//	std::vector<int> nullable;
+//	nullable.push_back(0);
+//	nullable.push_back(0);
+//	std::vector<int> extra;
+//	extra.push_back(0);
+//	extra.push_back(0);
+//	std::vector<std::string> foreign;
+//	foreign.push_back("");
+//	foreign.push_back("");
+//	df.addFields(name, type, nullable, extra, foreign, 2);
+//	df.closeFile();
+//	df.openFile("test", "test");
+//	df.printFileDesc();
+//	PrimKey::ri = df.ri;
+//	std::vector<void*> data;
+//	for(int i = 0; i < 1000000; i++)
 //    {
-//        key[i] = new char[4];
-//        writeInt(key[i], i);
-//        df.tree->insert(*(PrimKey*)key[i], i);
-////        std::cout << i << " inserted.\n";
+//        data.clear();
+//        char tmp[16];
+//        write_id(tmp);
+//        data.push_back(tmp);
+//        data.push_back(&i);
+//        assert(df.insert(data));
+//        std::cout << "inserted " << i <<"\n";
 //    }
-//    for(int i = 1000000 - 1; i >= 0; i--)
-//    {
-////        std::cout << "Removing " << i << "\n";
-//        assert(df.tree->remove(*(PrimKey*)key[i]));
-////        int p = df.dfdp->getFirstLeafPage();
-////        int head, tail = -1;
-////        do
-////        {
-////            NodePage<PrimKey>* cur = (NodePage<PrimKey>*)df.openPage(p);
-////            head = cur->at(0)->value;
-////            if(p != df.dfdp->getFirstLeafPage())
-////            assert(head == tail + 1);
-////            tail = cur->at(cur->getChildCnt() - 1)->value;
-////            p = cur->getNextSamePage();
-////        }while(p > 0);
-//    }
-	df.closeFile();
-	FileIOModel::getInstance()->dropTable("test", "test");
+//	df.closeFile();
+	//FileIOModel::getInstance()->dropTable("test", "test");
 }

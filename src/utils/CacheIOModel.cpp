@@ -1,5 +1,7 @@
 #include"CacheIOModel.h"
 
+static char buf[33];
+
 int readInt(char* cache)
 {
     return *(int*)cache;
@@ -49,7 +51,6 @@ void copyData(char* src, char* dest, int len)
 
 std::string read_id(char* cache)
 {
-    char buf[33];
     sprintf(buf, "%08X%08X%08X%04X%04X", (unsigned int)((*(unsigned long long*)cache) >> 32), (unsigned int)*(unsigned long long*)cache,
             *(unsigned int*)((char*)cache + 8), *(unsigned short*)((char*)cache + 12), *(unsigned short*)((char*)cache + 14));
     return std::string(buf);

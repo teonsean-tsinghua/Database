@@ -8,22 +8,19 @@ RecordInfo::RecordInfo()
     init();
 }
 
-void RecordInfo::setPrimKeyCnt(int n)
-{
-	primKeyCnt = n;
-	primKeyLen = 0;
-	primKeyInfo.clear();
-	for(int i = 0; i < n; i++)
-	{
-		primKeyLen += length(i);
-		primKeyInfo.push_back(type(i));
-		primKeyInfo.push_back(length(i));
-	}
-}
-
 int RecordInfo::getPrimKeyLen()
 {
 	return primKeyLen;
+}
+
+int RecordInfo::getPrimKeyCnt()
+{
+    return primKeyCnt;
+}
+
+void RecordInfo::setPrimKeyCnt(int n)
+{
+    primKeyCnt = n;
 }
 
 const std::vector<int>& RecordInfo::getPrimKeyInfo()
@@ -49,10 +46,16 @@ void RecordInfo::printRecordDesc(std::string tbname)
         std::cout << ",\n";
     }
     std::cout << "    PRIMARY KEY:(";
-    for(int i = 0; i < primKeyCnt; i++)
+    int j = 0;
+    for(int i = 0; i < names.size(); i++)
     {
+        if(!isPrim(i))
+        {
+            continue;
+        }
     	std::cout << name(i);
-    	if(i != primKeyCnt - 1)
+    	j++;
+    	if(j != primKeyCnt)
     	{
     		std::cout << ", ";
     	}
@@ -80,7 +83,9 @@ void RecordInfo::init()
     nullables.clear();
     extras.clear();
     foreigns.clear();
-    recordLength = recordInfoLength = 0;
+    isPrims.clear();
+    primKeyInfo.clear();
+    primKeyCnt = primKeyLen = recordLength = recordInfoLength = 0;
 }
 
 int RecordInfo::index(std::string name)
@@ -107,6 +112,11 @@ int RecordInfo::type(int i)
     return types[i];
 }
 
+bool RecordInfo::isPrim(int i)
+{
+    return isPrims[i];
+}
+
 int RecordInfo::offset(int i)
 {
     return offsets[i];
@@ -126,7 +136,7 @@ int RecordInfo::length(int i)
 {
     if(type(i) == Type::VARCHAR)
     {
-        return extra(i);
+        return extra(i) + 1;
     }
     return Type::typeSize(type(i));
 }
@@ -146,6 +156,11 @@ int RecordInfo::displayLength(int i)
 bool RecordInfo::nullable(std::string name)
 {
     return nullables[indexes[name]];
+}
+
+bool RecordInfo::isPrim(std::string name)
+{
+    return isPrims[indexes[name]];
 }
 
 int RecordInfo::type(std::string name)
@@ -172,7 +187,7 @@ int RecordInfo::length(std::string name)
 {
     if(type(name) == Type::VARCHAR)
     {
-        return extra(name);
+        return extra(name) + 1;
     }
     return Type::typeSize(type(name));
 }
@@ -182,7 +197,7 @@ bool RecordInfo::contains(std::string name)
     return indexes.count(name);
 }
 
-int RecordInfo::addField(std::string name, int type, bool nullable, int extra, std::string foreign)
+int RecordInfo::addField(std::string name, int type, bool nullable, int extra, std::string foreign, bool isPrim)
 {
     if(name.empty())
     {
@@ -192,23 +207,27 @@ int RecordInfo::addField(std::string name, int type, bool nullable, int extra, s
     {
         return FIELD_ALREADY_EXIST;
     }
-    if(recordInfoLength + (sizeof(int) * 5 + name.size() + foreign.size()) > DataFileDescPage::maxRecordInfoLength())
+    if(recordInfoLength + (sizeof(int) * 6 + name.size() + foreign.size()) > DataFileDescPage::maxRecordInfoLength())
     {
         return EXCEED_PAGE_LIMIT;
     }
-    recordInfoLength += (sizeof(int) * 5 + name.size() + foreign.size());
-    if(type == Type::VARCHAR)
-    {
-        extra++;
-    }
+    recordInfoLength += (sizeof(int) * 6 + name.size() + foreign.size());
     names.push_back(name);
     types.push_back(type);
     nullables.push_back(nullable);
     extras.push_back(extra);
-    offsets.push_back(recordLength);
+    offsets.push_back(recordLength - offsets.size());
     foreigns.push_back(foreign);
     indexes[name] = names.size() - 1;
+    isPrims.push_back(isPrim);
     recordLength += (1 + length(name));
+    if(isPrim)
+    {
+        primKeyInfo.push_back(type);
+        primKeyInfo.push_back(length(names.size() - 1));
+        primKeyLen += length(names.size() - 1);
+        primKeyCnt++;
+    }
     return SUCCEED;
 }
 
@@ -229,13 +248,13 @@ void RecordInfo::setRecordInfoLength(int n)
 
 int RecordInfo::getFieldCount()
 {
-    if(indexes.size() != names.size() ||
-       names.size() != types.size() ||
-       types.size() != offsets.size() ||
-       offsets.size() != nullables.size() ||
-	   nullables.size() != foreigns.size())
-    {
-        throw Exception(TAG, "Invalid record info structure.");
-    }
+//    if(indexes.size() != names.size() ||
+//       names.size() != types.size() ||
+//       types.size() != offsets.size() ||
+//       offsets.size() != nullables.size() ||
+//	   nullables.size() != foreigns.size())
+//    {
+//        throw Exception(TAG, "Invalid record info structure.");
+//    }
     return indexes.size();
 }

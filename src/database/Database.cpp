@@ -254,40 +254,37 @@ void Database::select(bool all)
 //    }
 }
 
-void Database::insert(std::string name_)
+void Database::insert(std::string tbname)
 {
-//    DataFile* df = getDataFile(name_);
-//    if(df == NULL)
-//    {
-//        pValues.clear();
-//        pValueLists.clear();
-//        throw Exception("Cannot read table " + name_);
-//    }
-//    df->openFile();
-//    for(int i = 0; i < pValueLists.size(); i++)
-//    {
-//        std::vector<void*> data;
-//        data.push_back(NULL);
-//        for(int j = 0; j < pValueLists[i].size(); j++)
-//        {
-//            switch(pValueLists[i][j].type)
-//            {
-//            case 0:
-//                data.push_back(NULL);
-//                break;
-//            case 1:
-//                data.push_back(&(pValueLists[i][j].v_int));
-//                break;
-//            case 2:
-//                data.push_back(&(pValueLists[i][j].v_str));
-//                break;
-//            }
-//        }
-//        df->insert(data);
-//    }
-//    pValues.clear();
-//    pValueLists.clear();
-//    df->closeFile();
+    DataFile df;
+    df.openFile(curDb, tbname);
+    for(int i = 0; i < pValueLists.size(); i++)
+    {
+        std::vector<void*> data;
+        data.push_back(NULL);
+        for(int j = 0; j < pValueLists[i].size(); j++)
+        {
+            switch(pValueLists[i][j].type)
+            {
+            case 0:
+                data.push_back(NULL);
+                break;
+            case 1:
+                data.push_back(&(pValueLists[i][j].v_int));
+                break;
+            case 2:
+                data.push_back(&(pValueLists[i][j].v_str));
+                break;
+            }
+        }
+        if(!df.insert(data))
+        {
+            std::cout << "The " << i << "th record insertion failed. Might have violated primary key constraint or unique index constraint.\n";
+        }
+    }
+//    df.printAllRecords();
+    df.closeFile();
+    init();
 }
 
 void Database::showTables()
@@ -335,6 +332,17 @@ void Database::createTable(std::string tbname)
 	{
 		throw Exception(TAG, "Cannot define primary keys with duplicate fields.");
 	}
+	for(int j = 0; j < pNames.size(); j++)
+    {
+        if(pNames[j] == "_id")
+        {
+            throw Exception(TAG, "Cannot name a field \"_id\".");
+        }
+        if(pTypes[j] == Type::_ID)
+        {
+            throw Exception(TAG, "Cannot define a field of type _ID.");
+        }
+    }
 	pNames.insert(pNames.begin(), "_id");
 	pTypes.insert(pTypes.begin(), 0);
 	pNullables.insert(pNullables.begin(), false);
@@ -361,39 +369,42 @@ void Database::createTable(std::string tbname)
     		throw Exception(TAG, "Field " + pForeigns[i].field + " is never defined.");
     	}
     }
+    std::vector<bool> isPrims;
+    isPrims.assign(pNames.size(), false);
+    isPrims[0] = true;
     for(int i = 0; i < pColumns.size(); i++)
     {
     	int j = -1;
-    	for(int k = 0; k < pNames.size(); k++)
+    	for(int k = 1; k < pNames.size(); k++)
     	{
     		if(pNames[k] == pColumns[i])
     		{
     			j = k;
+                isPrims[k] = true;
+                isPrims[0] = false;
+    			break;
     		}
     	}
     	if(j < 0)
     	{
     		throw Exception(TAG, "Field " + pColumns[i] + " is never defined.");
     	}
-    	std::swap(pNames[i], pNames[j]);
-    	std::swap(pTypes[i], pTypes[j]);
-    	std::swap(pNullables[i], pNullables[j]);
-    	std::swap(pExtras[i], pExtras[j]);
-    	std::swap(tmp[i], tmp[j]);
     }
-    DataFile* df = new DataFile();
-    df->createFile(curDb, tbname);
-    df->openFile(curDb, tbname);
-    df->addFields(pNames, pTypes, pNullables, pExtras, tmp, std::max((int)pColumns.size(), 1));
-    df->closeFile();
-    delete df;
+    DataFile df;
+    df.createFile(curDb, tbname);
+    df.openFile(curDb, tbname);
+    df.addFields(pNames, pTypes, pNullables, pExtras, tmp, isPrims);
+    df.closeFile();
     init();
     std::cout << "CREATED TABLE " << tbname << std::endl;
 }
 
 void Database::createIndex(std::string tbname, std::string colname)
 {
-	fm->createIndexFile(curDb, tbname, colname);
+	DataFile df;
+    df.openFile(curDb, tbname);
+    df.createIndex(colname);
+    df.closeFile();
 	std::cout << "CREATED INDEX " << colname << " OF TABLE " << tbname << std::endl;
 }
 
@@ -405,10 +416,10 @@ void Database::dropIndex(std::string tbname, std::string colname)
 
 void Database::describeTable(std::string tbname)
 {
-	DataFile* df = new DataFile();
-	df->openFile(curDb, tbname);
-	df->getRecordInfo()->printRecordDesc(tbname);
-	df->closeFile();
+	DataFile df;
+	df.openFile(curDb, tbname);
+	df.getRecordInfo()->printRecordDesc(tbname);
+	df.closeFile();
 }
 
 void Database::dropTable(std::string tbname)
@@ -419,17 +430,27 @@ void Database::dropTable(std::string tbname)
 
 void Database::_test()
 {
-    const char* sFile="test.sql";
-    FILE* fp=fopen(sFile, "r");
-    if(fp==NULL)
+    std::vector<const char*> sFile;
+    sFile.push_back("create&drop.sql");
+    sFile.push_back("primkey.sql");
+    sFile.push_back("insert.sql");
+    sFile.push_back("index.sql");
+    for(int i = 0; i < sFile.size(); i++)
     {
-        printf("cannot open %s\n", sFile);
-        return;
+        std::cout << "-------------------------------------------------------------\n";
+        std::cout << "Running " << sFile[i] << "\n";
+        std::cout << "-------------------------------------------------------------\n";
+        FILE* fp=fopen(sFile[i], "r");
+        if(fp==NULL)
+        {
+            printf("cannot open %s\n", sFile[i]);
+            return;
+        }
+        extern FILE* yyin;
+        yyin=fp;
+        yyparse();
+        fclose(fp);
     }
-    extern FILE* yyin;
-    yyin=fp;
-    yyparse();
-    fclose(fp);
 }
 
 void Database::test()

@@ -20,10 +20,11 @@ private:
     std::vector<int> extras;
     std::vector<std::string> foreigns;
     std::vector<int> primKeyInfo;
+    std::vector<bool> isPrims;
     int recordLength;
     int recordInfoLength;
-    int primKeyCnt;
     int primKeyLen;
+    int primKeyCnt;
 
 public:
     RecordInfo();
@@ -43,6 +44,10 @@ public:
     int type(std::string name);
 
     int length(std::string name);
+
+    bool isPrim(std::string name);
+
+    bool isPrim(int index);
 
     int offset(std::string name);
 
@@ -72,13 +77,15 @@ public:
 
     int getFieldCount();
 
-    void setPrimKeyCnt(int n);
-
     int getPrimKeyLen();
+
+    int getPrimKeyCnt();
+
+    void setPrimKeyCnt(int n);
 
     const std::vector<int>& getPrimKeyInfo();
 
-    int addField(std::string name, int type, bool nullable, int extra, std::string foreign);
+    int addField(std::string name, int type, bool nullable, int extra, std::string foreign, bool isPrim);
 
     void reset(int n);
 

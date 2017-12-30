@@ -82,7 +82,7 @@ public:
 
     void addPendingForeign(Foreign& foreign);
 
-    void insert(std::string name);
+    void insert(std::string tbname);
 
     void remove(std::string name);
 

@@ -7,6 +7,7 @@
 #include"UsagePage.h"
 #include"IndexTree.h"
 #include"DataPage.h"
+#include"IndexFile.h"
 
 class DataFile: public BaseFile
 {
@@ -15,8 +16,14 @@ private:
     DataFileDescPage* dfdp;
     IndexTree<PrimKey>* tree;
     std::map<int, Page*> pages;
+    std::map<int, BaseFile*> indexes;
+    std::map<int, bool> uniqueIndex;
     RecordInfo* ri;
     bool open;
+    std::string tbname;
+    std::string dbname;
+
+    BaseFile* getIndexFile(int i);
 
     int findFirstAvailableDataPage();
 
@@ -34,6 +41,8 @@ private:
 
     bool validateInsertion(std::vector<void*>& data);
 
+    char* generatePrimKey(std::vector<void*>& data);
+
 //    friend Table;
 
 public:
@@ -47,10 +56,14 @@ public:
 
     void openFile(std::string dbname, std::string tbname);
 
+    bool insert(std::vector<void*>& data);
+
     void closeFile();
 
     void addFields(std::vector<std::string>& name, std::vector<int>& type, std::vector<int>& nullable,
-    		std::vector<int>& extra, std::vector<std::string>& foreign, int primCnt);
+    		std::vector<int>& extra, std::vector<std::string>& foreign, std::vector<bool>& isPrim);
+
+    void createIndex(std::string fdname, bool unique = false, int density = 1);
 
     void printFileDesc();
 

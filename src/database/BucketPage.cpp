@@ -26,7 +26,7 @@ bool Bucket::containForInsert(Bucket* b, int v, int d, bool& athere)
 void Bucket::print(Bucket* b, int d)
 {
     int volumn = bucket_sizes[d];
-    std::cout << b << ":[";
+    std::cout << "[";
     for(int i = 0; i < volumn; i++)
     {
         if(b->pids[i] > 0)

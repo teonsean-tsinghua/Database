@@ -28,6 +28,8 @@ public:
     virtual void setRootPage(int n) {}
 
     virtual Page* openPage(int pid) {return NULL;}
+
+    virtual void closeFile() {}
 };
 
 #endif // BASEFILE_H_INCLUDED

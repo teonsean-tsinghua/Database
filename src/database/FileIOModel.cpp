@@ -6,6 +6,7 @@ const std::string FileIOModel::TAG = "FileIOModel";
 
 FileIOModel::FileIOModel()
 {
+    MyBitMap::initConst();
     fm = new FileManager();
     bpm = new BufPageManager(fm);
 }
@@ -180,6 +181,16 @@ void FileIOModel::checkDataFile(std::string dbname, std::string tbname, bool e)
 			}
 		}
 	}
+}
+
+bool FileIOModel::checkIdxFileExist(std::string dbname, std::string tbname, std::string fdname)
+{
+    assert(dbname != "");
+	assert(tbname != "");
+	assert(fdname != "");
+	std::string path = root + "/" + dbname + "/" + tbname + ".idx/" + fdname + ".idx";
+	checkIdxDir(dbname, tbname, true);
+    return exist(path) && isFile(path);
 }
 
 void FileIOModel::checkIdxFile(std::string dbname, std::string tbname, std::string fdname, bool e)

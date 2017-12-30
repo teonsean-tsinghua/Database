@@ -10,6 +10,7 @@ class DataPage: public Page
 protected:
     std::vector<RecordSlot*> records;
     RecordInfo* ri;
+    int cur;
 
 public:
     DataPage(char* cache, int index, int pageID, bool parse, RecordInfo* ri);
@@ -20,14 +21,17 @@ public:
 
     void print();
 
+    bool isFull();
+
     int remove(SearchInfo& si);
 
     void select(SearchInfo& si, SelectResult& sr);
 
     int update(SearchInfo& si, UpdateInfo& ui);
 
-    const static int SUCCEED = 0;
-    const static int PAGE_FULL = 1;
+    void initIterator();
+
+    char* getNext(int fidx, int& ridx);
 
 };
 

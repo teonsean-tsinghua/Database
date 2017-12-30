@@ -105,6 +105,8 @@ NodePage<T>::NodePage(char* cache, int index, int pageID, int keyType, int keyLe
         setFirstAvailableByte(PAGE_CONTENT_OFFSET);
         setPrevSamePage(-1);
         setNextSamePage(-1);
+        setChildCnt(0);
+        setParent(-1);
         setPageType(type);
     }
     buffer = new char[8192];
@@ -260,7 +262,6 @@ void NodePage<T>::insert(T& key, int value)
 template<typename T>
 void NodePage<T>::setParent(int pid)
 {
-    assert(pid > 0);
     writeInt((*this)[PARENT_NODE_OFFSET], pid);
 }
 

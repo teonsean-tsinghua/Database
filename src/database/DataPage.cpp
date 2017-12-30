@@ -22,6 +22,21 @@ DataPage::DataPage(char* cache, int index, int pageID, bool parse, RecordInfo* r
     }
 }
 
+void DataPage::initIterator()
+{
+    cur = 0;
+}
+
+char* DataPage::getNext(int fidx, int& ridx)
+{
+    if(cur >= records.size())
+    {
+        return NULL;
+    }
+    ridx = cur;
+    return records[cur++]->get(fidx);
+}
+
 void DataPage::print()
 {
     Page::print();
@@ -62,6 +77,11 @@ int DataPage::update(SearchInfo& si, UpdateInfo& ui)
         }
     }
     return cnt;
+}
+
+bool DataPage::isFull()
+{
+    return getFirstAvailableByte() + ri->getRecordLength() > PAGE_SIZE;
 }
 
 int DataPage::remove(SearchInfo& si)
@@ -147,9 +167,5 @@ int DataPage::insert(std::vector<void*>& data)
     cur += ri->getRecordLength();
     setFirstAvailableByte(cur);
     records.push_back(slot);
-    if(cur + ri->getRecordLength() < PAGE_SIZE)
-    {
-        return SUCCEED;
-    }
-    return PAGE_FULL;
+    return records.size() - 1;
 }

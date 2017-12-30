@@ -19,6 +19,8 @@ public:
 
     void read(std::vector<void*>& data);
 
+    char* get(int i);
+
     bool check(SearchInfo& si);
 
     bool checkValueNotEqual(std::map<int, std::vector<void*> >& info);

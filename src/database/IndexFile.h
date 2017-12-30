@@ -49,9 +49,15 @@ public:
 
     bool remove(T& key, int value = 0);
 
+    int directSearch(T& key);
+
     bool update(T& key, int value, int old_value = 0);
 
     void printValuesOfKey(T& key);
+
+    void printAllValues();
+
+    bool isUnique();
 
     static void test();
 
@@ -63,6 +69,34 @@ IndexFile<T>::IndexFile()
 	fm = FileIOModel::getInstance();
     fileID = -1;
     open = false;
+}
+
+template<typename T>
+int IndexFile<T>::directSearch(T& key)
+{
+    return tree->search(key);
+}
+
+template<typename T>
+bool IndexFile<T>::isUnique()
+{
+    return ifdp->getUnique();
+}
+
+template<typename T>
+void IndexFile<T>::printAllValues()
+{
+    int pid = ifdp->getFirstLeafPage();
+    while(pid > 0)
+    {
+        NodePage<T>* np = (NodePage<T>*)openPage(pid);
+        int cnt = np->getChildCnt();
+        for(int i = 0; i < cnt; i++)
+        {
+            printValuesOfKey(np->at(i)->key);
+        }
+        pid = np->getNextSamePage();
+    }
 }
 
 template<typename T>
@@ -150,11 +184,8 @@ bool IndexFile<T>::remove(T& key, int value)
         tail_bid = tail->next;
         secondLast = tail;
         tail = ((BucketPage*)openPage(tail_bid / PAGE_SIZE))->at(tail_bid % PAGE_SIZE);
-        std::cout << "tail: " << tail << "\n";
     }
-    std::cout << "finally tail:" << tail << " and second last " << secondLast<<std::endl;
     int tail_index = Bucket::lastIdx(tail, ifdp->getDensity());
-    std::cout << "tail page:" << tail_bid / PAGE_SIZE << ", tail index " << tail_index << "\n";
     assert(tail_index >= 0);
     bool re;
     while(true)
@@ -166,13 +197,11 @@ bool IndexFile<T>::remove(T& key, int value)
             tail->pids[tail_index] = 0;
             if(Bucket::lastIdx(tail, ifdp->getDensity()) < 0)
             {
-                std::cout << "last bucket empty, removing it.\n";
                 BucketPage* page = (BucketPage*)openPage(tail_bid / PAGE_SIZE);
                 page->setAvailable(tail_bid % PAGE_SIZE, true);
                 if(secondLast != NULL)
                 {
                     secondLast->next = 0;
-                    std::cout << "second last reset.\n";
                     std::cout << secondLast->next << "\n";
                 }
                 if(bucket_id == tail_bid)
@@ -330,7 +359,7 @@ int IndexFile<T>::allocateUsagePage()
     char* cache = fm->getPage(fileID, cnt, index);
     UsagePage* up = new UsagePage(cache, index, cnt, false);
     pages[cnt] = up;
-    std::cout << "Allocated new usage page " << cnt << std::endl;
+//    std::cout << "Allocated new usage page " << cnt << std::endl;
     if(cnt != 1)
     {
         int last = UsagePage::findOccupiedBy(cnt - 1);
@@ -358,7 +387,7 @@ int IndexFile<T>::allocateNodePage(bool isLeaf)
     if(isLeaf)
     {
         pages[cnt] = new LeafPage<T>(cache, index, cnt, keyType, keyLength, false);
-        std::cout << "Allocated new leaf page " << cnt << std::endl;
+//        std::cout << "Allocated new leaf page " << cnt << std::endl;
         ifdp->incrementPageNumber();
         if(ifdp->getFirstLeafPage() < 0)
         {
@@ -368,7 +397,7 @@ int IndexFile<T>::allocateNodePage(bool isLeaf)
     else
     {
         pages[cnt] = new InternalPage<T>(cache, index, cnt, keyType, keyLength, false);
-        std::cout << "Allocated new internal page " << cnt << std::endl;
+//        std::cout << "Allocated new internal page " << cnt << std::endl;
         ifdp->incrementPageNumber();
     }
     up->extendRange(cnt);
@@ -391,12 +420,12 @@ int IndexFile<T>::allocateBucketPage()
     int index;
     char* cache = fm->getPage(fileID, cnt, index);
     pages[cnt] = new BucketPage(cache, index, cnt, false, ifdp->getDensity());
-    std::cout << "Allocated new bucket page " << cnt << std::endl;
+//    std::cout << "Allocated new bucket page " << cnt << std::endl;
     ifdp->incrementPageNumber();
     if(ifdp->getFirstBucketPage() < 0)
     {
-        ifdp->setFirstBucketPage(-1);
-        ifdp->setLastBucketPage(-1);
+        ifdp->setFirstBucketPage(cnt);
+        ifdp->setLastBucketPage(cnt);
     }
     else
     {
@@ -542,6 +571,10 @@ void IndexFile<T>::test()
         {
             assert(f.remove(*(IntType*)&i, j));
         }
+    }
+    for(int i = 0; i < 100; i++)
+    {
+        assert(!f.update(*(IntType*)&i, 1, 1));
     }
     FileIOModel::getInstance()->dropTable("test", "test");
 }

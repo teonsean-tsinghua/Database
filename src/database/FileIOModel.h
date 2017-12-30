@@ -43,6 +43,8 @@ public:
 
     void createIndexFile(std::string dbname, std::string tbname, std::string fdname);
 
+    bool checkIdxFileExist(std::string dbname, std::string tbname, std::string fdname);
+
     void showTables(std::string dbname);
 
     void showDbs();

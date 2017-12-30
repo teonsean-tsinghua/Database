@@ -59,7 +59,8 @@ public:
     const static int RECORD_INFO_OFFSET = FIELD_COUNT_OFFSET + sizeof(int);
 
     const static int RECORD_INFO_TYPE_OFFSET = 0;
-    const static int RECORD_INFO_NULLABLE_OFFSET = RECORD_INFO_TYPE_OFFSET + sizeof(int);
+    const static int RECORD_INFO_IS_PRIM_OFFSET = RECORD_INFO_TYPE_OFFSET + sizeof(int);
+    const static int RECORD_INFO_NULLABLE_OFFSET = RECORD_INFO_IS_PRIM_OFFSET + sizeof(int);
     const static int RECORD_INFO_EXTRA_OFFSET = RECORD_INFO_NULLABLE_OFFSET + sizeof(int);
     const static int RECORD_INFO_NAME_LENGTH_OFFSET = RECORD_INFO_EXTRA_OFFSET + sizeof(int);
     const static int RECORD_INFO_NAME_OFFSET = RECORD_INFO_NAME_LENGTH_OFFSET + sizeof(int);

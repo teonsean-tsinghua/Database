@@ -22,11 +22,12 @@ DataFileDescPage::DataFileDescPage(char* cache, int index, int pageID, bool pars
         assert(getPageType() == Type::DATA_FILE_DESC_PAGE);
     	int index = 0, cnt = getFieldCount();
         char* cache = (*this)[RECORD_INFO_OFFSET];
-        int offset = 0, type = 0, name_length = 0, nullable = 0, extra = 0, foreign_length = 0;
+        int type = 0, name_length = 0, nullable = 0, extra = 0, foreign_length = 0, isPrim = 0;
         while(index < cnt)
         {
             type = readInt(cache + RECORD_INFO_TYPE_OFFSET);
             nullable = readInt(cache + RECORD_INFO_NULLABLE_OFFSET);
+            isPrim = readInt(cache + RECORD_INFO_IS_PRIM_OFFSET);
             name_length = readInt(cache + RECORD_INFO_NAME_LENGTH_OFFSET);
             extra = readInt(cache + RECORD_INFO_EXTRA_OFFSET);
             cache += RECORD_INFO_NAME_OFFSET;
@@ -37,10 +38,10 @@ DataFileDescPage::DataFileDescPage(char* cache, int index, int pageID, bool pars
             cache += sizeof(int);
             foreign = readString(cache, foreign_length);
             cache += foreign_length;
-            ri->addField(name, type, nullable, extra, foreign);
+            ri->addField(name, type, nullable, extra, foreign, isPrim);
             index++;
         }
-        ri->setPrimKeyCnt(getPrimaryKeyCount());
+        assert(ri->getPrimKeyCnt() == getPrimaryKeyCount());
     }
 }
 
@@ -62,6 +63,7 @@ int DataFileDescPage::maxRecordInfoLength()
 void DataFileDescPage::writeFields()
 {
     setFieldCount(ri->getFieldCount());
+    setPrimaryKeyCount(ri->getPrimKeyCnt());
     char* cache = (char*)((*this)[RECORD_INFO_OFFSET]);
     int cnt = ri->getFieldCount();
     for(int i = 0; i < cnt; i++)
@@ -72,6 +74,7 @@ void DataFileDescPage::writeFields()
         int foreign_length = foreign.size();
         writeInt(cache + RECORD_INFO_TYPE_OFFSET, ri->type(i));
         writeInt(cache + RECORD_INFO_NULLABLE_OFFSET, ri->nullable(i) ? 1 : 0);
+        writeInt(cache + RECORD_INFO_IS_PRIM_OFFSET, ri->isPrim(i) ? 1 : 0);
         writeInt(cache + RECORD_INFO_EXTRA_OFFSET, ri->extra(i));
         writeInt(cache + RECORD_INFO_NAME_LENGTH_OFFSET, name_length);
         cache += RECORD_INFO_NAME_OFFSET;
@@ -96,11 +99,7 @@ void DataFileDescPage::print()
     std::cout << "Root page:                        " << getRootPage() << std::endl;
     std::cout << "Record length:                    " << ri->getRecordLength() << std::endl;
     std::cout << "Number of fields:                 " << cnt << std::endl;
-    std::cout << "Primary keys:                     ";
-    for(int i = 0; i < getPrimaryKeyCount(); i++)
-    {
-    	std::cout << ri->name(i) << " ";
-    }
+    std::cout << "Primary keys number:              " << getPrimaryKeyCount() << std::endl;
     std::cout << std::endl;
 }
 

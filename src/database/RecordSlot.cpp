@@ -360,10 +360,8 @@ bool RecordSlot::checkFields(std::map<int, std::vector<int> >& info, int op)
 void RecordSlot::write(std::vector<void*>& data)
 {
     int cnt = ri->getFieldCount();
-    assert(cnt != data.size());
-    writeBool((*this)[0], false);
-    write_id((*this)[actual_data_offset]);
-    for(int i = 1; i < cnt; i++)
+    assert(cnt == data.size());
+    for(int i = 0; i < cnt; i++)
     {
         int offset = ri->offset(i);
         char* ptr = (char*)(data[i]);
@@ -405,7 +403,36 @@ void RecordSlot::update(UpdateInfo& ui)
 
 void RecordSlot::print()
 {
+    int cnt = ri->getFieldCount();
+    for(int i = 0; i < cnt; i++)
+    {
+        std::cout << ri->name(i) << ": ";
+        switch(ri->type(i))
+        {
+        case Type::_ID:
+            std::cout << read_id((*this)[actual_data_offset + ri->offset(i)]);
+            break;
+        case Type::INT:
+            std::cout << readInt((*this)[actual_data_offset + ri->offset(i)]);
+            break;
+        case Type::FLOAT:
+            std::cout << readFloat((*this)[actual_data_offset + ri->offset(i)]);
+            break;
+        case Type::VARCHAR:
+            std::cout << (*this)[actual_data_offset + ri->offset(i)];
+            break;
+        case Type::DATE:
+            std::cout << readString((*this)[actual_data_offset + ri->offset(i)], Type::typeSize(Type::DATE));
+            break;
+        }
+        std::cout << "\n";
+    }
+    std::cout << "\n\n";
+}
 
+char* RecordSlot::get(int i)
+{
+    return (*this)[actual_data_offset + ri->offset(i)];
 }
 
 void RecordSlot::read(std::vector<void*>& data)
