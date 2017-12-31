@@ -521,6 +521,7 @@ void IndexFile<T>::closeFile()
 {
     assert(open);
     fm->flush(ifdp->getIndex());
+//    printAllValues();
     for(std::map<int, Page*>::iterator iter = pages.begin(); iter != pages.end(); iter++)
     {
         fm->flush(iter->second->getIndex());

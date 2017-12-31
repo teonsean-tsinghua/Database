@@ -90,10 +90,7 @@ bool operator >= (IDType& one, IDType& other)
 
 std::ostream& operator << (std::ostream& out, IDType& one)
 {
-    char tmp[17];
-    read_id(tmp);
-    tmp[16] = '\0';
-    out << std::string(tmp);;
+    out << read_id((char*)&one);
     return out;
 }
 

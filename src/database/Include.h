@@ -13,9 +13,11 @@
 #include<vector>
 #include<cstdio>
 #include<cstdlib>
+#include<queue>
 #include<set>
 #include<list>
 #include<cassert>
 #include<algorithm>
+#include<pthread.h>
 
 #endif // FILELAYER_INCLUDE_H_INCLUDED

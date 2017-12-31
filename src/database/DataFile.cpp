@@ -19,6 +19,107 @@ RecordInfo* DataFile::getRecordInfo()
     return ri;
 }
 
+void* printLoop(void* df)
+{
+    DataFile* f = (DataFile*)df;
+    while(true)
+    {
+        pthread_mutex_lock(&f->search_result_lock);
+        if(f->search_result.empty())
+        {
+            pthread_mutex_unlock(&f->search_result_lock);
+            usleep(20);
+            continue;
+        }
+        int rid = f->search_result.front();
+        f->search_result.pop();
+        pthread_mutex_unlock(&f->search_result_lock);
+        if(rid <= 0)
+        {
+            break;
+        }
+        f->print(rid);
+    }
+    return NULL;
+}
+
+void DataFile::print(int rid)
+{
+    std::vector<void*> row;
+    ((DataPage*)openPage(rid / PAGE_SIZE))->fetchFields(row, *cur_selected, rid % PAGE_SIZE);
+    Table::printRow(row, ri);
+}
+
+void* validateLoop(void* df)
+{
+    DataFile* f = (DataFile*)df;
+    while(true)
+    {
+        pthread_mutex_lock(&f->candidate_lock);
+        if(f->candidate_pids.empty())
+        {
+            pthread_mutex_unlock(&f->candidate_lock);
+            usleep(20);
+            continue;
+        }
+        int rid = f->candidate_pids.front();
+        f->candidate_pids.pop();
+        pthread_mutex_unlock(&f->candidate_lock);
+        if(rid <= 0)
+        {
+            pthread_mutex_lock(&f->search_result_lock);
+            f->search_result.push(0);
+            pthread_mutex_unlock(&f->search_result_lock);
+            break;
+        }
+        if(f->validate(rid))
+        {
+            pthread_mutex_lock(&f->search_result_lock);
+            f->search_result.push(rid);
+            pthread_mutex_unlock(&f->search_result_lock);
+        }
+    }
+    return NULL;
+}
+
+bool DataFile::validate(int rid)
+{
+    return ((DataPage*)openPage(rid / PAGE_SIZE))->validate(*cur_search_info, rid % PAGE_SIZE);
+}
+
+void DataFile::select(SearchInfo& si, std::vector<bool>& selected)
+{
+    Table::printHeader(selected, ri);
+    cur_search_info = &si;
+    cur_selected = &selected;
+    pthread_t* printingThread = new pthread_t;
+    pthread_t* validatingThread = new pthread_t;
+    pthread_create(validatingThread, NULL, validateLoop, this);
+    pthread_create(printingThread, NULL, printLoop, this);
+
+    // traverse and validate
+    int pid = dfdp->getFirstDataPage();
+    while(pid > 0)
+    {
+        int cnt = ((DataPage*)openPage(pid))->recordCnt();
+        int base = pid * PAGE_SIZE;
+        for(int i = 0; i < cnt; i++)
+        {
+            pthread_mutex_lock(&candidate_lock);
+            candidate_pids.push(base + i);
+            pthread_mutex_unlock(&candidate_lock);
+        }
+        pid = openPage(pid)->getNextSamePage();
+    }
+    pthread_mutex_lock(&candidate_lock);
+    candidate_pids.push(0);
+    pthread_mutex_unlock(&candidate_lock);
+    pthread_join(*validatingThread, NULL);
+    pthread_join(*printingThread, NULL);
+    delete printingThread;
+    delete validatingThread;
+}
+
 int DataFile::findFirstAvailableDataPage()
 {
     assert(open);
@@ -389,16 +490,16 @@ bool DataFile::insert(std::vector<void*>& data)
         switch(ri->type(i))
         {
         case Type::INT:
-            assert(((IndexFile<IntType>*)indexes[i])->directSearch(*(IntType*)field));
+            assert(((IndexFile<IntType>*)indexes[i])->insert(*(IntType*)field, pid));
             break;
         case Type::FLOAT:
-            assert(((IndexFile<FloatType>*)indexes[i])->directSearch(*(FloatType*)field));
+            assert(((IndexFile<FloatType>*)indexes[i])->insert(*(FloatType*)field, pid));
             break;
         case Type::DATE:
-            assert(((IndexFile<DateType>*)indexes[i])->directSearch(*(DateType*)field));
+            assert(((IndexFile<DateType>*)indexes[i])->insert(*(DateType*)field, pid));
             break;
         case Type::VARCHAR:
-            assert(((IndexFile<VarcharType>*)indexes[i])->directSearch(*(VarcharType*)field));
+            assert(((IndexFile<VarcharType>*)indexes[i])->insert(*(VarcharType*)field, pid));
             break;
         default:
             assert(false);
@@ -410,10 +511,13 @@ bool DataFile::insert(std::vector<void*>& data)
 Page* DataFile::openPage(int pid)
 {
     assert(open);
+    pthread_mutex_lock(&page_lock);
     if(pages.count(pid))
     {
+        pthread_mutex_unlock(&page_lock);
         return pages[pid];
     }
+    pthread_mutex_unlock(&page_lock);
     assert(pid > 0 && pid < dfdp->getPageNumber());
     int index;
     char* cache = fm->getPage(fileID, pid, index);
@@ -435,7 +539,9 @@ Page* DataFile::openPage(int pid)
     default:
         assert(false);
     }
+    pthread_mutex_lock(&page_lock);
     pages[pid] = re;
+    pthread_mutex_unlock(&page_lock);
     return re;
 }
 
@@ -445,6 +551,9 @@ void DataFile::createFile(std::string dbname, std::string tbname)
     fm->createDataFile(dbname, tbname);
     fm->openDataFile(dbname, tbname, fileID);
     open = true;
+    pthread_mutex_init(&candidate_lock, NULL);
+    pthread_mutex_init(&search_result_lock, NULL);
+    pthread_mutex_init(&page_lock, NULL);
     int index;
     ri->init();
     char* cache = fm->getPage(fileID, 0, index);
@@ -454,14 +563,19 @@ void DataFile::createFile(std::string dbname, std::string tbname)
     fm->closeFile(fileID);
     open = false;
     delete dfdp;
+    pthread_mutex_destroy(&candidate_lock);
+    pthread_mutex_destroy(&page_lock);
+    pthread_mutex_destroy(&search_result_lock);
 }
 
 void DataFile::closeFile()
 {
     assert(open);
     fm->flush(dfdp->getIndex());
+//    printAllRecords();
     for(std::map<int, BaseFile*>::iterator iter = indexes.begin(); iter != indexes.end(); iter++)
     {
+
         (iter->second)->closeFile();
         delete iter->second;
     }
@@ -477,6 +591,9 @@ void DataFile::closeFile()
     fm->closeFile(fileID);
     delete dfdp;
     delete tree;
+    pthread_mutex_destroy(&candidate_lock);
+    pthread_mutex_destroy(&page_lock);
+    pthread_mutex_destroy(&search_result_lock);
 }
 
 void DataFile::printFileDesc()
@@ -555,6 +672,9 @@ void DataFile::openFile(std::string dbname, std::string tbname)
             indexes[i] = bf;
         }
     }
+    pthread_mutex_init(&candidate_lock, NULL);
+    pthread_mutex_init(&search_result_lock, NULL);
+    pthread_mutex_init(&page_lock, NULL);
 }
 
 void DataFile::test()

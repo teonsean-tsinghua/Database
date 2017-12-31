@@ -22,6 +22,24 @@ DataPage::DataPage(char* cache, int index, int pageID, bool parse, RecordInfo* r
     }
 }
 
+void DataPage::fetchFields(std::vector<void*>& result, std::vector<bool>& selected, int idx)
+{
+    assert(idx >= 0 && idx < records.size());
+    for(int i = 0; i < selected.size(); i++)
+    {
+        if(selected[i])
+        {
+            result.push_back(records[idx]->get(i));
+        }
+    }
+}
+
+bool DataPage::validate(SearchInfo& si, int idx)
+{
+    assert(idx >= 0 && idx < records.size());
+    return records[idx]->check(si);
+}
+
 void DataPage::initIterator()
 {
     cur = 0;
@@ -157,6 +175,11 @@ void DataPage::select(SearchInfo& si, SelectResult& sr)
             sr.results.push_back(PAGE_SIZE * pageID + i);
         }
     }
+}
+
+int DataPage::recordCnt()
+{
+    return records.size();
 }
 
 int DataPage::insert(std::vector<void*>& data)

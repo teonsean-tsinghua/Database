@@ -6,9 +6,9 @@ else
 SILENCE=
 endif
 
-CC = $(CROSS_COMPILE)g++
-CXX = $(CROSS_COMPILE)g++
-LD = $(CROSS_COMPILE)ld
+CC = $(CROSS_COMPILE)g++ -pthread
+CXX = $(CROSS_COMPILE)g++ -pthread
+LD = $(CROSS_COMPILE)ld -pthread
 
 CFLAGS +=
 
@@ -40,7 +40,7 @@ $(COBJS):%.o:%.c
 	$(SILENCE) $(CC) -c -lstdc $< -o $@ $(CFLAGS)
 
 $(CPPOBJS):%.o:%.cpp
-	$(SILENCE) $(CC) -c $< -o $@ $(CXXFLAGS)
+	$(SILENCE) $(CC) -c $< -o $@ $(CXXFLAGS) 
 #the scripts for clean
 .PHONY: clean
 

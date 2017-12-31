@@ -17,11 +17,17 @@ public:
 
     int insert(std::vector<void*>& data);
 
+    void fetchFields(std::vector<void*>& result, std::vector<bool>& selected, int idx);
+
     void read(int i, std::vector<void*>& data);
+
+    bool validate(SearchInfo& si, int idx);
 
     void print();
 
     bool isFull();
+
+    int recordCnt();
 
     int remove(SearchInfo& si);
 

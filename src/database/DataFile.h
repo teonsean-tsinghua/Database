@@ -16,8 +16,15 @@ private:
     DataFileDescPage* dfdp;
     IndexTree<PrimKey>* tree;
     std::map<int, Page*> pages;
+    pthread_mutex_t page_lock;
     std::map<int, BaseFile*> indexes;
     std::map<int, bool> uniqueIndex;
+    std::queue<int> candidate_pids;
+    pthread_mutex_t candidate_lock;
+    std::queue<int> search_result;
+    pthread_mutex_t search_result_lock;
+    SearchInfo* cur_search_info;
+    std::vector<bool>* cur_selected;
     RecordInfo* ri;
     bool open;
     std::string tbname;
@@ -39,6 +46,10 @@ private:
 
     Page* openPage(int pid);
 
+    bool validate(int rid);
+
+    void print(int rid);
+
     bool validateInsertion(std::vector<void*>& data);
 
     char* generatePrimKey(std::vector<void*>& data);
@@ -58,6 +69,8 @@ public:
 
     bool insert(std::vector<void*>& data);
 
+    void select(SearchInfo& si, std::vector<bool>& selected);
+
     void closeFile();
 
     void addFields(std::vector<std::string>& name, std::vector<int>& type, std::vector<int>& nullable,
@@ -70,6 +83,10 @@ public:
     void printAllRecords();
 
     static void test();
+
+    friend void* printLoop(void* df);
+
+    friend void* validateLoop(void* df);
 };
 
 #endif // DATAFILE_H_INCLUDED

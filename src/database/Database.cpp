@@ -104,7 +104,7 @@ void Database::addPendingValueList()
 //    if(!flag)
 //    {
 //        pSets.clear();
-//        throw Exception("Error in set clause.");
+//        throw Exception(TAG, "Error in set clause.");
 //    }
 //    for(int i = 0; i < pSets.size(); i++)
 //    {
@@ -140,7 +140,7 @@ void Database::update(std::string name)
 //    if(!si.processWheresWithOneTable(pWheres, ri, name))
 //    {
 //        pWheres.clear();
-//        throw Exception("Conflict in where clauses.");
+//        throw Exception(TAG, "Conflict in where clauses.");
 //    }
 //    int cnt = df->update(si, ui);
 //    Print::print("Updated ").print(cnt).printLine(" records.");
@@ -162,7 +162,7 @@ void Database::remove(std::string name)
 //    SearchInfo si;
 //    if(!si.processWheresWithOneTable(pWheres, ri, name))
 //    {
-//        throw Exception("Conflict in where clauses.");
+//        throw Exception(TAG, "Conflict in where clauses.");
 //    }
 //    int cnt = df->remove(si);
 //    Print::print("Deleted ").print(cnt).printLine(" records.");
@@ -172,65 +172,54 @@ void Database::remove(std::string name)
 
 void Database::selectOneTable(bool all)
 {
-//    DataFile* df = getDataFile(pTables[0]);
-//    if(df == NULL)
-//    {
-//        pWheres.clear();
-//        pTables.clear();
-//        pCols.clear();
-//        return;
-//    }
-//    std::vector<bool> selected;
-//    df->openFile();
-//    RecordInfo* ri = df->getRecordInfo();
-//    if(all)
-//    {
-//        selected.assign(ri->getFieldCount(), true);
-//    }
-//    else
-//    {
-//        bool flag = true;
-//        for(int i = 0; i < pCols.size(); i++)
-//        {
-//            if(pCols[i].table != "" &&
-//               pCols[i].table != pTables[0])
-//            {
-//                Print::printLine("Table " + pCols[i].table + " is not selected.");
-//                flag = false;
-//            }
-//            else if(ri->index(pCols[i].field) < 0)
-//            {
-//                Print::printLine("Table " + pTables[0] + " does not have field" + pCols[i].field + ".");
-//                flag = false;
-//            }
-//        }
-//        if(!flag)
-//        {
-//            pWheres.clear();
-//            pTables.clear();
-//            pCols.clear();
-//            df->closeFile();
-//            return;
-//        }
-//        selected.assign(ri->getFieldCount(), false);
-//        for(int i = 0; i < pCols.size(); i++)
-//        {
-//            selected[ri->index(pCols[i].field)] = true;
-//        }
-//    }
-//    SearchInfo si;
-//    if(!si.processWheresWithOneTable(pWheres, ri, pTables[0]))
-//    {
-//        pWheres.clear();
-//        throw Exception("Conflict in where clauses.");
-//    }
+    DataFile df;
+    df.openFile(curDb, pTables[0]);
+    std::vector<bool> selected;
+    RecordInfo* ri = df.getRecordInfo();
+    if(all)
+    {
+        selected.assign(ri->getFieldCount(), true);
+    }
+    else
+    {
+        bool flag = true;
+        for(int i = 0; i < pCols.size(); i++)
+        {
+            if(pCols[i].table != "" &&
+               pCols[i].table != pTables[0])
+            {
+                std::cout << "Table " << pCols[i].table << " is not selected.\n";
+                flag = false;
+            }
+            else if(ri->index(pCols[i].field) < 0)
+            {
+                std::cout << "Table " << pTables[0] << " does not have field" << pCols[i].field + ".\n";
+                flag = false;
+            }
+        }
+        if(!flag)
+        {
+            init();
+            df.closeFile();
+            return;
+        }
+        selected.assign(ri->getFieldCount(), false);
+        for(int i = 0; i < pCols.size(); i++)
+        {
+            selected[ri->index(pCols[i].field)] = true;
+        }
+    }
+    SearchInfo si;
+    if(!si.processWheresWithOneTable(pWheres, ri, pTables[0]))
+    {
+        throw Exception(TAG, "Conflict in where clauses.");
+    }
 //    SelectResult sr;
 //    df->select(si, sr);
 //    Table::print(selected, ri, sr, df);
-//    pWheres.clear();
-//    pTables.clear();
-//    pCols.clear();
-//    df->closeFile();
+    df.select(si, selected);
+    init();
+    df.closeFile();
 }
 
 void Database::selectMultiTable(bool all)
@@ -240,18 +229,18 @@ void Database::selectMultiTable(bool all)
 
 void Database::select(bool all)
 {
-//    if(pTables.size() == 1)
-//    {
-//        selectOneTable(all);
-//    }
-//    else if(pTables.size() > 1)
-//    {
-//        selectMultiTable(all);
-//    }
-//    else
-//    {
-//        throw Exception("At least one table should be provided.");
-//    }
+    if(pTables.size() == 1)
+    {
+        selectOneTable(all);
+    }
+    else if(pTables.size() > 1)
+    {
+        selectMultiTable(all);
+    }
+    else
+    {
+        throw Exception(TAG, "At least one table should be provided.");
+    }
 }
 
 void Database::insert(std::string tbname)
@@ -262,6 +251,7 @@ void Database::insert(std::string tbname)
     {
         std::vector<void*> data;
         data.push_back(NULL);
+        char* tmp;
         for(int j = 0; j < pValueLists[i].size(); j++)
         {
             switch(pValueLists[i][j].type)
@@ -273,7 +263,10 @@ void Database::insert(std::string tbname)
                 data.push_back(&(pValueLists[i][j].v_int));
                 break;
             case 2:
-                data.push_back(&(pValueLists[i][j].v_str));
+                tmp = new char[pValueLists[i][j].v_str.size() - 1];
+                pValueLists[i][j].v_str.copy(tmp, pValueLists[i][j].v_str.size() - 2, 1);
+                tmp[pValueLists[i][j].v_str.size()] = '\0';
+                data.push_back(tmp);
                 break;
             }
         }
@@ -435,6 +428,8 @@ void Database::_test()
     sFile.push_back("primkey.sql");
     sFile.push_back("insert.sql");
     sFile.push_back("index.sql");
+    sFile.push_back("insertvarchar.sql");
+    sFile.push_back("select.sql");
     for(int i = 0; i < sFile.size(); i++)
     {
         std::cout << "-------------------------------------------------------------\n";

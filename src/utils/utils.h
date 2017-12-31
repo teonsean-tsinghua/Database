@@ -6,5 +6,6 @@
 #include"Type.h"
 #include"Info.h"
 #include"Base.h"
+#include"Table.h"
 
 #endif // UTILS_H_INCLUDED
