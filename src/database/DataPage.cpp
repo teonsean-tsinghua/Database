@@ -102,6 +102,24 @@ bool DataPage::isFull()
     return getFirstAvailableByte() + ri->getRecordLength() > PAGE_SIZE;
 }
 
+bool DataPage::remove(int idx)
+{
+    if(idx == records.size() - 1)
+    {
+        delete records.back();
+        records.pop_back();
+        setFirstAvailableByte(getFirstAvailableByte() - ri->getRecordLength());
+        return false; // no other record affected.
+    }
+    RecordSlot::copy(records.back(), records[idx], ri->getRecordLength());
+    delete records.back();
+    records.pop_back();
+    setFirstAvailableByte(getFirstAvailableByte() - ri->getRecordLength());
+    delete records[idx];
+    records[idx] = new RecordSlot((*this)[PAGE_CONTENT_OFFSET + idx * ri->getRecordLength()], ri);
+    return true;
+}
+
 int DataPage::remove(SearchInfo& si)
 {
     std::vector<bool> removed;

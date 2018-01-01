@@ -440,7 +440,7 @@ void RecordSlot::read(std::vector<void*>& data)
     data.clear();
     int cnt = ri->getFieldCount();
     data.assign(cnt, NULL);
-    data[0] = (void*)((*this)[1]);
+    data[0] = (void*)((*this)[actual_data_offset]);
     for(int i = 1; i < cnt; i++)
     {
         int offset = ri->offset(i);

@@ -179,7 +179,7 @@ int IndexFile<T>::directSearch(T& key)
 template<typename T>
 int IndexFile<T>::searchForPos(T& key)
 {
-    return tree->search(key, true);
+    return tree->searchForIdx(key);
 }
 
 template<typename T>

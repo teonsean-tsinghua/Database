@@ -177,7 +177,7 @@ int NodePage<T>::searchForIndex(T& key)
             return i;
         }
     }
-    return -1;
+    return cnt;
 }
 
 template<typename T>

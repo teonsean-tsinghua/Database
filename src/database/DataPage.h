@@ -29,6 +29,8 @@ public:
 
     int recordCnt();
 
+    bool remove(int idx);
+
     int remove(SearchInfo& si);
 
     void select(SearchInfo& si, SelectResult& sr);

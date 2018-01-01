@@ -50,7 +50,9 @@ private:
 
     void print(int rid);
 
-    void terminateSelect(pthread_t* p, pthread_t* v);
+    void remove(int rid);
+
+    void terminateSearch(pthread_t* p, pthread_t* v);
 
     bool validateInsertion(std::vector<void*>& data);
 
@@ -64,6 +66,10 @@ public:
     ~DataFile();
 
     RecordInfo* getRecordInfo();
+
+    void search(SearchInfo& si, pthread_t* workingThread);
+
+    void remove(SearchInfo& si);
 
     void createFile(std::string dbname, std::string tbname);
 

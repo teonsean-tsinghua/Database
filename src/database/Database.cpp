@@ -149,25 +149,19 @@ void Database::update(std::string name)
 //    df->closeFile();
 }
 
-void Database::remove(std::string name)
+void Database::remove(std::string tbname)
 {
-//    DataFile* df = getDataFile(name);
-//    if(df == NULL)
-//    {
-//        pWheres.clear();
-//        return;
-//    }
-//    df->openFile();
-//    RecordInfo* ri = df->getRecordInfo();
-//    SearchInfo si;
-//    if(!si.processWheresWithOneTable(pWheres, ri, name))
-//    {
-//        throw Exception(TAG, "Conflict in where clauses.");
-//    }
-//    int cnt = df->remove(si);
-//    Print::print("Deleted ").print(cnt).printLine(" records.");
-//    pWheres.clear();
-//    df->closeFile();
+    DataFile df;
+    df.openFile(curDb, tbname);
+    RecordInfo* ri = df.getRecordInfo();
+    SearchInfo si;
+    if(!si.processWheresWithOneTable(pWheres, ri, tbname))
+    {
+        throw Exception(TAG, "Conflict in where clauses.");
+    }
+    df.remove(si);
+    init();
+    df.closeFile();
 }
 
 void Database::selectOneTable(bool all)
@@ -429,6 +423,7 @@ void Database::_test()
     sFile.push_back("insert.sql");
     sFile.push_back("index.sql");
     sFile.push_back("insertvarchar.sql");
+    sFile.push_back("remove.sql");
     sFile.push_back("select.sql");
     for(int i = 0; i < sFile.size(); i++)
     {

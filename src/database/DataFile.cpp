@@ -19,6 +19,64 @@ RecordInfo* DataFile::getRecordInfo()
     return ri;
 }
 
+void DataFile::remove(int rid)
+{
+    DataPage* dp = (DataPage*)openPage(rid / PAGE_SIZE);
+    int idx = rid % PAGE_SIZE;
+    std::vector<void*> data;
+    dp->read(idx, data);
+    char* primKey = generatePrimKey(data);
+    tree->remove(*(PrimKey*)primKey);
+    delete primKey;
+    for(std::map<int, BaseFile*>::iterator iter = indexes.begin(); iter != indexes.end(); iter++)
+    {
+        switch(ri->type(iter->first))
+        {
+        case Type::INT:
+            ((IndexFile<IntType>*)iter->second)->remove(*(IntType*)data[iter->first], rid);
+            break;
+        case Type::FLOAT:
+            ((IndexFile<FloatType>*)iter->second)->remove(*(FloatType*)data[iter->first], rid);
+            break;
+        case Type::DATE:
+            ((IndexFile<DateType>*)iter->second)->remove(*(DateType*)data[iter->first], rid);
+            break;
+        case Type::VARCHAR:
+            ((IndexFile<VarcharType>*)iter->second)->remove(*(VarcharType*)data[iter->first], rid);
+            break;
+        }
+    }
+    int oldrid = dp->getPageID() * PAGE_SIZE + dp->recordCnt() - 1;
+    data.clear();
+    dp->read(dp->recordCnt() - 1, data);
+    primKey = generatePrimKey(data);
+    bool changed = dp->remove(rid % PAGE_SIZE);
+    if(!changed)
+    {
+        return;
+    }
+    tree->update(*(PrimKey*)primKey, rid);
+    delete primKey;
+    for(std::map<int, BaseFile*>::iterator iter = indexes.begin(); iter != indexes.end(); iter++)
+    {
+        switch(ri->type(iter->first))
+        {
+        case Type::INT:
+            ((IndexFile<IntType>*)iter->second)->update(*(IntType*)data[iter->first], rid, oldrid);
+            break;
+        case Type::FLOAT:
+            ((IndexFile<FloatType>*)iter->second)->update(*(FloatType*)data[iter->first], rid, oldrid);
+            break;
+        case Type::DATE:
+            ((IndexFile<DateType>*)iter->second)->update(*(DateType*)data[iter->first], rid, oldrid);
+            break;
+        case Type::VARCHAR:
+            ((IndexFile<VarcharType>*)iter->second)->update(*(VarcharType*)data[iter->first], rid, oldrid);
+            break;
+        }
+    }
+}
+
 void* printLoop(void* df)
 {
     DataFile* f = (DataFile*)df;
@@ -87,27 +145,24 @@ bool DataFile::validate(int rid)
     return ((DataPage*)openPage(rid / PAGE_SIZE))->validate(*cur_search_info, rid % PAGE_SIZE);
 }
 
-void DataFile::terminateSelect(pthread_t* p, pthread_t* v)
+void DataFile::terminateSearch(pthread_t* p, pthread_t* v)
 {
     pthread_mutex_lock(&candidate_lock);
     candidate_pids.push(0);
     pthread_mutex_unlock(&candidate_lock);
     pthread_join(*v, NULL);
-    pthread_join(*p, NULL);
+    if(p != NULL)
+    {
+        pthread_join(*p, NULL);
+    }
     delete p;
     delete v;
 }
 
-void DataFile::select(SearchInfo& si, std::vector<bool>& selected)
+void DataFile::search(SearchInfo& si, pthread_t* workingThread)
 {
-    Table::printHeader(selected, ri);
-    PrimKey::ri = ri;
-    cur_search_info = &si;
-    cur_selected = &selected;
-    pthread_t* printingThread = new pthread_t;
     pthread_t* validatingThread = new pthread_t;
     pthread_create(validatingThread, NULL, validateLoop, this);
-    pthread_create(printingThread, NULL, printLoop, this);
     // prim with A
     std::vector<int>& primKeys = ri->getPrimaryKeys();
     bool primA = true;
@@ -115,7 +170,7 @@ void DataFile::select(SearchInfo& si, std::vector<bool>& selected)
     {
         if(si.nulls.count(i) && si.nulls[i])
         {
-            terminateSelect(printingThread, validatingThread);
+            terminateSearch(workingThread, validatingThread);
             return;
         }
         if(!si.values[0].count(i))
@@ -137,7 +192,7 @@ void DataFile::select(SearchInfo& si, std::vector<bool>& selected)
         pthread_mutex_lock(&candidate_lock);
         candidate_pids.push(rid);
         pthread_mutex_unlock(&candidate_lock);
-        terminateSelect(printingThread, validatingThread);
+        terminateSearch(workingThread, validatingThread);
         return;
     }
     // unique A
@@ -148,7 +203,7 @@ void DataFile::select(SearchInfo& si, std::vector<bool>& selected)
             int idx = iter->first;
             if(si.nulls.count(idx) && si.nulls[idx])
             {
-                terminateSelect(printingThread, validatingThread);
+                terminateSearch(workingThread, validatingThread);
                 return;
             }
             if(si.values[0].count(idx))
@@ -174,7 +229,7 @@ void DataFile::select(SearchInfo& si, std::vector<bool>& selected)
                 pthread_mutex_lock(&candidate_lock);
                 candidate_pids.push(rid);
                 pthread_mutex_unlock(&candidate_lock);
-                terminateSelect(printingThread, validatingThread);
+                terminateSearch(workingThread, validatingThread);
                 return;
             }
         }
@@ -187,7 +242,7 @@ void DataFile::select(SearchInfo& si, std::vector<bool>& selected)
             int idx = iter->first;
             if(si.nulls.count(idx) && si.nulls[idx])
             {
-                terminateSelect(printingThread, validatingThread);
+                terminateSearch(workingThread, validatingThread);
                 return;
             }
             if(si.values[0].count(idx))
@@ -209,7 +264,7 @@ void DataFile::select(SearchInfo& si, std::vector<bool>& selected)
                 default:
                     assert(false);
                 }
-                terminateSelect(printingThread, validatingThread);
+                terminateSearch(workingThread, validatingThread);
                 return;
             }
         }
@@ -234,7 +289,7 @@ void DataFile::select(SearchInfo& si, std::vector<bool>& selected)
         {
             if(si.values[i].count(primKey))
             {
-                int re = tree->search(*(PrimKey*)si.values[i][primKey], true);
+                int re = tree->searchForIdx(*(PrimKey*)si.values[i][primKey]);
                 if(i == 1 || i == 3)
                 {
                     rightBound = min(rightBound, re);
@@ -333,7 +388,7 @@ void DataFile::select(SearchInfo& si, std::vector<bool>& selected)
                 }
                 cur = (LeafPage<PrimKey>*)openPage(cur->getNextSamePage());
             }
-            terminateSelect(printingThread, validatingThread);
+            terminateSearch(workingThread, validatingThread);
             return;
         }
         else
@@ -353,7 +408,7 @@ void DataFile::select(SearchInfo& si, std::vector<bool>& selected)
                 ((IndexFile<VarcharType>*)indexes[selectedindex])->fillQueue(ranges[selectedindex][0], ranges[selectedindex][1], candidate_pids, &candidate_lock);
                 break;
             }
-            terminateSelect(printingThread, validatingThread);
+            terminateSearch(workingThread, validatingThread);
             return;
         }
     }
@@ -430,7 +485,7 @@ void DataFile::select(SearchInfo& si, std::vector<bool>& selected)
             ((IndexFile<VarcharType>*)indexes[selectedindex])->fillQueue(ranges[selectedindex][0], ranges[selectedindex][1], candidate_pids, &candidate_lock);
             break;
         }
-        terminateSelect(printingThread, validatingThread);
+        terminateSearch(workingThread, validatingThread);
         return;
     }
     // traverse and validate
@@ -447,7 +502,39 @@ void DataFile::select(SearchInfo& si, std::vector<bool>& selected)
         }
         pid = openPage(pid)->getNextSamePage();
     }
-    terminateSelect(printingThread, validatingThread);
+    terminateSearch(workingThread, validatingThread);
+}
+
+void DataFile::remove(SearchInfo& si)
+{
+    PrimKey::ri = ri;
+    cur_search_info = &si;
+    candidate_pids = std::queue<int>();
+    search_result = std::queue<int>();
+    search(si, NULL);
+    while(true)
+    {
+        int rid = search_result.front();
+        search_result.pop();
+        if(rid <= 0)
+        {
+            break;
+        }
+        remove(rid);
+    }
+}
+
+void DataFile::select(SearchInfo& si, std::vector<bool>& selected)
+{
+    Table::printHeader(selected, ri);
+    candidate_pids = std::queue<int>();
+    search_result = std::queue<int>();
+    PrimKey::ri = ri;
+    cur_search_info = &si;
+    cur_selected = &selected;
+    pthread_t* printingThread = new pthread_t;
+    pthread_create(printingThread, NULL, printLoop, this);
+    search(si, printingThread);
 }
 
 int DataFile::findFirstAvailableDataPage()
@@ -772,6 +859,7 @@ bool DataFile::insert(std::vector<void*>& data)
     int searchResult = tree->search(*(PrimKey*)primkey);
     if(searchResult > 0)
     {
+        delete primkey;
         return false;
     }
     for(std::map<int, bool>::iterator iter = uniqueIndex.begin(); iter != uniqueIndex.end(); iter++)
@@ -799,6 +887,7 @@ bool DataFile::insert(std::vector<void*>& data)
             }
             if(searchResult > 0)
             {
+                delete primkey;
                 return false;
             }
         }
@@ -835,6 +924,7 @@ bool DataFile::insert(std::vector<void*>& data)
             assert(false);
         }
     }
+    delete primkey;
     return true;
 }
 
