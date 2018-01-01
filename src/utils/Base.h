@@ -25,6 +25,15 @@ struct Value
     int type; // 0-null, 1-int, 2-str
     int v_int;
     std::string v_str;
+    float v_float;
+};
+
+struct SetRValue
+{
+    int type;
+    Value value;
+    std::string col;
+    std::string col2;
 };
 
 struct Col
@@ -36,7 +45,7 @@ struct Col
 struct Set
 {
     std::string field;
-    struct Value value;
+    struct SetRValue rvalue;
 };
 
 struct Foreign
@@ -60,6 +69,7 @@ struct Type_
 {
 	std::string m_string;
 	int m_int;
+	float m_float;
 	bool m_bool;
 	struct Field m_field;
 	struct FieldType m_type;
@@ -67,6 +77,7 @@ struct Type_
 	struct Col m_col;
 	struct Where m_where;
 	struct Set m_set;
+	struct SetRValue m_rvalue;
 };
 
 #define YYSTYPE Type_

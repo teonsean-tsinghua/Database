@@ -102,6 +102,11 @@ bool DataPage::isFull()
     return getFirstAvailableByte() + ri->getRecordLength() > PAGE_SIZE;
 }
 
+void DataPage::update(int idx, UpdateInfo& ui)
+{
+    records[idx]->update(ui);
+}
+
 bool DataPage::remove(int idx)
 {
     if(idx == records.size() - 1)

@@ -115,7 +115,7 @@ struct SearchInfo
 
 struct UpdateInfo
 {
-    std::map<int, void*> data;
+    std::map<int, SetRValue> action;
 };
 
 class SelectResult

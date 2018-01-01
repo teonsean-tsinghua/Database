@@ -37,6 +37,8 @@ public:
 
     int update(SearchInfo& si, UpdateInfo& ui);
 
+    void update(int idx, UpdateInfo& ui);
+
     void initIterator();
 
     char* getNext(int fidx, int& ridx);

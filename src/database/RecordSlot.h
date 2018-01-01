@@ -31,6 +31,8 @@ public:
 
     void update(UpdateInfo& ui);
 
+    void assignValue(int idx, void* value);
+
     static void copy(RecordSlot* src, RecordSlot* dest, int length);
 
     void print();

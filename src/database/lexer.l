@@ -11,8 +11,9 @@ int yylex(void);
 
 IDENTIFIER [A-Za-z][_0-9A-Za-z]*
 VALUE_INT (-)?[0-9]+
+VALUE_FLOAT (-)?[0-9]+(\.[0-9]+)?
 VALUE_STRING '[^']*'
-SIMPLE_OPERATOR [;,.()=><*]
+SIMPLE_OPERATOR [;,.()=><*+-/]
 BLANK_CHARS ([ \f\r\t\v]+)
 
 %%
@@ -55,6 +56,7 @@ BLANK_CHARS ([ \f\r\t\v]+)
 {SIMPLE_OPERATOR} 	{ return *yytext; }
 {IDENTIFIER}    	{ yylval.m_string=yytext; return IDENTIFIER; }
 {VALUE_INT}       	{ yylval.m_int=atoi(yytext); return VALUE_INT; }
+{VALUE_FLOAT}       	{ yylval.m_float=atof(yytext); return VALUE_FLOAT; }
 {VALUE_STRING}    	{ yylval.m_string=yytext; return VALUE_STRING; }
 {BLANK_CHARS}   	{}
 %%

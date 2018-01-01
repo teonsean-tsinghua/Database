@@ -35,9 +35,7 @@ private:
 
     void selectMultiTable(bool all);
 
-//    void processSets(UpdateInfo& ui, RecordInfo* ri, std::string tbname);
-//
-//    void printOneTableSelectResult(SelectResult& sr, std::vector<bool>& selected, RecordInfo* ri);
+    void processSets(UpdateInfo& ui, RecordInfo* ri, std::string tbname);
 
 public:
     static Database* getInstance();

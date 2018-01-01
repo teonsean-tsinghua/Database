@@ -19,6 +19,7 @@ extern "C"
 %token  <m_string>IDENTIFIER
 %token  <m_string>VALUE_STRING
 %token	<m_int>VALUE_INT
+%token	<m_float>VALUE_FLOAT
 %token  NOT_EQUAL GREATER_EQUAL LESS_EQUAL
 %token  ';' 	'('	')' 	','	'.' '<' '>' '=' '*'
 
@@ -31,6 +32,7 @@ extern "C"
 %type<m_where> whereClause
 %type<m_int> op
 %type<m_set> setClause
+%type<m_rvalue> setRValue
 
 %nonassoc ';'
 %left AND
@@ -98,6 +100,7 @@ valueList : value { instance->addPendingValue($1); }
 
 value	: VALUE_INT { $$.type = 1; $$.v_int = $1; }
 	| VALUE_STRING { $$.type = 2; $$.v_str = $1; }
+	| VALUE_FLOAT { $$.type = 3; $$.v_float = $1; }
 	| NULL_ { $$.type = 0; }
 	;
 
@@ -120,8 +123,22 @@ op	: '=' { $$ = 0; }
 	| '>' { $$ = 4; }
 	;
 
-setClause : colName '=' value { $$.field = $1; $$.value = $3; instance->addPendingSet($$); }
-	| setClause ',' colName '=' value { $$.field = $3; $$.value = $5; instance->addPendingSet($$); }
+setClause : colName '=' setRValue { $$.field = $1; $$.rvalue = $3; instance->addPendingSet($$); }
+	| setClause ',' colName '=' setRValue { $$.field = $3; $$.rvalue = $5; instance->addPendingSet($$); }
+	;
+
+setRValue : value { $$.type = 1; $$.value = $1; }
+	| colName { $$.type = 2; $$.col = $1; }
+	| colName '+' colName { $$.type = 3; $$.col = $1; $$.col2 = $3; }
+	| colName '-' colName { $$.type = 4; $$.col = $1; $$.col2 = $3; }
+	| colName '*' colName { $$.type = 5; $$.col = $1; $$.col2 = $3; }
+	| colName '/' colName { $$.type = 6; $$.col = $1; $$.col2 = $3; }
+	| colName '+' value { $$.type = 7; $$.col = $1; $$.value = $3; }
+	| colName '-' value { $$.type = 8; $$.col = $1; $$.value = $3; }
+	| colName '*' value { $$.type = 9; $$.col = $1; $$.value = $3; }
+	| colName '/' value { $$.type = 10; $$.col = $1; $$.value = $3; }
+	| value '/' colName { $$.type = 11; $$.col = $3; $$.value = $1; }
+	| value '-' colName { $$.type = 12; $$.col = $3; $$.value = $1; }
 	;
 
 selector : '*' { $$ = true; }

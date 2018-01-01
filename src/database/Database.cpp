@@ -85,68 +85,75 @@ void Database::addPendingSet(Set& set_)
 
 void Database::addPendingValueList()
 {
+    std::cout << "pValues size: " << pValues.size() << "\n";
     pValueLists.push_back(pValues);
     pValues.clear();
 }
-//
-//void Database::processSets(UpdateInfo& ui, RecordInfo* ri, std::string tbname)
-//{
-//    bool flag = true;
-//    for(int i = 0; i < pSets.size(); i++)
-//    {
-//        Set& s = pSets[i];
-//        if(ri->index(s.field) < 0)
-//        {
-//            Print::printLine("Table " + tbname + " does not have field" + s.field + ".");
-//            flag = false;
-//        }
-//    }
-//    if(!flag)
-//    {
-//        pSets.clear();
-//        throw Exception(TAG, "Error in set clause.");
-//    }
-//    for(int i = 0; i < pSets.size(); i++)
-//    {
-//        Set& s = pSets[i];
-//        if(s.value.type == 0)
-//        {
-//            ui.data[ri->index(s.field)] = NULL;
-//        }
-//        else if(s.value.type == 1)
-//        {
-//            ui.data[ri->index(s.field)] = &s.value.v_int;
-//        }
-//        else if(s.value.type == 2)
-//        {
-//            ui.data[ri->index(s.field)] = &s.value.v_str;
-//        }
-//    }
-//}
-//
-void Database::update(std::string name)
+
+void Database::processSets(UpdateInfo& ui, RecordInfo* ri, std::string tbname)
 {
-//    DataFile* df = getDataFile(name);
-//    if(df == NULL)
-//    {
-//        pWheres.clear();
-//        pSets.clear();
-//        return;
-//    }
-//    df->openFile();
-//    RecordInfo* ri = df->getRecordInfo();
-//    SearchInfo si;
-//    UpdateInfo ui;
-//    if(!si.processWheresWithOneTable(pWheres, ri, name))
-//    {
-//        pWheres.clear();
-//        throw Exception(TAG, "Conflict in where clauses.");
-//    }
-//    int cnt = df->update(si, ui);
-//    Print::print("Updated ").print(cnt).printLine(" records.");
-//    pWheres.clear();
-//    pSets.clear();
-//    df->closeFile();
+    bool flag = true;
+    for(int i = 0; i < pSets.size(); i++)
+    {
+        Set& s = pSets[i];
+        if(ri->index(s.field) < 0)
+        {
+            std::cout << "Table " << tbname << " does not have field" << s.field << ".\n";
+            flag = false;
+        }
+    }
+    if(!flag)
+    {
+        pSets.clear();
+        throw Exception(TAG, "Error in set clause.");
+    }
+    for(int i = 0; i < pSets.size(); i++)
+    {
+        int idx = ri->index(pSets[i].field);
+        if(ui.action.count(idx))
+        {
+            throw Exception(TAG, "Cannot perform multiple actions on one field.");
+        }
+        if(pSets[i].rvalue.type > 2)
+        {
+            if(ri->type(pSets[i].rvalue.col) != Type::INT && ri->type(pSets[i].rvalue.col) != Type::FLOAT)
+            {
+                throw Exception(TAG, "Cannot perform arithmetic actions on non-numerical type.");
+            }
+            if(pSets[i].rvalue.type > 6)
+            {
+                if(pSets[i].rvalue.value.type != 1 && pSets[i].rvalue.value.type != 3)
+                {
+                    throw Exception(TAG, "Cannot perform arithmetic actions on non-numerical type.");
+                }
+            }
+            else
+            {
+                if(ri->type(pSets[i].rvalue.col2) != Type::INT && ri->type(pSets[i].rvalue.col2) != Type::FLOAT)
+                {
+                    throw Exception(TAG, "Cannot perform arithmetic actions on non-numerical type.");
+                }
+            }
+        }
+        ui.action[idx] = pSets[i].rvalue;
+    }
+}
+
+void Database::update(std::string tbname)
+{
+    DataFile df;
+    df.openFile(curDb, tbname);
+    RecordInfo* ri = df.getRecordInfo();
+    SearchInfo si;
+    UpdateInfo ui;
+    if(!si.processWheresWithOneTable(pWheres, ri, tbname))
+    {
+        throw Exception(TAG, "Conflict in where clauses.");
+    }
+    processSets(ui, ri, tbname);
+    df.update(si, ui);
+    init();
+    df.closeFile();
 }
 
 void Database::remove(std::string tbname)
@@ -261,6 +268,9 @@ void Database::insert(std::string tbname)
                 pValueLists[i][j].v_str.copy(tmp, pValueLists[i][j].v_str.size() - 2, 1);
                 tmp[pValueLists[i][j].v_str.size()] = '\0';
                 data.push_back(tmp);
+                break;
+            case 3:
+                data.push_back(&(pValueLists[i][j].v_float));
                 break;
             }
         }
@@ -425,6 +435,7 @@ void Database::_test()
     sFile.push_back("insertvarchar.sql");
     sFile.push_back("remove.sql");
     sFile.push_back("select.sql");
+    sFile.push_back("update.sql");
     for(int i = 0; i < sFile.size(); i++)
     {
         std::cout << "-------------------------------------------------------------\n";

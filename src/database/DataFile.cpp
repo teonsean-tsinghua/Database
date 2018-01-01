@@ -19,6 +19,83 @@ RecordInfo* DataFile::getRecordInfo()
     return ri;
 }
 
+void DataFile::update(int rid, UpdateInfo& ui, bool primChanged, std::set<int>& indexChanged)
+{
+    std::vector<void*> data;
+    DataPage* dp = (DataPage*)openPage(rid / PAGE_SIZE);
+    dp->read(rid % PAGE_SIZE, data);
+    for(std::set<int>::iterator iter = indexChanged.begin(); iter != indexChanged.end(); iter++)
+    {
+        if(uniqueIndex[*iter])
+        {
+            switch(ri->type(*iter))
+            {
+            case Type::INT:
+                ((IndexFile<IntType>*)indexes[*iter])->remove(*(IntType*)data[*iter]);
+                break;
+            case Type::FLOAT:
+                ((IndexFile<FloatType>*)indexes[*iter])->remove(*(FloatType*)data[*iter]);
+                break;
+            case Type::DATE:
+                ((IndexFile<DateType>*)indexes[*iter])->remove(*(DateType*)data[*iter]);
+                break;
+            case Type::VARCHAR:
+                ((IndexFile<VarcharType>*)indexes[*iter])->remove(*(VarcharType*)data[*iter]);
+                break;
+            }
+        }
+        else
+        {
+            switch(ri->type(*iter))
+            {
+            case Type::INT:
+                ((IndexFile<IntType>*)indexes[*iter])->remove(*(IntType*)data[*iter], rid);
+                break;
+            case Type::FLOAT:
+                ((IndexFile<FloatType>*)indexes[*iter])->remove(*(FloatType*)data[*iter], rid);
+                break;
+            case Type::DATE:
+                ((IndexFile<DateType>*)indexes[*iter])->remove(*(DateType*)data[*iter], rid);
+                break;
+            case Type::VARCHAR:
+                ((IndexFile<VarcharType>*)indexes[*iter])->remove(*(VarcharType*)data[*iter], rid);
+                break;
+            }
+        }
+    }
+    if(primChanged)
+    {
+        char* formerPrim = generatePrimKey(data);
+        tree->remove(*(PrimKey*)formerPrim);
+        delete formerPrim;
+    }
+    dp->update(rid % PAGE_SIZE, ui);
+    for(std::set<int>::iterator iter = indexChanged.begin(); iter != indexChanged.end(); iter++)
+    {
+        switch(ri->type(*iter))
+        {
+        case Type::INT:
+            ((IndexFile<IntType>*)indexes[*iter])->insert(*(IntType*)data[*iter], rid);
+            break;
+        case Type::FLOAT:
+            ((IndexFile<FloatType>*)indexes[*iter])->insert(*(FloatType*)data[*iter], rid);
+            break;
+        case Type::DATE:
+            ((IndexFile<DateType>*)indexes[*iter])->insert(*(DateType*)data[*iter], rid);
+            break;
+        case Type::VARCHAR:
+            ((IndexFile<VarcharType>*)indexes[*iter])->insert(*(VarcharType*)data[*iter], rid);
+            break;
+        }
+    }
+    if(primChanged)
+    {
+        char* latterPrim = generatePrimKey(data);
+        tree->insert(*(PrimKey*)latterPrim, rid);
+        delete latterPrim;
+    }
+}
+
 void DataFile::remove(int rid)
 {
     DataPage* dp = (DataPage*)openPage(rid / PAGE_SIZE);
@@ -503,6 +580,43 @@ void DataFile::search(SearchInfo& si, pthread_t* workingThread)
         pid = openPage(pid)->getNextSamePage();
     }
     terminateSearch(workingThread, validatingThread);
+}
+
+void DataFile::update(SearchInfo& si, UpdateInfo& ui)
+{
+    PrimKey::ri = ri;
+    cur_search_info = &si;
+    candidate_pids = std::queue<int>();
+    search_result = std::queue<int>();
+    search(si, NULL);
+    bool primChanged = false;
+    std::vector<int> prims = ri->getPrimaryKeys();
+    for(int i = 0; i < prims.size(); i++)
+    {
+        if(ui.action.count(prims[i]))
+        {
+            primChanged = true;
+            break;
+        }
+    }
+    std::set<int> indexChanged;
+    for(std::map<int, BaseFile*>::iterator iter = indexes.begin(); iter != indexes.end(); iter++)
+    {
+        if(ui.action.count(iter->first))
+        {
+            indexChanged.insert(iter->first);
+        }
+    }
+    while(true)
+    {
+        int rid = search_result.front();
+        search_result.pop();
+        if(rid <= 0)
+        {
+            break;
+        }
+        update(rid, ui, primChanged, indexChanged);
+    }
 }
 
 void DataFile::remove(SearchInfo& si)

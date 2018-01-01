@@ -52,13 +52,13 @@ private:
 
     void remove(int rid);
 
+    void update(int rid, UpdateInfo& ui, bool primChanged, std::set<int>& indexChanged);
+
     void terminateSearch(pthread_t* p, pthread_t* v);
 
     bool validateInsertion(std::vector<void*>& data);
 
     char* generatePrimKey(std::vector<void*>& data);
-
-//    friend Table;
 
 public:
     DataFile();
@@ -70,6 +70,8 @@ public:
     void search(SearchInfo& si, pthread_t* workingThread);
 
     void remove(SearchInfo& si);
+
+    void update(SearchInfo& si, UpdateInfo& ui);
 
     void createFile(std::string dbname, std::string tbname);
 

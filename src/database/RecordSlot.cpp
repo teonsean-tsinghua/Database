@@ -382,21 +382,708 @@ void RecordSlot::copy(RecordSlot* src, RecordSlot* dest, int length)
     copyData(src->cache, dest->cache, length);
 }
 
+void RecordSlot::assignValue(int idx, void* value)
+{
+    if(value == NULL)
+    {
+        writeBool((*this)[idx], true);
+        return;
+    }
+    writeBool((*this)[idx], false);
+    copyData((char*)value, (*this)[actual_data_offset + ri->offset(idx)], ri->length(idx));
+}
+
 void RecordSlot::update(UpdateInfo& ui)
 {
-    std::map<int, void*>::iterator iter;
-    for(iter = ui.data.begin(); iter != ui.data.end(); iter++)
+    for(std::map<int, SetRValue>::iterator iter = ui.action.begin(); iter != ui.action.end(); iter++)
     {
+        SetRValue& action = iter->second;
         int idx = iter->first;
-        char* ptr = (char*)iter->second;
-        if(ptr == NULL)
+        switch(action.type)
         {
-            writeBool((*this)[idx], true);
+        case 1:
+        {
+            void* value;
+            switch(action.value.type)
+            {
+            case 0:
+                value = NULL;
+                break;
+            case 1:
+                value = &action.value.v_int;
+                break;
+            case 2:
+                value = &action.value.v_str;
+                break;
+            }
+            assignValue(idx, value);
+            break;
         }
-        else
+        case 2:
         {
+            int idx2 = ri->index(action.col);
+            if(readBool((*this)[idx2]))
+            {
+                assignValue(idx, NULL);
+            }
+            else
+            {
+                assignValue(idx, (*this)[actual_data_offset + ri->offset(idx2)]);
+            }
+            break;
+        }
+        case 3:
+        {
+            int lidx = ri->index(action.col), ridx = ri->index(action.col2);
+            int type = ri->type(idx) * 100 + ri->type(lidx) * 10 + ri->type(ridx);
             writeBool((*this)[idx], false);
-            copyData(ptr, (*this)[ri->offset(idx) + actual_data_offset], ri->length(idx));
+            switch(type)
+            {
+            case 111:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          *(int*)(*this)[actual_data_offset + ri->offset(lidx)] +
+                          *(int*)(*this)[actual_data_offset + ri->offset(ridx)]);
+                break;
+            }
+            case 112:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          *(int*)(*this)[actual_data_offset + ri->offset(lidx)] +
+                          *(float*)(*this)[actual_data_offset + ri->offset(ridx)]);
+                break;
+            }
+            case 121:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          *(float*)(*this)[actual_data_offset + ri->offset(lidx)] +
+                          *(int*)(*this)[actual_data_offset + ri->offset(ridx)]);
+                break;
+            }
+            case 122:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          *(float*)(*this)[actual_data_offset + ri->offset(lidx)] +
+                          *(float*)(*this)[actual_data_offset + ri->offset(ridx)]);
+                break;
+            }
+            case 211:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            *(int*)(*this)[actual_data_offset + ri->offset(lidx)] +
+                            *(int*)(*this)[actual_data_offset + ri->offset(ridx)]);
+                break;
+            }
+            case 212:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            *(int*)(*this)[actual_data_offset + ri->offset(lidx)] +
+                            *(float*)(*this)[actual_data_offset + ri->offset(ridx)]);
+                break;
+            }
+            case 221:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            *(float*)(*this)[actual_data_offset + ri->offset(lidx)] +
+                            *(int*)(*this)[actual_data_offset + ri->offset(ridx)]);
+                break;
+            }
+            case 222:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            *(float*)(*this)[actual_data_offset + ri->offset(lidx)] +
+                            *(float*)(*this)[actual_data_offset + ri->offset(ridx)]);
+                break;
+            }
+            }
+            break;
+        }
+        case 4:
+        {
+            int lidx = ri->index(action.col), ridx = ri->index(action.col2);
+            int type = ri->type(idx) * 100 + ri->type(lidx) * 10 + ri->type(ridx);
+            writeBool((*this)[idx], false);
+            switch(type)
+            {
+            case 111:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          *(int*)(*this)[actual_data_offset + ri->offset(lidx)] -
+                          *(int*)(*this)[actual_data_offset + ri->offset(ridx)]);
+                break;
+            }
+            case 112:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          *(int*)(*this)[actual_data_offset + ri->offset(lidx)] -
+                          *(float*)(*this)[actual_data_offset + ri->offset(ridx)]);
+                break;
+            }
+            case 121:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          *(float*)(*this)[actual_data_offset + ri->offset(lidx)] -
+                          *(int*)(*this)[actual_data_offset + ri->offset(ridx)]);
+                break;
+            }
+            case 122:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          *(float*)(*this)[actual_data_offset + ri->offset(lidx)] -
+                          *(float*)(*this)[actual_data_offset + ri->offset(ridx)]);
+                break;
+            }
+            case 211:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            *(int*)(*this)[actual_data_offset + ri->offset(lidx)] -
+                            *(int*)(*this)[actual_data_offset + ri->offset(ridx)]);
+                break;
+            }
+            case 212:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            *(int*)(*this)[actual_data_offset + ri->offset(lidx)] -
+                            *(float*)(*this)[actual_data_offset + ri->offset(ridx)]);
+                break;
+            }
+            case 221:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            *(float*)(*this)[actual_data_offset + ri->offset(lidx)] -
+                            *(int*)(*this)[actual_data_offset + ri->offset(ridx)]);
+                break;
+            }
+            case 222:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            *(float*)(*this)[actual_data_offset + ri->offset(lidx)] -
+                            *(float*)(*this)[actual_data_offset + ri->offset(ridx)]);
+                break;
+            }
+            }
+            break;
+        }
+        case 5:
+        {
+            int lidx = ri->index(action.col), ridx = ri->index(action.col2);
+            int type = ri->type(idx) * 100 + ri->type(lidx) * 10 + ri->type(ridx);
+            writeBool((*this)[idx], false);
+            switch(type)
+            {
+            case 111:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          *(int*)(*this)[actual_data_offset + ri->offset(lidx)] *
+                          *(int*)(*this)[actual_data_offset + ri->offset(ridx)]);
+                break;
+            }
+            case 112:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          *(int*)(*this)[actual_data_offset + ri->offset(lidx)] *
+                          *(float*)(*this)[actual_data_offset + ri->offset(ridx)]);
+                break;
+            }
+            case 121:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          *(float*)(*this)[actual_data_offset + ri->offset(lidx)] *
+                          *(int*)(*this)[actual_data_offset + ri->offset(ridx)]);
+                break;
+            }
+            case 122:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          *(float*)(*this)[actual_data_offset + ri->offset(lidx)] *
+                          *(float*)(*this)[actual_data_offset + ri->offset(ridx)]);
+                break;
+            }
+            case 211:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            *(int*)(*this)[actual_data_offset + ri->offset(lidx)] *
+                            *(int*)(*this)[actual_data_offset + ri->offset(ridx)]);
+                break;
+            }
+            case 212:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            *(int*)(*this)[actual_data_offset + ri->offset(lidx)] *
+                            *(float*)(*this)[actual_data_offset + ri->offset(ridx)]);
+                break;
+            }
+            case 221:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            *(float*)(*this)[actual_data_offset + ri->offset(lidx)] *
+                            *(int*)(*this)[actual_data_offset + ri->offset(ridx)]);
+                break;
+            }
+            case 222:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            *(float*)(*this)[actual_data_offset + ri->offset(lidx)] *
+                            *(float*)(*this)[actual_data_offset + ri->offset(ridx)]);
+                break;
+            }
+            }
+            break;
+        }
+        case 6:
+        {
+            int lidx = ri->index(action.col), ridx = ri->index(action.col2);
+            int type = ri->type(idx) * 100 + ri->type(lidx) * 10 + ri->type(ridx);
+            writeBool((*this)[idx], false);
+            switch(type)
+            {
+            case 111:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          *(int*)(*this)[actual_data_offset + ri->offset(lidx)] /
+                          *(int*)(*this)[actual_data_offset + ri->offset(ridx)]);
+                break;
+            }
+            case 112:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          *(int*)(*this)[actual_data_offset + ri->offset(lidx)] /
+                          *(float*)(*this)[actual_data_offset + ri->offset(ridx)]);
+                break;
+            }
+            case 121:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          *(float*)(*this)[actual_data_offset + ri->offset(lidx)] /
+                          *(int*)(*this)[actual_data_offset + ri->offset(ridx)]);
+                break;
+            }
+            case 122:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          *(float*)(*this)[actual_data_offset + ri->offset(lidx)] /
+                          *(float*)(*this)[actual_data_offset + ri->offset(ridx)]);
+                break;
+            }
+            case 211:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            *(int*)(*this)[actual_data_offset + ri->offset(lidx)] /
+                            *(int*)(*this)[actual_data_offset + ri->offset(ridx)]);
+                break;
+            }
+            case 212:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            *(int*)(*this)[actual_data_offset + ri->offset(lidx)] /
+                            *(float*)(*this)[actual_data_offset + ri->offset(ridx)]);
+                break;
+            }
+            case 221:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            *(float*)(*this)[actual_data_offset + ri->offset(lidx)] /
+                            *(int*)(*this)[actual_data_offset + ri->offset(ridx)]);
+                break;
+            }
+            case 222:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            *(float*)(*this)[actual_data_offset + ri->offset(lidx)] /
+                            *(float*)(*this)[actual_data_offset + ri->offset(ridx)]);
+                break;
+            }
+            }
+            break;
+        }
+        case 7:
+        {
+            int lidx = ri->index(action.col);
+            int type = ri->type(idx) * 100 + ri->type(lidx) * 10 + action.value.type;
+            writeBool((*this)[idx], false);
+            switch(type)
+            {
+            case 111:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          *(int*)(*this)[actual_data_offset + ri->offset(lidx)] +
+                          action.value.v_int);
+                break;
+            }
+            case 113:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          *(int*)(*this)[actual_data_offset + ri->offset(lidx)] +
+                          action.value.v_float);
+                break;
+            }
+            case 121:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          *(float*)(*this)[actual_data_offset + ri->offset(lidx)] +
+                          action.value.v_int);
+                break;
+            }
+            case 123:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          *(float*)(*this)[actual_data_offset + ri->offset(lidx)] +
+                          action.value.v_float);
+                break;
+            }
+            case 211:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            *(int*)(*this)[actual_data_offset + ri->offset(lidx)] +
+                            action.value.v_int);
+                break;
+            }
+            case 213:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            *(int*)(*this)[actual_data_offset + ri->offset(lidx)] +
+                            action.value.v_float);
+                break;
+            }
+            case 221:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            *(float*)(*this)[actual_data_offset + ri->offset(lidx)] +
+                            action.value.v_int);
+                break;
+            }
+            case 223:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            *(float*)(*this)[actual_data_offset + ri->offset(lidx)] +
+                            action.value.v_float);
+                break;
+            }
+            }
+            break;
+        }
+        case 8:
+        {
+            int lidx = ri->index(action.col);
+            int type = ri->type(idx) * 100 + ri->type(lidx) * 10 + action.value.type;
+            writeBool((*this)[idx], false);
+            switch(type)
+            {
+            case 111:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          *(int*)(*this)[actual_data_offset + ri->offset(lidx)] -
+                          action.value.v_int);
+                break;
+            }
+            case 113:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          *(int*)(*this)[actual_data_offset + ri->offset(lidx)] -
+                          action.value.v_float);
+                break;
+            }
+            case 121:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          *(float*)(*this)[actual_data_offset + ri->offset(lidx)] -
+                          action.value.v_int);
+                break;
+            }
+            case 123:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          *(float*)(*this)[actual_data_offset + ri->offset(lidx)] -
+                          action.value.v_float);
+                break;
+            }
+            case 211:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            *(int*)(*this)[actual_data_offset + ri->offset(lidx)] -
+                            action.value.v_int);
+                break;
+            }
+            case 213:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            *(int*)(*this)[actual_data_offset + ri->offset(lidx)] -
+                            action.value.v_float);
+                break;
+            }
+            case 221:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            *(float*)(*this)[actual_data_offset + ri->offset(lidx)] -
+                            action.value.v_int);
+                break;
+            }
+            case 223:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            *(float*)(*this)[actual_data_offset + ri->offset(lidx)] -
+                            action.value.v_float);
+                break;
+            }
+            }
+            break;
+        }
+        case 9:
+        {
+            int lidx = ri->index(action.col);
+            int type = ri->type(idx) * 100 + ri->type(lidx) * 10 + action.value.type;
+            writeBool((*this)[idx], false);
+            switch(type)
+            {
+            case 111:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          *(int*)(*this)[actual_data_offset + ri->offset(lidx)] *
+                          action.value.v_int);
+                break;
+            }
+            case 113:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          *(int*)(*this)[actual_data_offset + ri->offset(lidx)] *
+                          action.value.v_float);
+                break;
+            }
+            case 121:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          *(float*)(*this)[actual_data_offset + ri->offset(lidx)] *
+                          action.value.v_int);
+                break;
+            }
+            case 123:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          *(float*)(*this)[actual_data_offset + ri->offset(lidx)] *
+                          action.value.v_float);
+                break;
+            }
+            case 211:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            *(int*)(*this)[actual_data_offset + ri->offset(lidx)] *
+                            action.value.v_int);
+                break;
+            }
+            case 213:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            *(int*)(*this)[actual_data_offset + ri->offset(lidx)] *
+                            action.value.v_float);
+                break;
+            }
+            case 221:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            *(float*)(*this)[actual_data_offset + ri->offset(lidx)] *
+                            action.value.v_int);
+                break;
+            }
+            case 223:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            *(float*)(*this)[actual_data_offset + ri->offset(lidx)] *
+                            action.value.v_float);
+                break;
+            }
+            }
+            break;
+        }
+        case 10:
+        {
+            int lidx = ri->index(action.col);
+            int type = ri->type(idx) * 100 + ri->type(lidx) * 10 + action.value.type;
+            writeBool((*this)[idx], false);
+            switch(type)
+            {
+            case 111:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          *(int*)(*this)[actual_data_offset + ri->offset(lidx)] /
+                          action.value.v_int);
+                break;
+            }
+            case 113:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          *(int*)(*this)[actual_data_offset + ri->offset(lidx)] /
+                          action.value.v_float);
+                break;
+            }
+            case 121:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          *(float*)(*this)[actual_data_offset + ri->offset(lidx)] /
+                          action.value.v_int);
+                break;
+            }
+            case 123:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          *(float*)(*this)[actual_data_offset + ri->offset(lidx)] /
+                          action.value.v_float);
+                break;
+            }
+            case 211:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            *(int*)(*this)[actual_data_offset + ri->offset(lidx)] /
+                            action.value.v_int);
+                break;
+            }
+            case 213:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            *(int*)(*this)[actual_data_offset + ri->offset(lidx)] /
+                            action.value.v_float);
+                break;
+            }
+            case 221:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            *(float*)(*this)[actual_data_offset + ri->offset(lidx)] /
+                            action.value.v_int);
+                break;
+            }
+            case 223:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            *(float*)(*this)[actual_data_offset + ri->offset(lidx)] /
+                            action.value.v_float);
+                break;
+            }
+            }
+            break;
+        }
+        case 11:
+        {
+            int lidx = ri->index(action.col);
+            int type = ri->type(idx) * 100 + ri->type(lidx) * 10 + action.value.type;
+            writeBool((*this)[idx], false);
+            switch(type)
+            {
+            case 111:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          action.value.v_int / *(int*)(*this)[actual_data_offset + ri->offset(lidx)]);
+                break;
+            }
+            case 113:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          action.value.v_float / *(int*)(*this)[actual_data_offset + ri->offset(lidx)]);
+                break;
+            }
+            case 121:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          action.value.v_int / *(float*)(*this)[actual_data_offset + ri->offset(lidx)]);
+                break;
+            }
+            case 123:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          action.value.v_float / *(float*)(*this)[actual_data_offset + ri->offset(lidx)]);
+                break;
+            }
+            case 211:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            action.value.v_int / *(int*)(*this)[actual_data_offset + ri->offset(lidx)]);
+                break;
+            }
+            case 213:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            action.value.v_float / *(int*)(*this)[actual_data_offset + ri->offset(lidx)]);
+                break;
+            }
+            case 221:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            action.value.v_int / *(float*)(*this)[actual_data_offset + ri->offset(lidx)]);
+                break;
+            }
+            case 223:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            action.value.v_float / *(float*)(*this)[actual_data_offset + ri->offset(lidx)]);
+                break;
+            }
+            }
+            break;
+        }
+        case 12:
+        {
+            int lidx = ri->index(action.col);
+            int type = ri->type(idx) * 100 + ri->type(lidx) * 10 + action.value.type;
+            writeBool((*this)[idx], false);
+            switch(type)
+            {
+            case 111:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          -*(int*)(*this)[actual_data_offset + ri->offset(lidx)] +
+                          action.value.v_int);
+                break;
+            }
+            case 113:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          -*(int*)(*this)[actual_data_offset + ri->offset(lidx)] +
+                          action.value.v_float);
+                break;
+            }
+            case 121:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          -*(float*)(*this)[actual_data_offset + ri->offset(lidx)] +
+                          action.value.v_int);
+                break;
+            }
+            case 123:
+            {
+                writeInt((*this)[actual_data_offset + ri->offset(idx)],
+                          -*(float*)(*this)[actual_data_offset + ri->offset(lidx)] +
+                          action.value.v_float);
+                break;
+            }
+            case 211:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            -*(int*)(*this)[actual_data_offset + ri->offset(lidx)] +
+                            action.value.v_int);
+                break;
+            }
+            case 213:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            -*(int*)(*this)[actual_data_offset + ri->offset(lidx)] +
+                            action.value.v_float);
+                break;
+            }
+            case 221:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            -*(float*)(*this)[actual_data_offset + ri->offset(lidx)] +
+                            action.value.v_int);
+                break;
+            }
+            case 223:
+            {
+                writeFloat((*this)[actual_data_offset + ri->offset(idx)],
+                            -*(float*)(*this)[actual_data_offset + ri->offset(lidx)] +
+                            action.value.v_float);
+                break;
+            }
+            }
+            break;
+        }
         }
     }
 }

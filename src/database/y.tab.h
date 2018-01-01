@@ -81,9 +81,10 @@ extern int yydebug;
     IDENTIFIER = 291,
     VALUE_STRING = 292,
     VALUE_INT = 293,
-    NOT_EQUAL = 294,
-    GREATER_EQUAL = 295,
-    LESS_EQUAL = 296
+    VALUE_FLOAT = 294,
+    NOT_EQUAL = 295,
+    GREATER_EQUAL = 296,
+    LESS_EQUAL = 297
   };
 #endif
 /* Tokens.  */
@@ -123,9 +124,10 @@ extern int yydebug;
 #define IDENTIFIER 291
 #define VALUE_STRING 292
 #define VALUE_INT 293
-#define NOT_EQUAL 294
-#define GREATER_EQUAL 295
-#define LESS_EQUAL 296
+#define VALUE_FLOAT 294
+#define NOT_EQUAL 295
+#define GREATER_EQUAL 296
+#define LESS_EQUAL 297
 
 /* Value type.  */
 
