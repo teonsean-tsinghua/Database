@@ -87,16 +87,352 @@ bool DataFile::validate(int rid)
     return ((DataPage*)openPage(rid / PAGE_SIZE))->validate(*cur_search_info, rid % PAGE_SIZE);
 }
 
+void DataFile::terminateSelect(pthread_t* p, pthread_t* v)
+{
+    pthread_mutex_lock(&candidate_lock);
+    candidate_pids.push(0);
+    pthread_mutex_unlock(&candidate_lock);
+    pthread_join(*v, NULL);
+    pthread_join(*p, NULL);
+    delete p;
+    delete v;
+}
+
 void DataFile::select(SearchInfo& si, std::vector<bool>& selected)
 {
     Table::printHeader(selected, ri);
+    PrimKey::ri = ri;
     cur_search_info = &si;
     cur_selected = &selected;
     pthread_t* printingThread = new pthread_t;
     pthread_t* validatingThread = new pthread_t;
     pthread_create(validatingThread, NULL, validateLoop, this);
     pthread_create(printingThread, NULL, printLoop, this);
-
+    // prim with A
+    std::vector<int>& primKeys = ri->getPrimaryKeys();
+    bool primA = true;
+    for(int i = 0; i < primKeys.size(); i++)
+    {
+        if(si.nulls.count(i) && si.nulls[i])
+        {
+            terminateSelect(printingThread, validatingThread);
+            return;
+        }
+        if(!si.values[0].count(i))
+        {
+            primA = false;
+            break;
+        }
+    }
+    if(primA)
+    {
+        char tmp[ri->getPrimKeyLen()];
+        char* cur = tmp;
+        for(int i = 0; i < primKeys.size(); i++)
+        {
+            copyData((char*)si.values[0][primKeys[i]], cur, ri->length(primKeys[i]));
+            cur += ri->length(primKeys[i]);
+        }
+        int rid = tree->search(*(PrimKey*)tmp);
+        pthread_mutex_lock(&candidate_lock);
+        candidate_pids.push(rid);
+        pthread_mutex_unlock(&candidate_lock);
+        terminateSelect(printingThread, validatingThread);
+        return;
+    }
+    // unique A
+    for(std::map<int, bool>::iterator iter = uniqueIndex.begin(); iter != uniqueIndex.end(); iter++)
+    {
+        if(iter->second)
+        {
+            int idx = iter->first;
+            if(si.nulls.count(idx) && si.nulls[idx])
+            {
+                terminateSelect(printingThread, validatingThread);
+                return;
+            }
+            if(si.values[0].count(idx))
+            {
+                int rid;
+                switch(ri->type(idx))
+                {
+                case Type::INT:
+                    rid = ((IndexFile<IntType>*)indexes[idx])->directSearch(*(IntType*)si.values[0][idx]);
+                    break;
+                case Type::FLOAT:
+                    rid = ((IndexFile<FloatType>*)indexes[idx])->directSearch(*(FloatType*)si.values[0][idx]);
+                    break;
+                case Type::DATE:
+                    rid = ((IndexFile<DateType>*)indexes[idx])->directSearch(*(DateType*)si.values[0][idx]);
+                    break;
+                case Type::VARCHAR:
+                    rid = ((IndexFile<VarcharType>*)indexes[idx])->directSearch(*(VarcharType*)si.values[0][idx]);
+                    break;
+                default:
+                    assert(false);
+                }
+                pthread_mutex_lock(&candidate_lock);
+                candidate_pids.push(rid);
+                pthread_mutex_unlock(&candidate_lock);
+                terminateSelect(printingThread, validatingThread);
+                return;
+            }
+        }
+    }
+    // non unique A
+    for(std::map<int, bool>::iterator iter = uniqueIndex.begin(); iter != uniqueIndex.end(); iter++)
+    {
+        if(!iter->second)
+        {
+            int idx = iter->first;
+            if(si.nulls.count(idx) && si.nulls[idx])
+            {
+                terminateSelect(printingThread, validatingThread);
+                return;
+            }
+            if(si.values[0].count(idx))
+            {
+                switch(ri->type(idx))
+                {
+                case Type::INT:
+                    ((IndexFile<IntType>*)indexes[idx])->getAllValuesOfKey(*(IntType*)si.values[0][idx], candidate_pids, &candidate_lock);
+                    break;
+                case Type::FLOAT:
+                    ((IndexFile<FloatType>*)indexes[idx])->getAllValuesOfKey(*(FloatType*)si.values[0][idx], candidate_pids, &candidate_lock);
+                    break;
+                case Type::DATE:
+                    ((IndexFile<DateType>*)indexes[idx])->getAllValuesOfKey(*(DateType*)si.values[0][idx], candidate_pids, &candidate_lock);
+                    break;
+                case Type::VARCHAR:
+                    ((IndexFile<VarcharType>*)indexes[idx])->getAllValuesOfKey(*(VarcharType*)si.values[0][idx], candidate_pids, &candidate_lock);
+                    break;
+                default:
+                    assert(false);
+                }
+                terminateSelect(printingThread, validatingThread);
+                return;
+            }
+        }
+    }
+    std::map<int, std::vector<int> > ranges;
+    // -1 for primary key.
+    ranges[-1] = std::vector<int>();
+    ranges[-1].push_back(-1);
+    ranges[-1].push_back(INT_MAX - 1);
+    for(int i = 0; i < ri->getFieldCount(); i++)
+    {
+        ranges[i] = std::vector<int>();
+        ranges[i].push_back(-1);
+        ranges[i].push_back(INT_MAX - 1);
+    }
+    //prim B
+    if(ri->getPrimKeyCnt() == 1)
+    {
+        int primKey = ri->getPrimaryKeys()[0];
+        int leftBound = -1, rightBound = INT_MAX - 1;
+        for(int i = 1; i <= 4; i++)
+        {
+            if(si.values[i].count(primKey))
+            {
+                int re = tree->search(*(PrimKey*)si.values[i][primKey], true);
+                if(i == 1 || i == 3)
+                {
+                    rightBound = min(rightBound, re);
+                }
+                else if(i == 2 || i == 4)
+                {
+                    leftBound = max(leftBound, re);
+                }
+            }
+        }
+        ranges[-1][0] = leftBound;
+        ranges[-1][1] = rightBound;
+    }
+    //unique B
+    for(std::map<int, bool>::iterator iter = uniqueIndex.begin(); iter != uniqueIndex.end(); iter++)
+    {
+        if(iter->second)
+        {
+            int idx = iter->first;
+            int leftBound = -1, rightBound = INT_MAX - 1;
+            for(int i = 1; i <= 4; i++)
+            {
+                if(!si.values[i].count(idx))
+                {
+                    continue;
+                }
+                int re;
+                switch(ri->type(idx))
+                {
+                case Type::INT:
+                    re = ((IndexFile<IntType>*)indexes[idx])->searchForPos(*(IntType*)si.values[i][idx]);
+                    break;
+                case Type::FLOAT:
+                    re = ((IndexFile<FloatType>*)indexes[idx])->searchForPos(*(FloatType*)si.values[i][idx]);
+                    break;
+                case Type::DATE:
+                    re = ((IndexFile<DateType>*)indexes[idx])->searchForPos(*(DateType*)si.values[i][idx]);
+                    break;
+                case Type::VARCHAR:
+                    re = ((IndexFile<VarcharType>*)indexes[idx])->searchForPos(*(VarcharType*)si.values[i][idx]);
+                    break;
+                }
+                if(i == 1 || i == 3)
+                {
+                    rightBound = min(rightBound, re);
+                }
+                else if(i == 2 || i == 4)
+                {
+                    leftBound = max(leftBound, re);
+                }
+            }
+            ranges[idx][0] = leftBound;
+            ranges[idx][1] = rightBound;
+        }
+    }
+    // compare range
+    int selectedindex = -2, minDistance = INT_MAX;
+    for(int i = -1; i < ri->getFieldCount(); i++)
+    {
+        if(ranges[i][0] == -1 && ranges[i][1] == INT_MAX - 1)
+        {
+            continue;
+        }
+        if(ranges[i][1] - ranges[i][0] < minDistance)
+        {
+            minDistance = ranges[i][1] - ranges[i][0];
+            selectedindex = i;
+        }
+    }
+    if(selectedindex > -2)
+    {
+        if(selectedindex == -1)
+        {
+            LeafPage<PrimKey>* cur = (LeafPage<PrimKey>*)openPage(ranges[-1][0] > 0 ? ranges[-1][0] / PAGE_SIZE : dfdp->getFirstLeafPage());
+            while(true)
+            {
+                int cnt = cur->getChildCnt();
+                int base = cur->getPageID() * PAGE_SIZE;
+                for(int i = 0; i < cnt; i++)
+                {
+                    if(base + i < ranges[-1][0])
+                    {
+                        continue;
+                    }
+                    if(base + i > ranges[-1][1])
+                    {
+                        break;
+                    }
+                    pthread_mutex_lock(&candidate_lock);
+                    candidate_pids.push(cur->at(i)->value);
+                    pthread_mutex_unlock(&candidate_lock);
+                }
+                if(base + cnt > ranges[-1][1] || cur->getNextSamePage() <= 0)
+                {
+                    break;
+                }
+                cur = (LeafPage<PrimKey>*)openPage(cur->getNextSamePage());
+            }
+            terminateSelect(printingThread, validatingThread);
+            return;
+        }
+        else
+        {
+            switch(ri->type(selectedindex))
+            {
+            case Type::INT:
+                ((IndexFile<IntType>*)indexes[selectedindex])->fillQueue(ranges[selectedindex][0], ranges[selectedindex][1], candidate_pids, &candidate_lock);
+                break;
+            case Type::FLOAT:
+                ((IndexFile<FloatType>*)indexes[selectedindex])->fillQueue(ranges[selectedindex][0], ranges[selectedindex][1], candidate_pids, &candidate_lock);
+                break;
+            case Type::DATE:
+                ((IndexFile<DateType>*)indexes[selectedindex])->fillQueue(ranges[selectedindex][0], ranges[selectedindex][1], candidate_pids, &candidate_lock);
+                break;
+            case Type::VARCHAR:
+                ((IndexFile<VarcharType>*)indexes[selectedindex])->fillQueue(ranges[selectedindex][0], ranges[selectedindex][1], candidate_pids, &candidate_lock);
+                break;
+            }
+            terminateSelect(printingThread, validatingThread);
+            return;
+        }
+    }
+    // non unique B
+    for(std::map<int, bool>::iterator iter = uniqueIndex.begin(); iter != uniqueIndex.end(); iter++)
+    {
+        if(!iter->second)
+        {
+            int idx = iter->first;
+            int leftBound = -1, rightBound = INT_MAX - 1;
+            for(int i = 1; i <= 4; i++)
+            {
+                if(!si.values[i].count(idx))
+                {
+                    continue;
+                }
+                int re;
+                switch(ri->type(idx))
+                {
+                case Type::INT:
+                    re = ((IndexFile<IntType>*)indexes[idx])->searchForPos(*(IntType*)si.values[i][idx]);
+                    break;
+                case Type::FLOAT:
+                    re = ((IndexFile<FloatType>*)indexes[idx])->searchForPos(*(FloatType*)si.values[i][idx]);
+                    break;
+                case Type::DATE:
+                    re = ((IndexFile<DateType>*)indexes[idx])->searchForPos(*(DateType*)si.values[i][idx]);
+                    break;
+                case Type::VARCHAR:
+                    re = ((IndexFile<VarcharType>*)indexes[idx])->searchForPos(*(VarcharType*)si.values[i][idx]);
+                    break;
+                }
+                if(i == 1 || i == 3)
+                {
+                    rightBound = min(rightBound, re);
+                }
+                else if(i == 2 || i == 4)
+                {
+                    leftBound = max(leftBound, re);
+                }
+            }
+            ranges[idx][0] = leftBound;
+            ranges[idx][1] = rightBound;
+        }
+    }
+    selectedindex = -2;
+    minDistance = INT_MAX;
+    for(int i = 0; i < ri->getFieldCount(); i++)
+    {
+        if(ranges[i][0] == -1 && ranges[i][1] == INT_MAX - 1)
+        {
+            continue;
+        }
+        if(ranges[i][1] - ranges[i][0] < minDistance)
+        {
+            minDistance = ranges[i][1] - ranges[i][0];
+            selectedindex = i;
+        }
+    }
+    if(selectedindex >= 0)
+    {
+        switch(ri->type(selectedindex))
+        {
+        case Type::INT:
+            ((IndexFile<IntType>*)indexes[selectedindex])->fillQueue(ranges[selectedindex][0], ranges[selectedindex][1], candidate_pids, &candidate_lock);
+            break;
+        case Type::FLOAT:
+            ((IndexFile<FloatType>*)indexes[selectedindex])->fillQueue(ranges[selectedindex][0], ranges[selectedindex][1], candidate_pids, &candidate_lock);
+            break;
+        case Type::DATE:
+            ((IndexFile<DateType>*)indexes[selectedindex])->fillQueue(ranges[selectedindex][0], ranges[selectedindex][1], candidate_pids, &candidate_lock);
+            break;
+        case Type::VARCHAR:
+            ((IndexFile<VarcharType>*)indexes[selectedindex])->fillQueue(ranges[selectedindex][0], ranges[selectedindex][1], candidate_pids, &candidate_lock);
+            break;
+        }
+        terminateSelect(printingThread, validatingThread);
+        return;
+    }
     // traverse and validate
     int pid = dfdp->getFirstDataPage();
     while(pid > 0)
@@ -111,13 +447,7 @@ void DataFile::select(SearchInfo& si, std::vector<bool>& selected)
         }
         pid = openPage(pid)->getNextSamePage();
     }
-    pthread_mutex_lock(&candidate_lock);
-    candidate_pids.push(0);
-    pthread_mutex_unlock(&candidate_lock);
-    pthread_join(*validatingThread, NULL);
-    pthread_join(*printingThread, NULL);
-    delete printingThread;
-    delete validatingThread;
+    terminateSelect(printingThread, validatingThread);
 }
 
 int DataFile::findFirstAvailableDataPage()

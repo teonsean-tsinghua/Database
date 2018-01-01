@@ -21,7 +21,7 @@ cd ..
 echo "Succeeded."
 echo "============================================"
 echo "Compiling source files..."
-make
+make -lpthread
 if [ $? != 0 ] 
 then
 	echo "============================================"

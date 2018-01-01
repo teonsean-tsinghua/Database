@@ -49,11 +49,17 @@ public:
 
     bool remove(T& key, int value = 0);
 
+    void fillQueue(int begin, int end, std::queue<int>& q, pthread_mutex_t* lock);
+
     int directSearch(T& key);
+
+    int searchForPos(T& key);
 
     bool update(T& key, int value, int old_value = 0);
 
     void printValuesOfKey(T& key);
+
+    void getAllValuesOfKey(T& key, std::queue<int>& result, pthread_mutex_t* mutex);
 
     void printAllValues();
 
@@ -72,9 +78,108 @@ IndexFile<T>::IndexFile()
 }
 
 template<typename T>
+void IndexFile<T>::fillQueue(int begin, int end, std::queue<int>& q, pthread_mutex_t* lock)
+{
+    assert(open);
+    if(ifdp->getUnique())
+    {
+        LeafPage<T>* cur = (LeafPage<T>*)openPage(begin > 0 ? begin / PAGE_SIZE : ifdp->getFirstLeafPage());
+        while(true)
+        {
+            int cnt = cur->getChildCnt();
+            int base = cur->getPageID() * PAGE_SIZE;
+            for(int i = 0; i < cnt; i++)
+            {
+                if(base + i < begin)
+                {
+                    continue;
+                }
+                if(base + i > end)
+                {
+                    break;
+                }
+                pthread_mutex_lock(lock);
+                q.push(cur->at(i)->value);
+                pthread_mutex_unlock(lock);
+            }
+            if(base + cnt - 1 > end || cur->getNextSamePage() <= 0)
+            {
+                break;
+            }
+            cur = (LeafPage<T>*)openPage(cur->getNextSamePage());
+        }
+    }
+    else
+    {
+        LeafPage<T>* cur = (LeafPage<T>*)openPage(begin > 0 ? begin / PAGE_SIZE : ifdp->getFirstLeafPage());
+        while(true)
+        {
+            int cnt = cur->getChildCnt();
+            int base = cur->getPageID() * PAGE_SIZE;
+            for(int i = 0; i < cnt; i++)
+            {
+                if(base + i < begin)
+                {
+                    continue;
+                }
+                if(base + i > end)
+                {
+                    break;
+                }
+                int bid = cur->at(i)->value;
+                Bucket* target = ((BucketPage*)openPage(bid / PAGE_SIZE))->at(bid % PAGE_SIZE);
+                while(true)
+                {
+                    Bucket::fillQueue(target, ifdp->getDensity(), q, lock);
+                    if(target->next <= 0)
+                    {
+                        break;
+                    }
+                    target = ((BucketPage*)openPage(target->next / PAGE_SIZE))->at(target->next % PAGE_SIZE);
+                }
+            }
+            if(base + cnt - 1 > end || cur->getNextSamePage() <= 0)
+            {
+                break;
+            }
+            cur = (LeafPage<T>*)openPage(cur->getNextSamePage());
+        }
+    }
+}
+
+template<typename T>
+void IndexFile<T>::getAllValuesOfKey(T& key, std::queue<int>& result, pthread_mutex_t* mutex)
+{
+    assert(open);
+    assert(!ifdp->getUnique());
+    int bid = tree->search(key);
+    if(bid <= 0)
+    {
+        std::cout << 0 << std::endl;
+        return;
+    }
+    Bucket* target = ((BucketPage*)openPage(bid / PAGE_SIZE))->at(bid % PAGE_SIZE);
+    while(true)
+    {
+        Bucket::fillQueue(target, ifdp->getDensity(), result, mutex);
+        if(target->next <= 0)
+        {
+            break;
+        }
+        target = ((BucketPage*)openPage(target->next / PAGE_SIZE))->at(target->next % PAGE_SIZE);
+    }
+}
+
+template<typename T>
 int IndexFile<T>::directSearch(T& key)
 {
     return tree->search(key);
+}
+
+template<typename T>
+int IndexFile<T>::searchForPos(T& key)
+{
+    return tree->search(key, true);
 }
 
 template<typename T>

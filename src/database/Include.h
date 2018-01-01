@@ -19,5 +19,6 @@
 #include<cassert>
 #include<algorithm>
 #include<pthread.h>
+#include<climits>
 
 #endif // FILELAYER_INCLUDE_H_INCLUDED

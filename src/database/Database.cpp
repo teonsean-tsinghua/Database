@@ -392,11 +392,11 @@ void Database::createTable(std::string tbname)
     std::cout << "CREATED TABLE " << tbname << std::endl;
 }
 
-void Database::createIndex(std::string tbname, std::string colname)
+void Database::createIndex(std::string tbname, std::string colname, bool unique, int density)
 {
 	DataFile df;
     df.openFile(curDb, tbname);
-    df.createIndex(colname);
+    df.createIndex(colname, unique, density);
     df.closeFile();
 	std::cout << "CREATED INDEX " << colname << " OF TABLE " << tbname << std::endl;
 }

@@ -23,6 +23,24 @@ bool Bucket::containForInsert(Bucket* b, int v, int d, bool& athere)
     return false;
 }
 
+void Bucket::fillQueue(Bucket* b, int d, std::queue<int>& q, pthread_mutex_t* mutex)
+{
+    int volumn = bucket_sizes[d];
+    for(int i = 0; i < volumn; i++)
+    {
+        if(b->pids[i] > 0)
+        {
+            pthread_mutex_lock(mutex);
+            q.push(b->pids[i]);
+            pthread_mutex_unlock(mutex);
+        }
+        else
+        {
+            return;
+        }
+    }
+}
+
 void Bucket::print(Bucket* b, int d)
 {
     int volumn = bucket_sizes[d];

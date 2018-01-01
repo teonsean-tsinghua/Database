@@ -21,6 +21,7 @@ private:
     std::vector<std::string> foreigns;
     std::vector<int> primKeyInfo;
     std::vector<bool> isPrims;
+    std::vector<int> primaryKeys;
     int recordLength;
     int recordInfoLength;
     int primKeyLen;
@@ -32,6 +33,8 @@ public:
     void printRecordDesc(std::string tbname);
 
     void init();
+
+    std::vector<int>& getPrimaryKeys();
 
     bool contains(std::string name);
 

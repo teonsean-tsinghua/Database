@@ -29,7 +29,7 @@ public:
 
     bool update(T& key, int value);
 
-    int search(T& key);
+    int search(T& key, bool getPos = false);
 };
 
 template<typename T>
@@ -211,7 +211,7 @@ bool IndexTree<T>::remove(T& key)
 }
 
 template<typename T>
-int IndexTree<T>::search(T& key)
+int IndexTree<T>::search(T& key, bool getPos)
 {
     NodePage<T>* cur = node(root);
     while(!cur->isLeaf())
@@ -219,16 +219,27 @@ int IndexTree<T>::search(T& key)
         Entry<T>* child = cur->search(key);
         if(child == NULL)
         {
+            if(!getPos)
+            {
+                return 0;
+            }
+            cur = node(cur->at(cur->getChildCnt() - 1)->value);
+        }
+        else
+        {
+            cur = node(child->value);
+        }
+    }
+    if(!getPos)
+    {
+        Entry<T>* child = cur->search(key);
+        if(child == NULL || child->key != key)
+        {
             return 0;
         }
-        cur = node(child->value);
+        return child->value;
     }
-    Entry<T>* child = cur->search(key);
-    if(child == NULL || child->key != key)
-    {
-        return 0;
-    }
-    return child->value;
+    return cur->getPageID() * PAGE_SIZE + cur->searchForIndex(key);
 }
 
 template<typename T>

@@ -58,7 +58,7 @@ public:
 
     void describeTable(std::string name);
 
-    void createIndex(std::string tbname, std::string colname);
+    void createIndex(std::string tbname, std::string colname, bool unique, int density);
 
     void dropIndex(std::string tbname, std::string colname);
 

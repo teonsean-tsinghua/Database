@@ -12,8 +12,8 @@ extern "C"
 
 %}
 %token	DATABASE	DATABASES	TABLE	TABLES	SHOW	CREATE
-%token	DROP	USE	PRIMARY	KEY	NOT	NULL_
-%token  INSERT	INTO	VALUES	DELETE	FROM	WHERE
+%token	DROP	USE	PRIMARY	KEY	NOT	NULL_	UNIQUE
+%token  INSERT	INTO	VALUES	DELETE	FROM	WHERE	DENSITY
 %token  UPDATE	SET	SELECT	IS	INT_	VARCHAR_
 %token  DESC	INDEX 	AND	DATE_	FLOAT_	FOREIGN	REFERENCES
 %token  <m_string>IDENTIFIER
@@ -64,7 +64,10 @@ tbStmt	: CREATE TABLE tbName '(' fieldList ')' { instance->createTable($3); }
 	| SELECT selector FROM tableList WHERE whereClause { instance->select($2); } //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	;
 
-idxStmt	: CREATE INDEX tbName '(' colName ')' { instance->createIndex($3, $5); }
+idxStmt	: CREATE INDEX tbName '(' colName ')' { instance->createIndex($3, $5, false, 1); }
+	| CREATE UNIQUE INDEX tbName '(' colName ')' { instance->createIndex($4, $6, true, 1); }
+	| CREATE INDEX tbName '(' colName ')' DENSITY '(' VALUE_INT ')' { instance->createIndex($3, $5, false, $9); }
+	| CREATE UNIQUE INDEX tbName '(' colName ')' DENSITY '(' VALUE_INT ')' { instance->createIndex($4, $6, true, $10); }
 	| DROP INDEX tbName '(' colName ')' { instance->dropIndex($3, $5); }
 	;
 

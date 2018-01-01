@@ -10,6 +10,8 @@ public:
     int next;
     int pids[];
 
+    static void fillQueue(Bucket* b, int d, std::queue<int>& q, pthread_mutex_t* mutex);
+
     static bool containForInsert(Bucket* b, int v, int d, bool& athere);
 
     static int search(Bucket* b, int v, int d);

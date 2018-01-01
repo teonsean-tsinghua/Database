@@ -57,31 +57,33 @@ extern int yydebug;
     KEY = 267,
     NOT = 268,
     NULL_ = 269,
-    INSERT = 270,
-    INTO = 271,
-    VALUES = 272,
-    DELETE = 273,
-    FROM = 274,
-    WHERE = 275,
-    UPDATE = 276,
-    SET = 277,
-    SELECT = 278,
-    IS = 279,
-    INT_ = 280,
-    VARCHAR_ = 281,
-    DESC = 282,
-    INDEX = 283,
-    AND = 284,
-    DATE_ = 285,
-    FLOAT_ = 286,
-    FOREIGN = 287,
-    REFERENCES = 288,
-    IDENTIFIER = 289,
-    VALUE_STRING = 290,
-    VALUE_INT = 291,
-    NOT_EQUAL = 292,
-    GREATER_EQUAL = 293,
-    LESS_EQUAL = 294
+    UNIQUE = 270,
+    INSERT = 271,
+    INTO = 272,
+    VALUES = 273,
+    DELETE = 274,
+    FROM = 275,
+    WHERE = 276,
+    DENSITY = 277,
+    UPDATE = 278,
+    SET = 279,
+    SELECT = 280,
+    IS = 281,
+    INT_ = 282,
+    VARCHAR_ = 283,
+    DESC = 284,
+    INDEX = 285,
+    AND = 286,
+    DATE_ = 287,
+    FLOAT_ = 288,
+    FOREIGN = 289,
+    REFERENCES = 290,
+    IDENTIFIER = 291,
+    VALUE_STRING = 292,
+    VALUE_INT = 293,
+    NOT_EQUAL = 294,
+    GREATER_EQUAL = 295,
+    LESS_EQUAL = 296
   };
 #endif
 /* Tokens.  */
@@ -97,31 +99,33 @@ extern int yydebug;
 #define KEY 267
 #define NOT 268
 #define NULL_ 269
-#define INSERT 270
-#define INTO 271
-#define VALUES 272
-#define DELETE 273
-#define FROM 274
-#define WHERE 275
-#define UPDATE 276
-#define SET 277
-#define SELECT 278
-#define IS 279
-#define INT_ 280
-#define VARCHAR_ 281
-#define DESC 282
-#define INDEX 283
-#define AND 284
-#define DATE_ 285
-#define FLOAT_ 286
-#define FOREIGN 287
-#define REFERENCES 288
-#define IDENTIFIER 289
-#define VALUE_STRING 290
-#define VALUE_INT 291
-#define NOT_EQUAL 292
-#define GREATER_EQUAL 293
-#define LESS_EQUAL 294
+#define UNIQUE 270
+#define INSERT 271
+#define INTO 272
+#define VALUES 273
+#define DELETE 274
+#define FROM 275
+#define WHERE 276
+#define DENSITY 277
+#define UPDATE 278
+#define SET 279
+#define SELECT 280
+#define IS 281
+#define INT_ 282
+#define VARCHAR_ 283
+#define DESC 284
+#define INDEX 285
+#define AND 286
+#define DATE_ 287
+#define FLOAT_ 288
+#define FOREIGN 289
+#define REFERENCES 290
+#define IDENTIFIER 291
+#define VALUE_STRING 292
+#define VALUE_INT 293
+#define NOT_EQUAL 294
+#define GREATER_EQUAL 295
+#define LESS_EQUAL 296
 
 /* Value type.  */
 

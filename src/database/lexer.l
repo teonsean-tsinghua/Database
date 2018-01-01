@@ -47,6 +47,8 @@ BLANK_CHARS ([ \f\r\t\v]+)
 "FLOAT"			{ return FLOAT_; }
 "FOREIGN"		{ return FOREIGN; }
 "REFERENCES"		{ return REFERENCES; }
+"UNIQUE"		{ return UNIQUE; }
+"DENSITY"		{ return DENSITY; }
 "<>"			{ return NOT_EQUAL; }
 "<="			{ return LESS_EQUAL; }
 ">="			{ return GREATER_EQUAL; }

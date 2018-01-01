@@ -19,6 +19,11 @@ int RecordInfo::getPrimKeyCnt()
     return primKeyCnt;
 }
 
+std::vector<int>& RecordInfo::getPrimaryKeys()
+{
+    return primaryKeys;
+}
+
 void RecordInfo::setPrimKeyCnt(int n)
 {
     primKeyCnt = n;
@@ -379,6 +384,7 @@ void RecordInfo::init()
     foreigns.clear();
     isPrims.clear();
     primKeyInfo.clear();
+    primaryKeys.clear();
     primKeyCnt = primKeyLen = recordLength = recordInfoLength = 0;
 }
 
@@ -523,6 +529,7 @@ int RecordInfo::addField(std::string name, int type, bool nullable, int extra, s
     recordLength += (1 + length(name));
     if(isPrim)
     {
+        primaryKeys.push_back(names.size() - 1);
         primKeyInfo.push_back(type);
         primKeyInfo.push_back(length(names.size() - 1));
         primKeyLen += length(names.size() - 1);

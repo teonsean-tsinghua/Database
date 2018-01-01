@@ -50,6 +50,8 @@ private:
 
     void print(int rid);
 
+    void terminateSelect(pthread_t* p, pthread_t* v);
+
     bool validateInsertion(std::vector<void*>& data);
 
     char* generatePrimKey(std::vector<void*>& data);
@@ -76,7 +78,7 @@ public:
     void addFields(std::vector<std::string>& name, std::vector<int>& type, std::vector<int>& nullable,
     		std::vector<int>& extra, std::vector<std::string>& foreign, std::vector<bool>& isPrim);
 
-    void createIndex(std::string fdname, bool unique = false, int density = 1);
+    void createIndex(std::string fdname, bool unique, int density);
 
     void printFileDesc();
 
