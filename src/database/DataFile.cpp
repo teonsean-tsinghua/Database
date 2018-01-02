@@ -11,6 +11,10 @@ DataFile::DataFile(): BaseFile()
 
 DataFile::~DataFile()
 {
+    if(open)
+    {
+        closeFile();
+    }
 	delete ri;
 }
 
@@ -836,6 +840,10 @@ void DataFile::createIndex(std::string fdname, bool unique, int density)
     {
         throw Exception(TAG, "Table " + tbname + " already has an index on " + fdname + ".");
     }
+    if(ri->nullable(idx))
+    {
+        throw Exception(TAG, "Fields that can be null cannot be used as an index key.");
+    }
     switch(ri->type(idx))
     {
     case Type::INT:
@@ -1147,6 +1155,10 @@ void DataFile::addFields(std::vector<std::string>& name, std::vector<int>& type,
        foreign.size() == isPrim.size());
     for(int i = 0; i < name.size(); i++)
     {
+        if(nullable[i] && isPrim[i])
+        {
+            throw Exception(TAG, "Primary keys cannot be null.");
+        }
         int re = ri->addField(name[i], type[i], nullable[i], extra[i], foreign[i], isPrim[i]);
         switch(re)
         {

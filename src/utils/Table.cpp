@@ -8,7 +8,6 @@ void Table::printHeader(std::vector<bool>& selected, RecordInfo* ri)
 {
     idx.clear();
     width.clear();
-    std::cout << std::setfill(' ');
 	for(int i = 0; i < selected.size(); i++)
 	{
 		if(selected[i])
@@ -30,7 +29,7 @@ void Table::printHeader(std::vector<bool>& selected, RecordInfo* ri)
 	std::cout << '|';
 	for(int i = 0; i < idx.size(); i++)
 	{
-		std::cout << std::setw(width[i]) << ri->name(idx[i]) << '|';
+		std::cout << std::setfill(' ') << std::setw(width[i]) << ri->name(idx[i]) << '|';
 	}
 	std::cout << std::endl;
 	std::cout << '+';
@@ -47,10 +46,11 @@ void Table::printHeader(std::vector<bool>& selected, RecordInfo* ri)
 
 void Table::printRow(std::vector<void*>& data, RecordInfo* ri)
 {
+    std::cout.setf(std::ios::right);
     std::cout << '|';
     for(int i = 0; i < idx.size(); i++)
     {
-        std::cout << std::setw(width[i]);
+        std::cout << std::setfill(' ') << std::setw(width[i]);
         if(data[i] == NULL)
         {
             std::cout << "NULL";

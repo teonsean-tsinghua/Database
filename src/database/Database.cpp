@@ -9,6 +9,57 @@ Database::Database(std::string root):
 
 }
 
+bool IsLeapYear(int Year)
+{
+    if((Year % 4 == 0 && Year % 100 != 0 ) || Year % 400 == 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool IsValidDate(int Year,int Month,int Day)
+{
+    int nDay;
+
+    if(Year < 1 || Month >12 || Month < 1 || Day < 1)
+    {
+        return false;
+    }
+
+    switch(Month)
+    {
+    case 4:
+    case 6:
+    case 9:
+    case 11:
+        nDay = 30;
+        break;
+    case 2:
+        if(IsLeapYear(Year))
+        {
+            nDay = 29;
+        }
+        else
+        {
+            nDay = 28;
+        }
+        break;
+    default:
+        nDay = 31;
+    }
+
+    if( Day > nDay )
+    {
+        return false;
+    }
+
+    return true;
+}
+
 Database* Database::getInstance()
 {
     if(instance == NULL)
@@ -85,7 +136,6 @@ void Database::addPendingSet(Set& set_)
 
 void Database::addPendingValueList()
 {
-    std::cout << "pValues size: " << pValues.size() << "\n";
     pValueLists.push_back(pValues);
     pValues.clear();
 }
@@ -114,11 +164,33 @@ void Database::processSets(UpdateInfo& ui, RecordInfo* ri, std::string tbname)
         {
             throw Exception(TAG, "Cannot perform multiple actions on one field.");
         }
+        if(!ri->nullable(idx))
+        {
+            if(pSets[i].rvalue.type == 1 && pSets[i].rvalue.value.type == 0)
+            {
+                throw Exception(TAG, "Cannot set " + pSets[i].field + " to NULL.");
+            }
+            if(pSets[i].rvalue.type == 2)
+            {
+                if(ri->type(pSets[i].field) != ri->type(pSets[i].rvalue.col))
+                {
+                    throw Exception(TAG, "Cannot perform assignment between fields of different type.");
+                }
+                if(ri->nullable(pSets[i].rvalue.col))
+                {
+                    throw Exception(TAG, "Cannot assign nullable field to non-nullable field.");
+                }
+            }
+        }
         if(pSets[i].rvalue.type > 2)
         {
             if(ri->type(pSets[i].rvalue.col) != Type::INT && ri->type(pSets[i].rvalue.col) != Type::FLOAT)
             {
                 throw Exception(TAG, "Cannot perform arithmetic actions on non-numerical type.");
+            }
+            if(ri->nullable(pSets[i].rvalue.col))
+            {
+                throw Exception(TAG, "Cannot perform arithmetic actions on nullable field.");
             }
             if(pSets[i].rvalue.type > 6)
             {
@@ -129,6 +201,10 @@ void Database::processSets(UpdateInfo& ui, RecordInfo* ri, std::string tbname)
             }
             else
             {
+                if(ri->nullable(pSets[i].rvalue.col2))
+                {
+                    throw Exception(TAG, "Cannot perform arithmetic actions on nullable field.");
+                }
                 if(ri->type(pSets[i].rvalue.col2) != Type::INT && ri->type(pSets[i].rvalue.col2) != Type::FLOAT)
                 {
                     throw Exception(TAG, "Cannot perform arithmetic actions on non-numerical type.");
@@ -248,35 +324,106 @@ void Database::insert(std::string tbname)
 {
     DataFile df;
     df.openFile(curDb, tbname);
+    RecordInfo* ri = df.getRecordInfo();
     for(int i = 0; i < pValueLists.size(); i++)
     {
         std::vector<void*> data;
         data.push_back(NULL);
         char* tmp;
+        bool valid = true;
         for(int j = 0; j < pValueLists[i].size(); j++)
         {
             switch(pValueLists[i][j].type)
             {
             case 0:
+                if(!ri->nullable(j + 1))
+                {
+                    std::cout << "Error: " << ri->name(j + 1) << " cannot be null.\n";
+                    valid = false;
+                    break;
+                }
                 data.push_back(NULL);
                 break;
             case 1:
+                if(ri->type(j + 1) != Type::INT)
+                {
+                    std::cout << "Error: " << ri->name(j + 1) << " should be of type " << Type::typeName(ri->type(j + 1)) << ".\n";
+                    valid = false;
+                    break;
+                }
                 data.push_back(&(pValueLists[i][j].v_int));
                 break;
             case 2:
-                tmp = new char[pValueLists[i][j].v_str.size() - 1];
+                if(ri->type(j + 1) != Type::VARCHAR)
+                {
+                    if(ri->type(j + 1) != Type::DATE)
+                    {
+                        std::cout << "Error: " << ri->name(j + 1) << " should be of type " << Type::typeName(ri->type(j + 1)) << ".\n";
+                        valid = false;
+                        break;
+                    }
+                    else
+                    {
+                        std::string date = pValueLists[i][j].v_str;
+                        date = date.substr(1, date.size() - 2);
+                        if(date.size() != 10 || date[4] != '/' || date[7] != '/')
+                        {
+                            std::cout << "Error: " << "Invalid date input.\n";
+                            valid = false;
+                            break;
+                        }
+                        for(int i = 0; i < 10; i++)
+                        {
+                            if(i == 4 || i == 7)
+                            {
+                                continue;
+                            }
+                            if(date[i] < '0' || date[i] > '9')
+                            {
+                                std::cout << "Error: " << "Invalid date input.\n";
+                                valid = false;
+                                break;
+                            }
+                        }
+                        if(!valid)
+                        {
+                            break;
+                        }
+                        if(!IsValidDate((date[0] - '0') * 1000 + (date[1] - '0') * 100 + (date[2] - '0') * 10 + date[3] - '0',
+                                        (date[5] - '0') * 10 + date[6] - '0', (date[8] - '0') * 10 + date[9] - '0'))
+                        {
+                            std::cout << "Error: " << "Invalid date input.\n";
+                            valid = false;
+                            break;
+                        }
+                    }
+                }
+                tmp = new char[ri->length(j + 1)];
+                memset(tmp, 0, ri->length(j + 1));
                 pValueLists[i][j].v_str.copy(tmp, pValueLists[i][j].v_str.size() - 2, 1);
-                tmp[pValueLists[i][j].v_str.size()] = '\0';
                 data.push_back(tmp);
                 break;
             case 3:
+                if(ri->type(j + 1) != Type::FLOAT)
+                {
+                    std::cout << "Error: " << ri->name(j + 1) << " should be of type " << Type::typeName(ri->type(j + 1)) << ".\n";
+                    valid = false;
+                    break;
+                }
                 data.push_back(&(pValueLists[i][j].v_float));
+                break;
+            default:
+                std::cout << "Error: " << "unknown type.\n";
+                valid = false;
+            }
+            if(!valid)
+            {
                 break;
             }
         }
-        if(!df.insert(data))
+        if(!valid || !df.insert(data))
         {
-            std::cout << "The " << i << "th record insertion failed. Might have violated primary key constraint or unique index constraint.\n";
+            std::cout << "The " << i << "th record insertion failed.\n\n";
         }
     }
 //    df.printAllRecords();
@@ -432,10 +579,11 @@ void Database::_test()
     sFile.push_back("primkey.sql");
     sFile.push_back("insert.sql");
     sFile.push_back("index.sql");
-    sFile.push_back("insertvarchar.sql");
     sFile.push_back("remove.sql");
     sFile.push_back("select.sql");
     sFile.push_back("update.sql");
+    sFile.push_back("insertvarchar.sql");
+    sFile.push_back("typecheck.sql");
     for(int i = 0; i < sFile.size(); i++)
     {
         std::cout << "-------------------------------------------------------------\n";

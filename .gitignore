@@ -7,3 +7,8 @@ dbms
 */clean
 .project
 *.cbp
+*.depend
+*.layout
+core
+bin/
+obj/

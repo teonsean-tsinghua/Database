@@ -5,7 +5,7 @@
 
 RecordInfo* PrimKey::ri;
 
-const int Type::typeSize_[] = {16, sizeof(int), sizeof(float), 8, 0};
+const int Type::typeSize_[] = {16, sizeof(int), sizeof(float), 10, 0};
 
 const char* const Type::typeName_[] = {"_ID", "INT", "FLOAT", "DATE", "VARCHAR"};
 
@@ -266,7 +266,7 @@ bool operator >= (DateType& one, DateType& other)
 std::ostream& operator << (std::ostream& out, DateType& one)
 {
     std::string str;
-    str = str.assign(one.v, 8);
+    str = str.assign(one.v, 10);
     out << str;;
     return out;
 }

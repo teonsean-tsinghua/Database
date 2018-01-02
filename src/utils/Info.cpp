@@ -452,7 +452,7 @@ int RecordInfo::displayLength(int i)
     case Type::VARCHAR:
         return extra(i);
     case Type::DATE:
-        return 8;
+        return 10;
     case Type::FLOAT:
         return 10;
     }
