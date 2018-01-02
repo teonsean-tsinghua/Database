@@ -383,9 +383,9 @@ void Database::selectMultiTable(bool all)
         {
             if(w.type != 2 || !w.opCol)
             {
-                continue;
+                onetbwhere0.push_back(w);
             }
-            if(w.col_r.table == pTables[0])
+            else if(w.col_r.table == pTables[0])
             {
                 onetbwhere0.push_back(w);
             }
@@ -406,9 +406,9 @@ void Database::selectMultiTable(bool all)
         {
             if(w.type != 2 || !w.opCol)
             {
-                continue;
+                onetbwhere1.push_back(w);
             }
-            if(w.col_r.table == pTables[1])
+            else if(w.col_r.table == pTables[1])
             {
                 onetbwhere1.push_back(w);
             }
@@ -733,11 +733,11 @@ void Database::insert(std::string tbname)
     DataFile df;
     df.openFile(curDb, tbname);
     RecordInfo* ri = df.getRecordInfo();
+    char* tmp = new char[8192];
     for(int i = 0; i < pValueLists.size(); i++)
     {
         std::vector<void*> data;
         data.push_back(NULL);
-        char* tmp;
         bool valid = true;
         std::vector<int> tmpInt;
         std::vector<float> tmpFloat;
@@ -815,7 +815,6 @@ void Database::insert(std::string tbname)
                         }
                     }
                 }
-                tmp = new char[ri->length(j + 1)];
                 memset(tmp, 0, ri->length(j + 1));
                 pValueLists[i][j].v_str.copy(tmp, pValueLists[i][j].v_str.size() - 2, 1);
                 data.push_back(tmp);
@@ -854,6 +853,7 @@ void Database::insert(std::string tbname)
             std::cout << "The " << i << "th record insertion failed. There might be primary key duplication or unique index key duplication.\n\n";
         }
     }
+    delete tmp;
 //    df.printAllRecords();
     df.closeFile();
     init();

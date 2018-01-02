@@ -1130,18 +1130,17 @@ void RecordSlot::read(std::vector<void*>& data)
     data[0] = (void*)((*this)[actual_data_offset]);
     for(int i = 1; i < cnt; i++)
     {
-        int offset = ri->offset(i);
-        bool isNull = readBool((*this)[i]);
-        if(ri->nullable(i) && isNull)
+        if(ri->nullable(i) && readBool((*this)[i]))
         {
             data[i] = NULL;
         }
         else
         {
-            int len = ri->length(i);
-            char* tmp = new char[len];
-            copyData((*this)[offset + actual_data_offset], tmp, len);
-            data[i] = (void*)tmp;
+            // int len = ri->length(i);
+            // char* tmp = new char[len];
+            // copyData((*this)[offset + actual_data_offset], tmp, len);
+            // data[i] = (void*)tmp;
+            data[i] = (void*)((*this)[actual_data_offset + ri->offset(i)]);
         }
     }
 }

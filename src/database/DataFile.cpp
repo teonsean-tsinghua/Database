@@ -134,6 +134,7 @@ void DataFile::remove(int rid)
     bool changed = dp->remove(rid % PAGE_SIZE);
     if(!changed)
     {
+        delete primKey;
         return;
     }
     tree->update(*(PrimKey*)primKey, rid);
