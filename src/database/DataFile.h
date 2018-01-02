@@ -81,6 +81,8 @@ public:
 
     void select(SearchInfo& si, std::vector<bool>& selected);
 
+    std::queue<int>& search(SearchInfo& si);
+
     void closeFile();
 
     void addFields(std::vector<std::string>& name, std::vector<int>& type, std::vector<int>& nullable,
@@ -93,6 +95,8 @@ public:
     void printAllRecords();
 
     static void test();
+
+    void getData(int rid, std::vector<void*>& data);
 
     friend void* printLoop(void* df);
 

@@ -1,0 +1,14 @@
+CREATE DATABASE test;
+USE test;
+CREATE TABLE test (a INT NOT NULL, b INT NOT NULL, c DATE NOT NULL, d VARCHAR(50) NOT NULL, PRIMARY KEY(d));
+DESC test;
+CREATE INDEX test (c);
+INSERT INTO test VALUES (1,1,'2015/01/01','1'), (2,2,'2013/01/01','ewbcionaodna'), (3,3,'2017/01/01','this should be the last.'), (5,5,'2015/03/16','0');
+SELECT * FROM test WHERE a > 0;
+CREATE TABLE test2 (a INT NOT NULL, b INT NOT NULL, PRIMARY KEY(a));
+CREATE INDEX test2 (a) DENSITY (3);
+INSERT INTO test2 VALUES (1, 1), (2, 2), (3, 3), (4, 4), (9465, 5), (-156, 7), (-999, -89156), (654, 321);
+UPDATE test2 SET a=3.5/b WHERE a < 10;
+SELECT * FROM test2 WHERE a < 1000001;
+SELECT test.c, test2.a FROM test, test2 WHERE test.a=test2.a;
+DROP DATABASE test;

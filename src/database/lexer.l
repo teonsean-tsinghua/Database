@@ -2,6 +2,17 @@
 #include "Include.h"
 #include "y.tab.h"
 
+std::string&   replace_all(std::string&   str,const   std::string&   old_value,const   std::string&   new_value)
+{
+    while(true)   {
+        std::string::size_type   pos(0);
+        if(   (pos=str.find(old_value))!=std::string::npos   )
+            str.replace(pos,old_value.length(),new_value);
+        else   break;
+    }
+    return   str;
+}
+
 extern "C"
 {
 int yywrap(void);
@@ -12,7 +23,7 @@ int yylex(void);
 IDENTIFIER [A-Za-z][_0-9A-Za-z]*
 VALUE_INT (-)?[0-9]+
 VALUE_FLOAT (-)?[0-9]+(\.[0-9]+)?
-VALUE_STRING '[^']*'
+VALUE_STRING '((\\')|[^'])*'
 SIMPLE_OPERATOR [;,.()=><*+-/]
 BLANK_CHARS ([ \f\r\t\v]+)
 
@@ -57,13 +68,13 @@ BLANK_CHARS ([ \f\r\t\v]+)
 {IDENTIFIER}    	{ yylval.m_string=yytext; return IDENTIFIER; }
 {VALUE_INT}       	{ yylval.m_int=atoi(yytext); return VALUE_INT; }
 {VALUE_FLOAT}       	{ yylval.m_float=atof(yytext); return VALUE_FLOAT; }
-{VALUE_STRING}    	{ yylval.m_string=yytext; return VALUE_STRING; }
+{VALUE_STRING}    	{ yylval.m_string=yytext; yylval.m_string=replace_all(yylval.m_string, "\\'", "'"); yylval.m_string=replace_all(yylval.m_string, "\\\"", "\""); return VALUE_STRING; }
 {BLANK_CHARS}   	{}
 %%
 
 int yywrap(void)
 {
+    yy_flush_buffer(YY_CURRENT_BUFFER);
+    {BEGIN INITIAL;}
 return 1;
 }
-
-

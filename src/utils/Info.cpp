@@ -73,6 +73,11 @@ bool SearchInfo::processWheresWithOneTable(std::vector<Where>& pWheres, RecordIn
                 std::cout << "Table " << tbname << " does not have field" << w.col_r.field << ".\n";
                 flag = false;
             }
+            else if(ri->type(w.col_r.field) != ri->type(w.left.field))
+            {
+                std::cout << "Incompatible types: " << w.col_r.field << " and " << w.left.field << ".\n";
+                flag = false;
+            }
         }
     }
     if(!flag)

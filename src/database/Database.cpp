@@ -256,6 +256,7 @@ void Database::selectOneTable(bool all)
     if(all)
     {
         selected.assign(ri->getFieldCount(), true);
+        selected[0] = false;
     }
     else
     {
@@ -301,7 +302,414 @@ void Database::selectOneTable(bool all)
 
 void Database::selectMultiTable(bool all)
 {
-
+    assert(pTables.size() == 2);
+    DataFile df0, df1;
+    df0.openFile(curDb, pTables[0]);
+    df1.openFile(curDb, pTables[1]);
+    RecordInfo* ri0 = df0.getRecordInfo();
+    RecordInfo* ri1= df1.getRecordInfo();
+    std::vector<std::vector<bool> > selected;
+    if(all)
+    {
+        selected.push_back(std::vector<bool>());
+        selected[0].assign(ri0->getFieldCount(), true);
+        selected.push_back(std::vector<bool>());
+        selected[1].assign(ri1->getFieldCount(), true);
+        selected[0][0] = selected[1][0] = false;
+    }
+    else
+    {
+        selected.push_back(std::vector<bool>());
+        selected[0].assign(ri0->getFieldCount(), false);
+        selected.push_back(std::vector<bool>());
+        selected[1].assign(ri1->getFieldCount(), false);
+        bool flag = true;
+        for(int i = 0; i < pCols.size(); i++)
+        {
+            if(pCols[i].table == "")
+            {
+                std::cout << "Table of field " << pCols[i].field << " is not specified.\n";
+                flag = false;
+            }
+            else if(pCols[i].table == pTables[0])
+            {
+                int idx = ri0->index(pCols[i].field);
+                if(idx < 0)
+                {
+                    std::cout << "Table " << pTables[0] << " does not have field" << pCols[i].field + ".\n";
+                    flag = false;
+                }
+                else
+                {
+                    selected[0][idx] = true;
+                }
+            }
+            else if(pCols[i].table == pTables[1])
+            {
+                int idx = ri1->index(pCols[i].field);
+                if(idx < 0)
+                {
+                    std::cout << "Table " << pTables[1] << " does not have field" << pCols[i].field + ".\n";
+                    flag = false;
+                }
+                else
+                {
+                    selected[1][idx] = true;
+                }
+            }
+            else
+            {
+                std::cout << "Table " << pCols[i].table << " is not selected.\n";
+                flag = false;
+            }
+        }
+        if(!flag)
+        {
+            init();
+            df1.closeFile();
+            df0.closeFile();
+            return;
+        }
+    }
+    std::vector<Where> onetbwhere0, onetbwhere1, inter;
+    for(int i = 0; i < pWheres.size(); i++)
+    {
+        Where& w = pWheres[i];
+        if(w.left.table == "")
+        {
+            throw Exception(TAG, "Table of field " + w.left.field + " is not specified.\n");
+        }
+        else if(w.left.table == pTables[0])
+        {
+            if(w.type != 2 || !w.opCol)
+            {
+                continue;
+            }
+            if(w.col_r.table == pTables[0])
+            {
+                onetbwhere0.push_back(w);
+            }
+            else if(w.col_r.table == pTables[1])
+            {
+                inter.push_back(w);
+            }
+            else if(w.col_r.table == "")
+            {
+                throw Exception(TAG, "Table of field " + w.col_r.field + " is not specified.\n");
+            }
+            else
+            {
+                throw Exception(TAG, "Table " + w.col_r.table + " is not selected.\n");
+            }
+        }
+        else if(w.left.table == pTables[1])
+        {
+            if(w.type != 2 || !w.opCol)
+            {
+                continue;
+            }
+            if(w.col_r.table == pTables[1])
+            {
+                onetbwhere1.push_back(w);
+            }
+            else if(w.col_r.table == pTables[0])
+            {
+                inter.push_back(w);
+            }
+            else if(w.col_r.table == "")
+            {
+                throw Exception(TAG, "Table of field " + w.col_r.field + " is not specified.\n");
+            }
+            else
+            {
+                throw Exception(TAG, "Table " + w.col_r.table + " is not selected.\n");
+            }
+        }
+        else
+        {
+            throw Exception(TAG, "Table " + w.left.table + " is not selected.\n");
+        }
+    }
+    SearchInfo si0, si1;
+    if(!si0.processWheresWithOneTable(onetbwhere0, ri0, pTables[0]) || !si1.processWheresWithOneTable(onetbwhere1, ri1, pTables[1]))
+    {
+        throw Exception(TAG, "Conflict in where clauses.");
+    }
+    std::map<int, int> inters[6];
+    for(int i = 0; i < inter.size(); i++)
+    {
+        Where& w = inter[i];
+        int lidx = ri0->index(w.left.field);
+        int ridx = ri1->index(w.col_r.field);
+        inters[w.op][lidx] = ridx;
+    }
+    std::queue<int>& q0 = df0.search(si0);
+    std::queue<int>& q1 = df1.search(si1);
+    std::vector<RecordInfo*> ri;
+    ri.push_back(ri0);
+    ri.push_back(ri1);
+    Table::printHeader(selected, ri, pTables);
+    int idx1, idx0;
+    std::vector<std::vector<void*> > data;
+    data.push_back(std::vector<void*>());
+    data.push_back(std::vector<void*>());
+    std::cout << q0.size() << " " << q1.size() << "\n";
+    while(true)
+    {
+        idx0 = q0.front();
+        q0.pop();
+        if(idx0 <= 0)
+        {
+            break;
+        }
+        data[0].clear();
+        df0.getData(idx0, data[0]);
+        while(true)
+        {
+            idx1 = q1.front();
+            q1.pop();
+            if(idx1 <= 0)
+            {
+                q1.push(0);
+                break;
+            }
+            q1.push(idx1);
+            data[1].clear();
+            df1.getData(idx1, data[1]);
+            std::map<int, int>::iterator iter;
+            bool valid = true;
+            // =
+            for(iter = inters[0].begin(); iter != inters[0].end(); iter++)
+            {
+                int lidx = iter->first, ridx = iter->second;
+                bool re = true;
+                if(data[0][lidx] == NULL && data[1][ridx] == NULL)
+                {
+                    continue;
+                }
+                if(data[0][lidx] == NULL && data[1][ridx] != NULL)
+                {
+                    valid = false;
+                    break;
+                }
+                if(data[0][lidx] != NULL && data[1][ridx] == NULL)
+                {
+                    valid = false;
+                    break;
+                }
+                switch(ri0->type(lidx))
+                {
+                case Type::INT:
+                    re = (*(IntType*)data[0][lidx] == *(IntType*)data[1][ridx]);
+                    break;
+                case Type::FLOAT:
+                    re = (*(FloatType*)data[0][lidx] == *(FloatType*)data[1][ridx]);
+                    break;
+                case Type::DATE:
+                    re = (*(DateType*)data[0][lidx] == *(DateType*)data[1][ridx]);
+                    break;
+                case Type::VARCHAR:
+                    re = (*(VarcharType*)data[0][lidx] == *(VarcharType*)data[1][ridx]);
+                    break;
+                }
+                if(!re)
+                {
+                    valid = false;
+                    break;
+                }
+            }
+            if(!valid)
+            {
+                continue;
+            }
+            // <=
+            for(iter = inters[1].begin(); iter != inters[1].end(); iter++)
+            {
+                int lidx = iter->first, ridx = iter->second;
+                bool re = true;
+                if(data[0][lidx] == NULL || data[1][ridx] == NULL)
+                {
+                    valid = false;
+                    break;
+                }
+                switch(ri0->type(lidx))
+                {
+                case Type::INT:
+                    re = (*(IntType*)data[0][lidx] <= *(IntType*)data[1][ridx]);
+                    break;
+                case Type::FLOAT:
+                    re = (*(FloatType*)data[0][lidx] <= *(FloatType*)data[1][ridx]);
+                    break;
+                case Type::DATE:
+                    re = (*(DateType*)data[0][lidx] <= *(DateType*)data[1][ridx]);
+                    break;
+                case Type::VARCHAR:
+                    re = (*(VarcharType*)data[0][lidx] <= *(VarcharType*)data[1][ridx]);
+                    break;
+                }
+                if(!re)
+                {
+                    valid = false;
+                    break;
+                }
+            }
+            if(!valid)
+            {
+                continue;
+            }
+            // >=
+            for(iter = inters[2].begin(); iter != inters[2].end(); iter++)
+            {
+                int lidx = iter->first, ridx = iter->second;
+                bool re = true;
+                if(data[0][lidx] == NULL || data[1][ridx] == NULL)
+                {
+                    valid = false;
+                    break;
+                }
+                switch(ri0->type(lidx))
+                {
+                case Type::INT:
+                    re = (*(IntType*)data[0][lidx] >= *(IntType*)data[1][ridx]);
+                    break;
+                case Type::FLOAT:
+                    re = (*(FloatType*)data[0][lidx] >= *(FloatType*)data[1][ridx]);
+                    break;
+                case Type::DATE:
+                    re = (*(DateType*)data[0][lidx] >= *(DateType*)data[1][ridx]);
+                    break;
+                case Type::VARCHAR:
+                    re = (*(VarcharType*)data[0][lidx] >= *(VarcharType*)data[1][ridx]);
+                    break;
+                }
+                if(!re)
+                {
+                    valid = false;
+                    break;
+                }
+            }
+            if(!valid)
+            {
+                continue;
+            }
+            // <
+            for(iter = inters[3].begin(); iter != inters[3].end(); iter++)
+            {
+                int lidx = iter->first, ridx = iter->second;
+                bool re = true;
+                if(data[0][lidx] == NULL || data[1][ridx] == NULL)
+                {
+                    valid = false;
+                    break;
+                }
+                switch(ri0->type(lidx))
+                {
+                case Type::INT:
+                    re = (*(IntType*)data[0][lidx] < *(IntType*)data[1][ridx]);
+                    break;
+                case Type::FLOAT:
+                    re = (*(FloatType*)data[0][lidx] < *(FloatType*)data[1][ridx]);
+                    break;
+                case Type::DATE:
+                    re = (*(DateType*)data[0][lidx] < *(DateType*)data[1][ridx]);
+                    break;
+                case Type::VARCHAR:
+                    re = (*(VarcharType*)data[0][lidx] < *(VarcharType*)data[1][ridx]);
+                    break;
+                }
+                if(!re)
+                {
+                    valid = false;
+                    break;
+                }
+            }
+            if(!valid)
+            {
+                continue;
+            }
+            // >
+            for(iter = inters[4].begin(); iter != inters[4].end(); iter++)
+            {
+                int lidx = iter->first, ridx = iter->second;
+                bool re = true;
+                if(data[0][lidx] == NULL || data[1][ridx] == NULL)
+                {
+                    valid = false;
+                    break;
+                }
+                switch(ri0->type(lidx))
+                {
+                case Type::INT:
+                    re = (*(IntType*)data[0][lidx] > *(IntType*)data[1][ridx]);
+                    break;
+                case Type::FLOAT:
+                    re = (*(FloatType*)data[0][lidx] > *(FloatType*)data[1][ridx]);
+                    break;
+                case Type::DATE:
+                    re = (*(DateType*)data[0][lidx] > *(DateType*)data[1][ridx]);
+                    break;
+                case Type::VARCHAR:
+                    re = (*(VarcharType*)data[0][lidx] > *(VarcharType*)data[1][ridx]);
+                    break;
+                }
+                if(!re)
+                {
+                    valid = false;
+                    break;
+                }
+            }
+            if(!valid)
+            {
+                continue;
+            }
+            // <>
+            for(iter = inters[5].begin(); iter != inters[5].end(); iter++)
+            {
+                int lidx = iter->first, ridx = iter->second;
+                bool re = true;
+                if(data[0][lidx] == NULL && data[1][ridx] == NULL)
+                {
+                    valid = false;
+                    break;
+                }
+                if(data[0][lidx] == NULL && data[1][ridx] != NULL)
+                {
+                    continue;
+                }
+                if(data[1][lidx] == NULL && data[0][ridx] != NULL)
+                {
+                    continue;
+                }
+                switch(ri0->type(lidx))
+                {
+                case Type::INT:
+                    re = (*(IntType*)data[0][lidx] != *(IntType*)data[1][ridx]);
+                    break;
+                case Type::FLOAT:
+                    re = (*(FloatType*)data[0][lidx] != *(FloatType*)data[1][ridx]);
+                    break;
+                case Type::DATE:
+                    re = (*(DateType*)data[0][lidx] != *(DateType*)data[1][ridx]);
+                    break;
+                case Type::VARCHAR:
+                    re = (*(VarcharType*)data[0][lidx] != *(VarcharType*)data[1][ridx]);
+                    break;
+                }
+                if(!re)
+                {
+                    valid = false;
+                    break;
+                }
+            }
+            if(!valid)
+            {
+                continue;
+            }
+            Table::printRow(data, ri);
+        }
+    }
+    df0.closeFile();
+    df1.closeFile();
 }
 
 void Database::select(bool all)
@@ -331,6 +739,8 @@ void Database::insert(std::string tbname)
         data.push_back(NULL);
         char* tmp;
         bool valid = true;
+        std::vector<int> tmpInt;
+        std::vector<float> tmpFloat;
         for(int j = 0; j < pValueLists[i].size(); j++)
         {
             switch(pValueLists[i][j].type)
@@ -345,13 +755,20 @@ void Database::insert(std::string tbname)
                 data.push_back(NULL);
                 break;
             case 1:
-                if(ri->type(j + 1) != Type::INT)
+                if(ri->type(j + 1) == Type::INT)
+                {
+                    data.push_back(&(pValueLists[i][j].v_int));
+                }
+                else if(ri->type(j + 1) == Type::FLOAT)
+                {
+                    tmpFloat.push_back(pValueLists[i][j].v_int);
+                    data.push_back(&(tmpFloat.back()));
+                }
+                else
                 {
                     std::cout << "Error: " << ri->name(j + 1) << " should be of type " << Type::typeName(ri->type(j + 1)) << ".\n";
                     valid = false;
-                    break;
                 }
-                data.push_back(&(pValueLists[i][j].v_int));
                 break;
             case 2:
                 if(ri->type(j + 1) != Type::VARCHAR)
@@ -366,7 +783,7 @@ void Database::insert(std::string tbname)
                     {
                         std::string date = pValueLists[i][j].v_str;
                         date = date.substr(1, date.size() - 2);
-                        if(date.size() != 10 || date[4] != '/' || date[7] != '/')
+                        if(date.size() != 10 || (date[4] != '/' && date[4] != '-') || (date[7] != '/' && date[7] != '-'))
                         {
                             std::cout << "Error: " << "Invalid date input.\n";
                             valid = false;
@@ -404,13 +821,20 @@ void Database::insert(std::string tbname)
                 data.push_back(tmp);
                 break;
             case 3:
-                if(ri->type(j + 1) != Type::FLOAT)
+                if(ri->type(j + 1) == Type::FLOAT)
+                {
+                    data.push_back(&(pValueLists[i][j].v_float));
+                }
+                else if(ri->type(j + 1) == Type::INT)
+                {
+                    tmpInt.push_back(pValueLists[i][j].v_float);
+                    data.push_back(&(tmpInt.back()));
+                }
+                else
                 {
                     std::cout << "Error: " << ri->name(j + 1) << " should be of type " << Type::typeName(ri->type(j + 1)) << ".\n";
                     valid = false;
-                    break;
                 }
-                data.push_back(&(pValueLists[i][j].v_float));
                 break;
             default:
                 std::cout << "Error: " << "unknown type.\n";
@@ -421,9 +845,13 @@ void Database::insert(std::string tbname)
                 break;
             }
         }
-        if(!valid || !df.insert(data))
+        if(!valid)
         {
             std::cout << "The " << i << "th record insertion failed.\n\n";
+        }
+        else if(!df.insert(data))
+        {
+            std::cout << "The " << i << "th record insertion failed. There might be primary key duplication or unique index key duplication.\n\n";
         }
     }
 //    df.printAllRecords();
@@ -575,15 +1003,23 @@ void Database::dropTable(std::string tbname)
 void Database::_test()
 {
     std::vector<const char*> sFile;
-    sFile.push_back("create&drop.sql");
-    sFile.push_back("primkey.sql");
-    sFile.push_back("insert.sql");
-    sFile.push_back("index.sql");
-    sFile.push_back("remove.sql");
-    sFile.push_back("select.sql");
-    sFile.push_back("update.sql");
-    sFile.push_back("insertvarchar.sql");
-    sFile.push_back("typecheck.sql");
+//    sFile.push_back("create&drop.sql");
+//    sFile.push_back("primkey.sql");
+//    sFile.push_back("insert.sql");
+//    sFile.push_back("index.sql");
+//    sFile.push_back("remove.sql");
+//    sFile.push_back("select.sql");
+//    sFile.push_back("update.sql");
+//    sFile.push_back("insertvarchar.sql");
+//    sFile.push_back("typecheck.sql");
+//    sFile.push_back("inter.sql");
+//    sFile.push_back("create.sql");
+//    sFile.push_back("book.sql");
+//    sFile.push_back("customer.sql");
+//    sFile.push_back("orders.sql");
+//    sFile.push_back("price.sql");
+//    sFile.push_back("website.sql");
+    sFile.push_back("test.sql");
     for(int i = 0; i < sFile.size(); i++)
     {
         std::cout << "-------------------------------------------------------------\n";

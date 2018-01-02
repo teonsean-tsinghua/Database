@@ -242,6 +242,8 @@ void DataFile::terminateSearch(pthread_t* p, pthread_t* v)
 
 void DataFile::search(SearchInfo& si, pthread_t* workingThread)
 {
+    candidate_pids = std::queue<int>();
+    search_result = std::queue<int>();
     pthread_t* validatingThread = new pthread_t;
     pthread_create(validatingThread, NULL, validateLoop, this);
     // prim with A
@@ -586,12 +588,23 @@ void DataFile::search(SearchInfo& si, pthread_t* workingThread)
     terminateSearch(workingThread, validatingThread);
 }
 
+void DataFile::getData(int rid, std::vector<void*>& data)
+{
+    ((DataPage*)openPage(rid / PAGE_SIZE))->read(rid % PAGE_SIZE, data);
+}
+
+std::queue<int>& DataFile::search(SearchInfo& si)
+{
+    PrimKey::ri = ri;
+    cur_search_info = &si;
+    search(si, NULL);
+    return search_result;
+}
+
 void DataFile::update(SearchInfo& si, UpdateInfo& ui)
 {
     PrimKey::ri = ri;
     cur_search_info = &si;
-    candidate_pids = std::queue<int>();
-    search_result = std::queue<int>();
     search(si, NULL);
     bool primChanged = false;
     std::vector<int> prims = ri->getPrimaryKeys();
@@ -627,8 +640,6 @@ void DataFile::remove(SearchInfo& si)
 {
     PrimKey::ri = ri;
     cur_search_info = &si;
-    candidate_pids = std::queue<int>();
-    search_result = std::queue<int>();
     search(si, NULL);
     while(true)
     {

@@ -8,6 +8,7 @@ extern "C"
 {
     void yyerror(const char *s);
     extern int yylex(void);
+    extern int yywrap(void);
 }
 
 %}
@@ -171,5 +172,6 @@ colName	: IDENTIFIER { $$ = $1; }
 void yyerror(const char *s)
 {
     cerr<<s<<endl;
+    yywrap();
 }
 
