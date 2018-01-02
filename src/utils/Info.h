@@ -104,8 +104,8 @@ public:
 struct SearchInfo
 {
     std::map<int, bool> nulls;
-    std::map<int, void*> values[5];
-    std::map<int, std::vector<void*> > notEqual;
+    std::map<int, const void*> values[5];
+    std::map<int, std::vector<const void*> > notEqual;
     std::map<int, std::vector<int> > fields[6];
 
     SearchInfo();
@@ -116,17 +116,6 @@ struct SearchInfo
 struct UpdateInfo
 {
     std::map<int, SetRValue> action;
-};
-
-class SelectResult
-{
-
-public:
-    bool all;
-
-    std::vector<int> results;
-
-    SelectResult();
 };
 
 #endif // RECORDINFO_H_INCLUDED

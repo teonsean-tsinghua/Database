@@ -33,8 +33,6 @@ public:
 
     int remove(SearchInfo& si);
 
-    void select(SearchInfo& si, SelectResult& sr);
-
     int update(SearchInfo& si, UpdateInfo& ui);
 
     void update(int idx, UpdateInfo& ui);

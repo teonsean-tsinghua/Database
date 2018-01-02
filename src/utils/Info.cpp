@@ -121,12 +121,24 @@ bool SearchInfo::processWheresWithOneTable(std::vector<Where>& pWheres, RecordIn
             }
             else
             {
-                void* dat = (w.val_r.type == 1 ? (void*)&w.val_r.v_int : (void*)&w.val_r.v_str);
+                const void* dat;
+                if(w.val_r.type == 1)
+                {
+                    dat = &w.val_r.v_int;
+                }
+                else if(w.val_r.type == 2)
+                {
+                    dat = w.val_r.v_str.c_str();
+                }
+                else if(w.val_r.type == 3)
+                {
+                    dat = &w.val_r.v_float;
+                }
                 if(w.op == 5)
                 {
                     if(!notEqual.count(lindex))
                     {
-                        notEqual[lindex] = std::vector<void*>();
+                        notEqual[lindex] = std::vector<const void*>();
                     }
                     notEqual[lindex].push_back(dat);
                 }
@@ -188,11 +200,11 @@ bool SearchInfo::processWheresWithOneTable(std::vector<Where>& pWheres, RecordIn
             notEqual.erase(idx);
         }
     }
-    std::map<int, void*>::iterator it;
+    std::map<int, const void*>::iterator it;
     for(it = values[0].begin(); it != values[0].end(); it++)
     {
         int idx = it->first;
-        void* dat = it->second;
+        const void* dat = it->second;
         if(values[1].count(idx) && !smallerOrEqual(dat, values[1][idx], ri->type(idx)))
         {
             return false;
@@ -218,7 +230,7 @@ bool SearchInfo::processWheresWithOneTable(std::vector<Where>& pWheres, RecordIn
     for(it = values[1].begin(); it != values[1].end();)
     {
         int idx = it->first;
-        void* dat = it->second;
+        const void* dat = it->second;
         if(values[2].count(idx))
         {
             if(Equal(dat, values[2][idx], ri->type(idx)))
@@ -269,7 +281,7 @@ bool SearchInfo::processWheresWithOneTable(std::vector<Where>& pWheres, RecordIn
     for(it = values[2].begin(); it != values[2].end();)
     {
         int idx = it->first;
-        void* dat = it->second;
+        const void* dat = it->second;
         if(values[3].count(idx))
         {
             if(!smaller(dat, values[3][idx], ri->type(idx)))
@@ -295,7 +307,7 @@ bool SearchInfo::processWheresWithOneTable(std::vector<Where>& pWheres, RecordIn
     for(it = values[3].begin(); it != values[3].end(); it++)
     {
         int idx = it->first;
-        void* dat = it->second;
+        const void* dat = it->second;
         if(values[4].count(idx))
         {
             if(!larger(dat, values[4][idx], ri->type(idx)))
@@ -308,13 +320,13 @@ bool SearchInfo::processWheresWithOneTable(std::vector<Where>& pWheres, RecordIn
     for(it = values[4].begin(); it != values[4].end(); it++)
     {
         int idx = it->first;
-        void* dat = it->second;
+        const void* dat = it->second;
         nulls.erase(idx);
     }
-    for(std::map<int, std::vector<void*> >::iterator ite = notEqual.begin(); ite != notEqual.end();)
+    for(std::map<int, std::vector<const void*> >::iterator ite = notEqual.begin(); ite != notEqual.end();)
     {
         int idx = ite->first;
-        std::vector<void*>& vec = ite->second;
+        std::vector<const void*>& vec = ite->second;
         if(!values[0].count(idx))
         {
             ite++;

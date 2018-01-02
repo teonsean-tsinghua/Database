@@ -44,12 +44,12 @@ const char* Type::pageName(int type)
     return pageName_[type];
 }
 
-bool operator == (IDType& one, IDType& other)
+bool operator == (IDType const& one, IDType const& other)
 {
 	return one.ts == other.ts && one.ca == other.ca && one.pid == other.pid && one.rd == other.rd;
 }
 
-void operator << (IDType& one, IDType& other)
+void operator << (IDType& one, IDType const& other)
 {
 	one.ts = other.ts;
 	one.ca = other.ca;
@@ -57,12 +57,12 @@ void operator << (IDType& one, IDType& other)
 	one.rd = other.rd;
 }
 
-bool operator != (IDType& one, IDType& other)
+bool operator != (IDType const& one, IDType const& other)
 {
 	return !(one == other);
 }
 
-bool operator < (IDType& one, IDType& other)
+bool operator < (IDType const& one, IDType const& other)
 {
 	return one.ts < other.ts ||
 			(one.ts == other.ts && one.ca < other.ca) ||
@@ -70,7 +70,7 @@ bool operator < (IDType& one, IDType& other)
 			(one.ts == other.ts && one.ca == other.ca && one.pid == other.pid && one.rd < other.rd);
 }
 
-bool operator > (IDType& one, IDType& other)
+bool operator > (IDType const& one, IDType const& other)
 {
 	return one.ts > other.ts ||
 			(one.ts == other.ts && one.ca > other.ca) ||
@@ -78,105 +78,105 @@ bool operator > (IDType& one, IDType& other)
 			(one.ts == other.ts && one.ca == other.ca && one.pid == other.pid && one.rd > other.rd);
 }
 
-bool operator <= (IDType& one, IDType& other)
+bool operator <= (IDType const& one, IDType const& other)
 {
 	return !(one > other);
 }
 
-bool operator >= (IDType& one, IDType& other)
+bool operator >= (IDType const& one, IDType const& other)
 {
 	return !(one < other);
 }
 
-std::ostream& operator << (std::ostream& out, IDType& one)
+std::ostream& operator << (std::ostream& out, IDType const& one)
 {
     out << read_id((char*)&one);
     return out;
 }
 
-bool operator == (IntType& one, IntType& other)
+bool operator == (IntType const& one, IntType const& other)
 {
 	return one.v == other.v;
 }
 
-bool operator != (IntType& one, IntType& other)
+bool operator != (IntType const& one, IntType const& other)
 {
 	return one.v != other.v;
 }
 
-bool operator < (IntType& one, IntType& other)
+bool operator < (IntType const& one, IntType const& other)
 {
 	return one.v < other.v;
 }
 
-bool operator > (IntType& one, IntType& other)
+bool operator > (IntType const& one, IntType const& other)
 {
 	return one.v > other.v;
 }
 
-void operator << (IntType& one, IntType& other)
+void operator << (IntType& one, IntType const& other)
 {
 	one.v = other.v;
 }
 
-bool operator <= (IntType& one, IntType& other)
+bool operator <= (IntType const& one, IntType const& other)
 {
 	return one.v <= other.v;
 }
 
-bool operator >= (IntType& one, IntType& other)
+bool operator >= (IntType const& one, IntType const& other)
 {
 	return one.v >= other.v;
 }
 
-std::ostream& operator << (std::ostream& out, IntType& one)
+std::ostream& operator << (std::ostream& out, IntType const& one)
 {
     out << one.v;;
     return out;
 }
 
-bool operator == (FloatType& one, FloatType& other)
+bool operator == (FloatType const& one, FloatType const& other)
 {
 	return one.v == other.v;
 }
 
-bool operator != (FloatType& one, FloatType& other)
+bool operator != (FloatType const& one, FloatType const& other)
 {
 	return one.v != other.v;
 }
 
-bool operator < (FloatType& one, FloatType& other)
+bool operator < (FloatType const& one, FloatType const& other)
 {
 	return one.v < other.v;
 }
 
-bool operator > (FloatType& one, FloatType& other)
+bool operator > (FloatType const& one, FloatType const& other)
 {
 	return one.v > other.v;
 }
 
-void operator << (FloatType& one, FloatType& other)
+void operator << (FloatType& one, FloatType const& other)
 {
 	one.v = other.v;
 }
 
-bool operator <= (FloatType& one, FloatType& other)
+bool operator <= (FloatType const& one, FloatType const& other)
 {
 	return one.v <= other.v;
 }
 
-bool operator >= (FloatType& one, FloatType& other)
+bool operator >= (FloatType const& one, FloatType const& other)
 {
 	return one.v >= other.v;
 }
 
-std::ostream& operator << (std::ostream& out, FloatType& one)
+std::ostream& operator << (std::ostream& out, FloatType const& one)
 {
     out << one.v;;
     return out;
 }
 
-bool operator == (DateType& one, DateType& other)
+bool operator == (DateType const& one, DateType const& other)
 {
 	for(int i = 0; i < 8; i++)
 	{
@@ -188,17 +188,17 @@ bool operator == (DateType& one, DateType& other)
 	return true;
 }
 
-bool operator != (DateType& one, DateType& other)
+bool operator != (DateType const& one, DateType const& other)
 {
 	return !(one == other);
 }
 
-void operator << (DateType& one, DateType& other)
+void operator << (DateType& one, DateType const& other)
 {
 	strncpy(one.v, other.v, 8);
 }
 
-bool operator < (DateType& one, DateType& other)
+bool operator < (DateType const& one, DateType const& other)
 {
 	for(int i = 0; i < 8; i++)
 	{
@@ -214,7 +214,7 @@ bool operator < (DateType& one, DateType& other)
 	return false;
 }
 
-bool operator > (DateType& one, DateType& other)
+bool operator > (DateType const& one, DateType const& other)
 {
 	for(int i = 0; i < 8; i++)
 	{
@@ -230,7 +230,7 @@ bool operator > (DateType& one, DateType& other)
 	return false;
 }
 
-bool operator <= (DateType& one, DateType& other)
+bool operator <= (DateType const& one, DateType const& other)
 {
 
 	for(int i = 0; i < 8; i++)
@@ -247,7 +247,7 @@ bool operator <= (DateType& one, DateType& other)
 	return true;
 }
 
-bool operator >= (DateType& one, DateType& other)
+bool operator >= (DateType const& one, DateType const& other)
 {
 	for(int i = 0; i < 8; i++)
 	{
@@ -263,7 +263,7 @@ bool operator >= (DateType& one, DateType& other)
 	return true;
 }
 
-std::ostream& operator << (std::ostream& out, DateType& one)
+std::ostream& operator << (std::ostream& out, DateType const& one)
 {
     std::string str;
     str = str.assign(one.v, 10);
@@ -271,11 +271,11 @@ std::ostream& operator << (std::ostream& out, DateType& one)
     return out;
 }
 
-bool operator < (PrimKey& one, PrimKey& other)
+bool operator < (PrimKey const& one, PrimKey const& other)
 {
 	const std::vector<int>& info = PrimKey::ri->getPrimKeyInfo();
-	char* ptr = (char*)&one;
-	char* ptr2 = (char*)&other;
+	const char* ptr = (const char*)&one;
+	const char* ptr2 = (const char*)&other;
 	for(int i = 0; i < info.size();)
 	{
 		int type = info[i++];
@@ -283,51 +283,51 @@ bool operator < (PrimKey& one, PrimKey& other)
 		switch(type)
 		{
 		case Type::_ID:
-			if(*(IDType*)(ptr) < *(IDType*)(ptr2))
+			if(*(const IDType*)(ptr) < *(const IDType*)(ptr2))
 			{
 				return true;
 			}
-			if(*(IDType*)(ptr) > *(IDType*)(ptr2))
+			if(*(const IDType*)(ptr) > *(const IDType*)(ptr2))
 			{
 				return false;
 			}
 			break;
 		case Type::INT:
-			if(*(IntType*)(ptr) < *(IntType*)(ptr2))
+			if(*(const IntType*)(ptr) < *(const IntType*)(ptr2))
 			{
 				return true;
 			}
-			if(*(IntType*)(ptr) > *(IntType*)(ptr2))
+			if(*(const IntType*)(ptr) > *(const IntType*)(ptr2))
 			{
 				return false;
 			}
 			break;
 		case Type::FLOAT:
-			if(*(FloatType*)(ptr) < *(FloatType*)(ptr2))
+			if(*(const FloatType*)(ptr) < *(const FloatType*)(ptr2))
 			{
 				return true;
 			}
-			if(*(FloatType*)(ptr) > *(FloatType*)(ptr2))
+			if(*(const FloatType*)(ptr) > *(const FloatType*)(ptr2))
 			{
 				return false;
 			}
 			break;
 		case Type::DATE:
-			if(*(DateType*)(ptr) < *(DateType*)(ptr2))
+			if(*(const DateType*)(ptr) < *(const DateType*)(ptr2))
 			{
 				return true;
 			}
-			if(*(DateType*)(ptr) > *(DateType*)(ptr2))
+			if(*(const DateType*)(ptr) > *(const DateType*)(ptr2))
 			{
 				return false;
 			}
 			break;
 		case Type::VARCHAR:
-			if(*(VarcharType*)(ptr) < *(VarcharType*)(ptr2))
+			if(*(const VarcharType*)(ptr) < *(const VarcharType*)(ptr2))
 			{
 				return true;
 			}
-			if(*(VarcharType*)(ptr) > *(VarcharType*)(ptr2))
+			if(*(const VarcharType*)(ptr) > *(const VarcharType*)(ptr2))
 			{
 				return false;
 			}
@@ -339,11 +339,11 @@ bool operator < (PrimKey& one, PrimKey& other)
 	return false;
 }
 
-bool operator > (PrimKey& one, PrimKey& other)
+bool operator > (PrimKey const& one, PrimKey const& other)
 {
 	const std::vector<int>& info = PrimKey::ri->getPrimKeyInfo();
-	char* ptr = (char*)&one;
-	char* ptr2 = (char*)&other;
+	const char* ptr = (const char*)&one;
+	const char* ptr2 = (const char*)&other;
 	for(int i = 0; i < info.size();)
 	{
 		int type = info[i++];
@@ -351,51 +351,51 @@ bool operator > (PrimKey& one, PrimKey& other)
 		switch(type)
 		{
 		case Type::_ID:
-			if(*(IDType*)(ptr) > *(IDType*)(ptr2))
+			if(*(const IDType*)(ptr) > *(const IDType*)(ptr2))
 			{
 				return true;
 			}
-			if(*(IDType*)(ptr) < *(IDType*)(ptr2))
+			if(*(const IDType*)(ptr) < *(const IDType*)(ptr2))
 			{
 				return false;
 			}
 			break;
 		case Type::INT:
-			if(*(IntType*)(ptr) > *(IntType*)(ptr2))
+			if(*(const IntType*)(ptr) > *(const IntType*)(ptr2))
 			{
 				return true;
 			}
-			if(*(IntType*)(ptr) < *(IntType*)(ptr2))
+			if(*(const IntType*)(ptr) < *(const IntType*)(ptr2))
 			{
 				return false;
 			}
 			break;
 		case Type::FLOAT:
-			if(*(FloatType*)(ptr) > *(FloatType*)(ptr2))
+			if(*(const FloatType*)(ptr) > *(const FloatType*)(ptr2))
 			{
 				return true;
 			}
-			if(*(FloatType*)(ptr) < *(FloatType*)(ptr2))
+			if(*(const FloatType*)(ptr) < *(const FloatType*)(ptr2))
 			{
 				return false;
 			}
 			break;
 		case Type::DATE:
-			if(*(DateType*)(ptr) > *(DateType*)(ptr2))
+			if(*(const DateType*)(ptr) > *(const DateType*)(ptr2))
 			{
 				return true;
 			}
-			if(*(DateType*)(ptr) < *(DateType*)(ptr2))
+			if(*(const DateType*)(ptr) < *(const DateType*)(ptr2))
 			{
 				return false;
 			}
 			break;
 		case Type::VARCHAR:
-			if(*(VarcharType*)(ptr) > *(VarcharType*)(ptr2))
+			if(*(const VarcharType*)(ptr) > *(const VarcharType*)(ptr2))
 			{
 				return true;
 			}
-			if(*(VarcharType*)(ptr) < *(VarcharType*)(ptr2))
+			if(*(const VarcharType*)(ptr) < *(const VarcharType*)(ptr2))
 			{
 				return false;
 			}
@@ -407,11 +407,11 @@ bool operator > (PrimKey& one, PrimKey& other)
 	return false;
 }
 
-bool operator <= (PrimKey& one, PrimKey& other)
+bool operator <= (PrimKey const& one, PrimKey const& other)
 {
     const std::vector<int>& info = PrimKey::ri->getPrimKeyInfo();
-	char* ptr = (char*)&one;
-	char* ptr2 = (char*)&other;
+	const char* ptr = (const char*)&one;
+	const char* ptr2 = (const char*)&other;
 	for(int i = 0; i < info.size();)
 	{
 		int type = info[i++];
@@ -419,51 +419,51 @@ bool operator <= (PrimKey& one, PrimKey& other)
 		switch(type)
 		{
 		case Type::_ID:
-			if(*(IDType*)(ptr) < *(IDType*)(ptr2))
+			if(*(const IDType*)(ptr) < *(const IDType*)(ptr2))
 			{
 				return true;
 			}
-			if(*(IDType*)(ptr) > *(IDType*)(ptr2))
+			if(*(const IDType*)(ptr) > *(const IDType*)(ptr2))
 			{
 				return false;
 			}
 			break;
 		case Type::INT:
-			if(*(IntType*)(ptr) < *(IntType*)(ptr2))
+			if(*(const IntType*)(ptr) < *(const IntType*)(ptr2))
 			{
 				return true;
 			}
-			if(*(IntType*)(ptr) > *(IntType*)(ptr2))
+			if(*(const IntType*)(ptr) > *(const IntType*)(ptr2))
 			{
 				return false;
 			}
 			break;
 		case Type::FLOAT:
-			if(*(FloatType*)(ptr) < *(FloatType*)(ptr2))
+			if(*(const FloatType*)(ptr) < *(const FloatType*)(ptr2))
 			{
 				return true;
 			}
-			if(*(FloatType*)(ptr) > *(FloatType*)(ptr2))
+			if(*(const FloatType*)(ptr) > *(const FloatType*)(ptr2))
 			{
 				return false;
 			}
 			break;
 		case Type::DATE:
-			if(*(DateType*)(ptr) < *(DateType*)(ptr2))
+			if(*(const DateType*)(ptr) < *(const DateType*)(ptr2))
 			{
 				return true;
 			}
-			if(*(DateType*)(ptr) > *(DateType*)(ptr2))
+			if(*(const DateType*)(ptr) > *(const DateType*)(ptr2))
 			{
 				return false;
 			}
 			break;
 		case Type::VARCHAR:
-			if(*(VarcharType*)(ptr) < *(VarcharType*)(ptr2))
+			if(*(const VarcharType*)(ptr) < *(const VarcharType*)(ptr2))
 			{
 				return true;
 			}
-			if(*(VarcharType*)(ptr) > *(VarcharType*)(ptr2))
+			if(*(const VarcharType*)(ptr) > *(const VarcharType*)(ptr2))
 			{
 				return false;
 			}
@@ -475,11 +475,11 @@ bool operator <= (PrimKey& one, PrimKey& other)
 	return true;
 }
 
-bool operator >= (PrimKey& one, PrimKey& other)
+bool operator >= (PrimKey const& one, PrimKey const& other)
 {
 	const std::vector<int>& info = PrimKey::ri->getPrimKeyInfo();
-	char* ptr = (char*)&one;
-	char* ptr2 = (char*)&other;
+	const char* ptr = (char*)&one;
+	const char* ptr2 = (char*)&other;
 	for(int i = 0; i < info.size();)
 	{
 		int type = info[i++];
@@ -487,51 +487,51 @@ bool operator >= (PrimKey& one, PrimKey& other)
 		switch(type)
 		{
 		case Type::_ID:
-			if(*(IDType*)(ptr) > *(IDType*)(ptr2))
+			if(*(const IDType*)(ptr) > *(const IDType*)(ptr2))
 			{
 				return true;
 			}
-			if(*(IDType*)(ptr) < *(IDType*)(ptr2))
+			if(*(const IDType*)(ptr) < *(const IDType*)(ptr2))
 			{
 				return false;
 			}
 			break;
 		case Type::INT:
-			if(*(IntType*)(ptr) > *(IntType*)(ptr2))
+			if(*(const IntType*)(ptr) > *(const IntType*)(ptr2))
 			{
 				return true;
 			}
-			if(*(IntType*)(ptr) < *(IntType*)(ptr2))
+			if(*(const IntType*)(ptr) < *(const IntType*)(ptr2))
 			{
 				return false;
 			}
 			break;
 		case Type::FLOAT:
-			if(*(FloatType*)(ptr) > *(FloatType*)(ptr2))
+			if(*(const FloatType*)(ptr) > *(const FloatType*)(ptr2))
 			{
 				return true;
 			}
-			if(*(FloatType*)(ptr) < *(FloatType*)(ptr2))
+			if(*(const FloatType*)(ptr) < *(const FloatType*)(ptr2))
 			{
 				return false;
 			}
 			break;
 		case Type::DATE:
-			if(*(DateType*)(ptr) > *(DateType*)(ptr2))
+			if(*(const DateType*)(ptr) > *(const DateType*)(ptr2))
 			{
 				return true;
 			}
-			if(*(DateType*)(ptr) < *(DateType*)(ptr2))
+			if(*(const DateType*)(ptr) < *(const DateType*)(ptr2))
 			{
 				return false;
 			}
 			break;
 		case Type::VARCHAR:
-			if(*(VarcharType*)(ptr) > *(VarcharType*)(ptr2))
+			if(*(const VarcharType*)(ptr) > *(const VarcharType*)(ptr2))
 			{
 				return true;
 			}
-			if(*(VarcharType*)(ptr) < *(VarcharType*)(ptr2))
+			if(*(const VarcharType*)(ptr) < *(const VarcharType*)(ptr2))
 			{
 				return false;
 			}
@@ -543,15 +543,15 @@ bool operator >= (PrimKey& one, PrimKey& other)
 	return true;
 }
 
-bool operator != (PrimKey& one, PrimKey& other)
+bool operator != (PrimKey const& one, PrimKey const& other)
 {
 	return !(one == other);
 }
 
-std::ostream& operator << (std::ostream& out, PrimKey& one)
+std::ostream& operator << (std::ostream& out, PrimKey const& one)
 {
     const std::vector<int>& info = PrimKey::ri->getPrimKeyInfo();
-	char* ptr = (char*)&one;
+	const char* ptr = (const char*)&one;
 	for(int i = 0; i < info.size();)
 	{
 		int type = info[i++];
@@ -559,19 +559,19 @@ std::ostream& operator << (std::ostream& out, PrimKey& one)
         switch(type)
 		{
 		case Type::_ID:
-			out << *(IDType*)(ptr);
+			out << *(const IDType*)(ptr);
 			break;
 		case Type::INT:
-			out << *(IntType*)(ptr);
+			out << *(const IntType*)(ptr);
 			break;
 		case Type::FLOAT:
-			out << *(FloatType*)(ptr);
+			out << *(const FloatType*)(ptr);
 			break;
 		case Type::DATE:
-			out << *(DateType*)(ptr);
+			out << *(const DateType*)(ptr);
 			break;
 		case Type::VARCHAR:
-			out << *(VarcharType*)(ptr);
+			out << *(const VarcharType*)(ptr);
 			break;
 		}
 		ptr += len;
@@ -579,11 +579,11 @@ std::ostream& operator << (std::ostream& out, PrimKey& one)
 	return out;
 }
 
-void operator << (PrimKey& one, PrimKey& other)
+void operator << (PrimKey& one, PrimKey const& other)
 {
 	const std::vector<int>& info = PrimKey::ri->getPrimKeyInfo();
 	char* ptr = (char*)&one;
-	char* ptr2 = (char*)&other;
+	const char* ptr2 = (const char*)&other;
 	for(int i = 0; i < info.size();)
 	{
 		int type = info[i++];
@@ -594,11 +594,11 @@ void operator << (PrimKey& one, PrimKey& other)
 	}
 }
 
-bool operator == (PrimKey& one, PrimKey& other)
+bool operator == (PrimKey const& one, PrimKey const& other)
 {
 	const std::vector<int>& info = PrimKey::ri->getPrimKeyInfo();
-	char* ptr = (char*)&one;
-	char* ptr2 = (char*)&other;
+	const char* ptr = (const char*)&one;
+	const char* ptr2 = (const char*)&other;
 	for(int i = 0; i < info.size();)
 	{
 		int type = info[i++];
@@ -606,31 +606,31 @@ bool operator == (PrimKey& one, PrimKey& other)
         switch(type)
 		{
 		case Type::_ID:
-			if(*(IDType*)(ptr) != *(IDType*)(ptr2))
+			if(*(const IDType*)(ptr) != *(const IDType*)(ptr2))
 			{
 				return false;
 			}
 			break;
 		case Type::INT:
-			if(*(IntType*)(ptr) != *(IntType*)(ptr2))
+			if(*(const IntType*)(ptr) != *(const IntType*)(ptr2))
 			{
 				return false;
 			}
 			break;
 		case Type::FLOAT:
-			if(*(FloatType*)(ptr) != *(FloatType*)(ptr2))
+			if(*(const FloatType*)(ptr) != *(const FloatType*)(ptr2))
 			{
 				return false;
 			}
 			break;
 		case Type::DATE:
-			if(*(DateType*)(ptr) != *(DateType*)(ptr2))
+			if(*(const DateType*)(ptr) != *(const DateType*)(ptr2))
 			{
 				return false;
 			}
 			break;
 		case Type::VARCHAR:
-			if(*(VarcharType*)(ptr) != *(VarcharType*)(ptr2))
+			if(*(const VarcharType*)(ptr) != *(const VarcharType*)(ptr2))
 			{
 				return false;
 			}
@@ -642,42 +642,42 @@ bool operator == (PrimKey& one, PrimKey& other)
 	return true;
 }
 
-void operator << (VarcharType& one, VarcharType& other)
+void operator << (VarcharType& one, VarcharType const& other)
 {
 	strcpy(one.v, other.v);
 }
 
-bool operator == (VarcharType& one, VarcharType& other)
+bool operator == (VarcharType const& one, VarcharType const& other)
 {
 	return strcmp(one.v, other.v) == 0;
 }
 
-bool operator != (VarcharType& one, VarcharType& other)
+bool operator != (VarcharType const& one, VarcharType const& other)
 {
 	return strcmp(one.v, other.v) != 0;
 }
 
-bool operator < (VarcharType& one, VarcharType& other)
+bool operator < (VarcharType const& one, VarcharType const& other)
 {
 	return strcmp(one.v, other.v) < 0;
 }
 
-bool operator > (VarcharType& one, VarcharType& other)
+bool operator > (VarcharType const& one, VarcharType const& other)
 {
 	return strcmp(one.v, other.v) > 0;
 }
 
-bool operator <= (VarcharType& one, VarcharType& other)
+bool operator <= (VarcharType const& one, VarcharType const& other)
 {
 	return strcmp(one.v, other.v) <= 0;
 }
 
-bool operator >= (VarcharType& one, VarcharType& other)
+bool operator >= (VarcharType const& one, VarcharType const& other)
 {
 	return strcmp(one.v, other.v) >= 0;
 }
 
-std::ostream& operator << (std::ostream& out, VarcharType& one)
+std::ostream& operator << (std::ostream& out, VarcharType const& one)
 {
     out << one.v;
     return out;

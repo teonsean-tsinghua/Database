@@ -104,6 +104,10 @@ void DataFile::remove(int rid)
 {
     DataPage* dp = (DataPage*)openPage(rid / PAGE_SIZE);
     int idx = rid % PAGE_SIZE;
+    if(idx >= dp->recordCnt())
+    {
+        return;
+    }
     std::vector<void*> data;
     dp->read(idx, data);
     char* primKey = generatePrimKey(data);
@@ -137,6 +141,7 @@ void DataFile::remove(int rid)
         delete primKey;
         return;
     }
+    search_result.push(rid);
     tree->update(*(PrimKey*)primKey, rid);
     delete primKey;
     for(std::map<int, BaseFile*>::iterator iter = indexes.begin(); iter != indexes.end(); iter++)
@@ -642,13 +647,13 @@ void DataFile::remove(SearchInfo& si)
     PrimKey::ri = ri;
     cur_search_info = &si;
     search(si, NULL);
-    while(true)
+    while(!search_result.empty())
     {
         int rid = search_result.front();
         search_result.pop();
         if(rid <= 0)
         {
-            break;
+            continue;
         }
         remove(rid);
     }

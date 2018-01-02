@@ -189,17 +189,6 @@ int DataPage::remove(SearchInfo& si)
     return cnt;
 }
 
-void DataPage::select(SearchInfo& si, SelectResult& sr)
-{
-    for(int i = 0; i < records.size(); i++)
-    {
-        if(records[i]->check(si))
-        {
-            sr.results.push_back(PAGE_SIZE * pageID + i);
-        }
-    }
-}
-
 int DataPage::recordCnt()
 {
     return records.size();

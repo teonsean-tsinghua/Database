@@ -733,12 +733,12 @@ void Database::insert(std::string tbname)
     DataFile df;
     df.openFile(curDb, tbname);
     RecordInfo* ri = df.getRecordInfo();
-    char* tmp = new char[8192];
     for(int i = 0; i < pValueLists.size(); i++)
     {
         std::vector<void*> data;
         data.push_back(NULL);
         bool valid = true;
+        std::vector<char*> tmpChar;
         std::vector<int> tmpInt;
         std::vector<float> tmpFloat;
         for(int j = 0; j < pValueLists[i].size(); j++)
@@ -782,7 +782,6 @@ void Database::insert(std::string tbname)
                     else
                     {
                         std::string date = pValueLists[i][j].v_str;
-                        date = date.substr(1, date.size() - 2);
                         if(date.size() != 10 || (date[4] != '/' && date[4] != '-') || (date[7] != '/' && date[7] != '-'))
                         {
                             std::cout << "Error: " << "Invalid date input.\n";
@@ -815,9 +814,10 @@ void Database::insert(std::string tbname)
                         }
                     }
                 }
-                memset(tmp, 0, ri->length(j + 1));
-                pValueLists[i][j].v_str.copy(tmp, pValueLists[i][j].v_str.size() - 2, 1);
-                data.push_back(tmp);
+                tmpChar.push_back(new char[ri->length(j + 1)]);
+                memset(tmpChar.back(), 0, ri->length(j + 1));
+                pValueLists[i][j].v_str.copy(tmpChar.back(), pValueLists[i][j].v_str.size());
+                data.push_back(tmpChar.back());
                 break;
             case 3:
                 if(ri->type(j + 1) == Type::FLOAT)
@@ -852,8 +852,11 @@ void Database::insert(std::string tbname)
         {
             std::cout << "The " << i << "th record insertion failed. There might be primary key duplication or unique index key duplication.\n\n";
         }
+        for(int i = 0; i < tmpChar.size(); i++)
+        {
+            delete tmpChar[i];
+        }
     }
-    delete tmp;
 //    df.printAllRecords();
     df.closeFile();
     init();

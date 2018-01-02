@@ -1,107 +1,107 @@
 #include"Compare.h"
 
-bool larger(void* a, void* b, int type)
+bool larger(const void* a, const void* b, int type)
 {
     switch(type)
     {
     case Type::PRIMARYKEY:
     {
-        return (*(PrimKey*)a > *(PrimKey*)b);
+        return (*(const PrimKey*)a > *(const PrimKey*)b);
     }
     case Type::_ID:
     {
-        return (*(IDType*)a > *(IDType*)b);
+        return (*(const IDType*)a > *(const IDType*)b);
     }
     case Type::INT:
     {
-        return (*(IntType*)a > *(IntType*)b);
+        return (*(const IntType*)a > *(const IntType*)b);
     }
     case Type::FLOAT:
     {
-        return (*(FloatType*)a > *(FloatType*)b);
+        return (*(const FloatType*)a > *(const FloatType*)b);
     }
     case Type::DATE:
     {
-        return (*(DateType*)a > *(DateType*)b);
+        return (*(const DateType*)a > *(const DateType*)b);
     }
     case Type::VARCHAR:
     {
-        return (*(VarcharType*)a > *(VarcharType*)b);
+        return (*(const VarcharType*)a > *(const VarcharType*)b);
     }
     }
     return false;
 }
 
-bool smaller(void* a, void* b, int type)
+bool smaller(const void* a, const void* b, int type)
 {
     switch(type)
     {
     case Type::PRIMARYKEY:
     {
-        return (*(PrimKey*)a < *(PrimKey*)b);
+        return (*(const PrimKey*)a < *(const PrimKey*)b);
     }
     case Type::_ID:
     {
-        return (*(IDType*)a < *(IDType*)b);
+        return (*(const IDType*)a < *(const IDType*)b);
     }
     case Type::INT:
     {
-        return (*(IntType*)a < *(IntType*)b);
+        return (*(const IntType*)a < *(const IntType*)b);
     }
     case Type::FLOAT:
     {
-        return (*(FloatType*)a < *(FloatType*)b);
+        return (*(const FloatType*)a < *(const FloatType*)b);
     }
     case Type::DATE:
     {
-        return (*(DateType*)a < *(DateType*)b);
+        return (*(const DateType*)a < *(const DateType*)b);
     }
     case Type::VARCHAR:
     {
-        return (*(VarcharType*)a < *(VarcharType*)b);
+        return (*(const VarcharType*)a < *(const VarcharType*)b);
     }
     }
     return false;
 }
 
-bool Equal(void* a, void* b, int type)
+bool Equal(const void* a, const void* b, int type)
 {
     switch(type)
     {
     case Type::PRIMARYKEY:
     {
-        return (*(PrimKey*)a == *(PrimKey*)b);
+        return (*(const PrimKey*)a == *(const PrimKey*)b);
     }
     case Type::_ID:
     {
-        return (*(IDType*)a == *(IDType*)b);
+        return (*(const IDType*)a == *(const IDType*)b);
     }
     case Type::INT:
     {
-        return (*(IntType*)a == *(IntType*)b);
+        return (*(const IntType*)a == *(const IntType*)b);
     }
     case Type::FLOAT:
     {
-        return (*(FloatType*)a == *(FloatType*)b);
+        return (*(const FloatType*)a == *(const FloatType*)b);
     }
     case Type::DATE:
     {
-        return (*(DateType*)a == *(DateType*)b);
+        return (*(const DateType*)a == *(const DateType*)b);
     }
     case Type::VARCHAR:
     {
-        return (*(VarcharType*)a == *(VarcharType*)b);
+        return (*(const VarcharType*)a == *(const VarcharType*)b);
     }
     }
     return false;
 }
 
-bool largerOrEqual(void* a, void* b, int type)
+bool largerOrEqual(const void* a, const void* b, int type)
 {
     return !smaller(a, b, type);
 }
 
-bool smallerOrEqual(void* a, void* b, int type)
+bool smallerOrEqual(const void* a, const void* b, int type)
 {
     return !larger(a, b, type);
 }

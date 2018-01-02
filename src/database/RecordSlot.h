@@ -23,15 +23,15 @@ public:
 
     bool check(SearchInfo& si);
 
-    bool checkValueNotEqual(std::map<int, std::vector<void*> >& info);
+    bool checkValueNotEqual(std::map<int, std::vector<const void*> >& info);
 
-    bool checkValue(std::map<int, void*>& info, int op);
+    bool checkValue(std::map<int, const void*>& info, int op);
 
     bool checkFields(std::map<int, std::vector<int> >& info, int op);
 
     void update(UpdateInfo& ui);
 
-    void assignValue(int idx, void* value);
+    void assignValue(int idx, const void* value);
 
     static void copy(RecordSlot* src, RecordSlot* dest, int length);
 

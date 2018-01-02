@@ -68,7 +68,7 @@ BLANK_CHARS ([ \f\r\t\v]+)
 {IDENTIFIER}    	{ yylval.m_string=yytext; return IDENTIFIER; }
 {VALUE_INT}       	{ yylval.m_int=atoi(yytext); return VALUE_INT; }
 {VALUE_FLOAT}       	{ yylval.m_float=atof(yytext); return VALUE_FLOAT; }
-{VALUE_STRING}    	{ yylval.m_string=yytext; yylval.m_string=replace_all(yylval.m_string, "\\'", "'"); yylval.m_string=replace_all(yylval.m_string, "\\\"", "\""); return VALUE_STRING; }
+{VALUE_STRING}    	{ yylval.m_string=yytext; yylval.m_string=replace_all(yylval.m_string, "\\'", "'"); yylval.m_string=replace_all(yylval.m_string, "\\\"", "\""); yylval.m_string=yylval.m_string.substr(1, yylval.m_string.size()-2); return VALUE_STRING; }
 {BLANK_CHARS}   	{}
 %%
 

@@ -1059,7 +1059,7 @@ case 41:
 /* rule 41 can match eol */
 YY_RULE_SETUP
 #line 71 "lexer.l"
-{ yylval.m_string=yytext; yylval.m_string=replace_all(yylval.m_string, "\\'", "'"); yylval.m_string=replace_all(yylval.m_string, "\\\"", "\""); return VALUE_STRING; }
+{ yylval.m_string=yytext; yylval.m_string=replace_all(yylval.m_string, "\\'", "'"); yylval.m_string=replace_all(yylval.m_string, "\\\"", "\""); yylval.m_string=yylval.m_string.substr(1, yylval.m_string.size()-2); return VALUE_STRING; }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP

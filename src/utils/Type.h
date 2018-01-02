@@ -60,21 +60,21 @@ public:
 
 	DataType keys[8192];
 
-	void friend operator << (PrimKey& one, PrimKey& other);
+	void friend operator << (PrimKey& one, PrimKey const& other);
 
-	bool friend operator < (PrimKey& one, PrimKey& other);
+	bool friend operator < (PrimKey const& one, PrimKey const& other);
 
-	bool friend operator > (PrimKey& one, PrimKey& other);
+	bool friend operator > (PrimKey const& one, PrimKey const& other);
 
-	bool friend operator <= (PrimKey& one, PrimKey& other);
+	bool friend operator <= (PrimKey const& one, PrimKey const& other);
 
-	bool friend operator >= (PrimKey& one, PrimKey& other);
+	bool friend operator >= (PrimKey const& one, PrimKey const& other);
 
-	bool friend operator == (PrimKey& one, PrimKey& other);
+	bool friend operator == (PrimKey const& one, PrimKey const& other);
 
-	bool friend operator != (PrimKey& one, PrimKey& other);
+	bool friend operator != (PrimKey const& one, PrimKey const& other);
 
-	friend std::ostream& operator << (std::ostream& out, PrimKey& one);
+	friend std::ostream& operator << (std::ostream& out, PrimKey const& one);
 
 };
 
@@ -84,21 +84,21 @@ class VarcharType: public DataType
 public:
 	char v[8192];
 
-	void friend operator << (VarcharType& one, VarcharType& other);
+	void friend operator << (VarcharType& one, VarcharType const& other);
 
-	bool friend operator < (VarcharType& one, VarcharType& other);
+	bool friend operator < (VarcharType const& one, VarcharType const& other);
 
-	bool friend operator > (VarcharType& one, VarcharType& other);
+	bool friend operator > (VarcharType const& one, VarcharType const& other);
 
-	bool friend operator <= (VarcharType& one, VarcharType& other);
+	bool friend operator <= (VarcharType const& one, VarcharType const& other);
 
-	bool friend operator >= (VarcharType& one, VarcharType& other);
+	bool friend operator >= (VarcharType const& one, VarcharType const& other);
 
-	bool friend operator == (VarcharType& one, VarcharType& other);
+	bool friend operator == (VarcharType const& one, VarcharType const& other);
 
-	bool friend operator != (VarcharType& one, VarcharType& other);
+	bool friend operator != (VarcharType const& one, VarcharType const& other);
 
-	friend std::ostream& operator << (std::ostream& out, VarcharType& one);
+	friend std::ostream& operator << (std::ostream& out, VarcharType const& one);
 
 };
 
@@ -108,21 +108,21 @@ class DateType: public DataType
 public:
 	char v[8];
 
-	void friend operator << (DateType& one, DateType& other);
+	void friend operator << (DateType& one, DateType const& other);
 
-	bool friend operator < (DateType& one, DateType& other);
+	bool friend operator < (DateType const& one, DateType const& other);
 
-	bool friend operator > (DateType& one, DateType& other);
+	bool friend operator > (DateType const& one, DateType const& other);
 
-	bool friend operator <= (DateType& one, DateType& other);
+	bool friend operator <= (DateType const& one, DateType const& other);
 
-	bool friend operator >= (DateType& one, DateType& other);
+	bool friend operator >= (DateType const& one, DateType const& other);
 
-	bool friend operator == (DateType& one, DateType& other);
+	bool friend operator == (DateType const& one, DateType const& other);
 
-	bool friend operator != (DateType& one, DateType& other);
+	bool friend operator != (DateType const& one, DateType const& other);
 
-	friend std::ostream& operator << (std::ostream& out, DateType& one);
+	friend std::ostream& operator << (std::ostream& out, DateType const& one);
 
 };
 
@@ -132,21 +132,21 @@ class FloatType: public DataType
 public:
 	float v;
 
-	void friend operator << (FloatType& one, FloatType& other);
+	void friend operator << (FloatType& one, FloatType const& other);
 
-	bool friend operator < (FloatType& one, FloatType& other);
+	bool friend operator < (FloatType const& one, FloatType const& other);
 
-	bool friend operator > (FloatType& one, FloatType& other);
+	bool friend operator > (FloatType const& one, FloatType const& other);
 
-	bool friend operator <= (FloatType& one, FloatType& other);
+	bool friend operator <= (FloatType const& one, FloatType const& other);
 
-	bool friend operator >= (FloatType& one, FloatType& other);
+	bool friend operator >= (FloatType const& one, FloatType const& other);
 
-	bool friend operator == (FloatType& one, FloatType& other);
+	bool friend operator == (FloatType const& one, FloatType const& other);
 
-	bool friend operator != (FloatType& one, FloatType& other);
+	bool friend operator != (FloatType const& one, FloatType const& other);
 
-	friend std::ostream& operator << (std::ostream& out, FloatType& one);
+	friend std::ostream& operator << (std::ostream& out, FloatType const& one);
 
 };
 
@@ -156,21 +156,21 @@ class IntType: public DataType
 public:
 	int v;
 
-	void friend operator << (IntType& one, IntType& other);
+	void friend operator << (IntType& one, IntType const& other);
 
-	bool friend operator < (IntType& one, IntType& other);
+	bool friend operator < (IntType const& one, IntType const& other);
 
-	bool friend operator > (IntType& one, IntType& other);
+	bool friend operator > (IntType const& one, IntType const& other);
 
-	bool friend operator <= (IntType& one, IntType& other);
+	bool friend operator <= (IntType const& one, IntType const& other);
 
-	bool friend operator >= (IntType& one, IntType& other);
+	bool friend operator >= (IntType const& one, IntType const& other);
 
-	bool friend operator == (IntType& one, IntType& other);
+	bool friend operator == (IntType const& one, IntType const& other);
 
-	bool friend operator != (IntType& one, IntType& other);
+	bool friend operator != (IntType const& one, IntType const& other);
 
-	friend std::ostream& operator << (std::ostream& out, IntType& one);
+	friend std::ostream& operator << (std::ostream& out, IntType const& one);
 
 };
 
@@ -183,21 +183,21 @@ public:
 	unsigned short pid;
 	unsigned short rd;
 
-	void friend operator << (IDType& one, IDType& other);
+	void friend operator << (IDType& one, IDType const& other);
 
-	bool friend operator < (IDType& one, IDType& other);
+	bool friend operator < (IDType const& one, IDType const& other);
 
-	bool friend operator > (IDType& one, IDType& other);
+	bool friend operator > (IDType const& one, IDType const& other);
 
-	bool friend operator <= (IDType& one, IDType& other);
+	bool friend operator <= (IDType const& one, IDType const& other);
 
-	bool friend operator >= (IDType& one, IDType& other);
+	bool friend operator >= (IDType const& one, IDType const& other);
 
-	bool friend operator == (IDType& one, IDType& other);
+	bool friend operator == (IDType const& one, IDType const& other);
 
-	bool friend operator != (IDType& one, IDType& other);
+	bool friend operator != (IDType const& one, IDType const& other);
 
-	friend std::ostream& operator << (std::ostream& out, IDType& one);
+	friend std::ostream& operator << (std::ostream& out, IDType const& one);
 };
 
 #endif // TYPE_H_INCLUDED

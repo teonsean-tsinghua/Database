@@ -47,9 +47,9 @@ bool RecordSlot::checkNull(std::map<int, bool>& nulls)
     return true;
 }
 
-bool RecordSlot::checkValue(std::map<int, void*>& info, int op)
+bool RecordSlot::checkValue(std::map<int, const void*>& info, int op)
 {
-    std::map<int, void*>::iterator iter;
+    std::map<int, const void*>::iterator iter;
     for(iter = info.begin(); iter != info.end(); iter++)
     {
         int idx = iter->first;
@@ -171,9 +171,9 @@ bool RecordSlot::checkValue(std::map<int, void*>& info, int op)
     return true;
 }
 
-bool RecordSlot::checkValueNotEqual(std::map<int, std::vector<void*> >& info)
+bool RecordSlot::checkValueNotEqual(std::map<int, std::vector<const void*> >& info)
 {
-    std::map<int, vector<void*> >::iterator iter;
+    std::map<int, vector<const void*> >::iterator iter;
     for(iter = info.begin(); iter != info.end(); iter++)
     {
         int idx = iter->first;
@@ -182,7 +182,7 @@ bool RecordSlot::checkValueNotEqual(std::map<int, std::vector<void*> >& info)
         {
             return true;
         }
-        std::vector<void*>& vecs = iter->second;
+        std::vector<const void*>& vecs = iter->second;
         for(int i = 0; i < vecs.size(); i++)
         {
             if(memcmp((*this)[offset + actual_data_offset], vecs[i], ri->length(idx)) == 0)
@@ -382,7 +382,7 @@ void RecordSlot::copy(RecordSlot* src, RecordSlot* dest, int length)
     copyData(src->cache, dest->cache, length);
 }
 
-void RecordSlot::assignValue(int idx, void* value)
+void RecordSlot::assignValue(int idx, const void* value)
 {
     if(value == NULL)
     {
@@ -390,7 +390,7 @@ void RecordSlot::assignValue(int idx, void* value)
         return;
     }
     writeBool((*this)[idx], false);
-    copyData((char*)value, (*this)[actual_data_offset + ri->offset(idx)], ri->length(idx));
+    copyData((const char*)value, (*this)[actual_data_offset + ri->offset(idx)], ri->length(idx));
 }
 
 void RecordSlot::update(UpdateInfo& ui)
@@ -403,7 +403,7 @@ void RecordSlot::update(UpdateInfo& ui)
         {
         case 1:
         {
-            void* value;
+            const void* value;
             switch(action.value.type)
             {
             case 0:
@@ -413,7 +413,10 @@ void RecordSlot::update(UpdateInfo& ui)
                 value = &action.value.v_int;
                 break;
             case 2:
-                value = &action.value.v_str;
+                value = action.value.v_str.c_str();
+                break;
+            case 3:
+                value = &action.value.v_float;
                 break;
             }
             assignValue(idx, value);

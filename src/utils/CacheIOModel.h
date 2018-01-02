@@ -7,26 +7,26 @@
 #include<unistd.h>
 #include<cstdio>
 
-int readInt(char* cache);
+int readInt(const char* cache);
 
 void writeInt(char* cache, int n);
 
 void writeFloat(char* cache, float f);
 
-float readFloat(char* cache);
+float readFloat(const char* cache);
 
-std::string readString(char* cache, int len);
+std::string readString(const char* cache, int len);
 
 void writeString(char* cache, std::string& str, int len);
 
-bool readBool(char* cache);
+bool readBool(const char* cache);
 
 void writeBool(char* cache, bool b);
 
-void copyData(char* src, char* dest, int len);
+void copyData(const char* src, char* dest, int len);
 
 void write_id(char* cache);
 
-std::string read_id(char* cache);
+std::string read_id(const char* cache);
 
 #endif // CACHEIOMODEL_H_INCLUDED
